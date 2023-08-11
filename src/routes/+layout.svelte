@@ -5,6 +5,7 @@
 		</li>
 		<li>
 			<a href="/characters">Characters</a>
+			<a href="/boss-kills">Latest</a>
 		</li>
 	</ul>
 </nav>
