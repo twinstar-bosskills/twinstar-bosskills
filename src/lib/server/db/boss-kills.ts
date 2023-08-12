@@ -16,7 +16,7 @@ export type BossKill = {
 	instanceId: number;
 };
 
-const BOSSKILLS: BossKill[] = [
+const BOSS_KILLS: BossKill[] = [
 	{
 		id: 1,
 		entry: 62543,
@@ -33,7 +33,7 @@ const BOSSKILLS: BossKill[] = [
 	}
 ];
 
-export const getLatestBosskills = async (): Promise<BossKill[]> => {
+export const getLatestBossKills = async (): Promise<BossKill[]> => {
 	try {
 		const c = await mysql.createConnection(BOSSKILLS_DATABASE_URL);
 		const [rows] = await c.query(
@@ -44,10 +44,10 @@ export const getLatestBosskills = async (): Promise<BossKill[]> => {
 		console.error(e);
 	}
 
-	return BOSSKILLS;
+	return BOSS_KILLS;
 };
 
-export const getBosskill = async (id: number) => {
+export const getBossKill = async (id: number): Promise<BossKill | null> => {
 	try {
 		const c = await mysql.createConnection(BOSSKILLS_DATABASE_URL);
 		const [rows] = await c.query('SELECT * FROM boss_kills WHERE id = ? AND hidden = 0', id);
@@ -56,5 +56,26 @@ export const getBosskill = async (id: number) => {
 		console.error(e);
 	}
 
-	return BOSSKILLS.find((c) => c.id === id);
+	return BOSS_KILLS.find((c) => c.id === id) ?? null;
+};
+
+type BossKillLoot = {
+	/**
+	 * boss_kill id
+	 */
+	id: number;
+	itemId: number;
+	count: number;
+};
+
+export const getBossKillLoot = async (id: number): Promise<BossKillLoot[]> => {
+	try {
+		const c = await mysql.createConnection(BOSSKILLS_DATABASE_URL);
+		const [rows] = await c.query('SELECT * FROM boss_kills_loot WHERE id = ?', id);
+		return rows;
+	} catch (e) {
+		console.error(e);
+	}
+	// https://twinstar-api.twinstar-wow.com/item
+	return [];
 };

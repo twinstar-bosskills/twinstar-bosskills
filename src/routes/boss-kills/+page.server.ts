@@ -3,6 +3,6 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
 	return {
-		latest: await db.getLatestBosskills()
+		latest: await db.getLatestBossKills()
 	};
 };
