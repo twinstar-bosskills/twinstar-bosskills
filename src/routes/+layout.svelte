@@ -4,8 +4,9 @@
 			<a href="/">Home</a>
 		</li>
 		<li>
-			<a href="/characters">Characters</a>
 			<a href="/boss-kills">Latest</a>
+			<a href="/characters">Characters</a>
+			<a href="/bosses">Bosses</a>
 		</li>
 	</ul>
 </nav>

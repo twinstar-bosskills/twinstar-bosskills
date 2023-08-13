@@ -1,10 +1,12 @@
 import { CHARACTERS_DATABASE_URL } from '$env/static/private';
 import mysql from 'mysql2/promise';
+import { withCache } from '../cache';
 
 export type Character = {
 	guid: number;
 	name: string;
 };
+export type CharacterByGUID = Record<Character['guid'], Character>;
 
 const CHARACTERS = [
 	{ guid: 1, name: 'dummy character 1' },
@@ -23,14 +25,42 @@ export const getCharacters = async (): Promise<Character[]> => {
 	return CHARACTERS;
 };
 
-export const getCharacter = async (guid: number) => {
-	try {
-		const c = await mysql.createConnection(CHARACTERS_DATABASE_URL);
-		const [rows] = await c.query('SELECT * FROM characters WHERE guid = ?', guid);
-		return rows?.[0];
-	} catch (e) {
-		console.error(e);
-	}
+export const findCharactersByGUIDs = async (guids: number[]): Promise<Character[]> => {
+	const fallback = async () => {
+		if (guids.length === 0) {
+			return [];
+		}
 
-	return CHARACTERS.find((c) => c.guid === guid);
+		try {
+			const c = await mysql.createConnection(CHARACTERS_DATABASE_URL);
+			const [rows] = await c.query('SELECT * FROM characters WHERE guid IN (?)', guids);
+			return rows;
+		} catch (e) {
+			console.error(e);
+		}
+
+		return [];
+	};
+	return withCache({
+		deps: [`characters-by-guids`, guids],
+		fallback
+	});
+};
+
+export const getCharacter = async (guid: number) => {
+	const fallback = async () => {
+		try {
+			const c = await mysql.createConnection(CHARACTERS_DATABASE_URL);
+			const [rows] = await c.query('SELECT * FROM characters WHERE guid = ?', guid);
+			return rows?.[0];
+		} catch (e) {
+			console.error(e);
+		}
+
+		return CHARACTERS.find((c) => c.guid === guid);
+	};
+	return withCache({
+		deps: [`character`, guid],
+		fallback
+	});
 };
