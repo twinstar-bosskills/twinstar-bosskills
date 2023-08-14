@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { quality } from '$lib/css-vars';
-	import type { Item } from '$lib/server/db';
+	import { formatLocalized, formatSecondsInterval } from '$lib/date';
+	import type { Item } from '$lib/model';
+	import { formatNumber } from '$lib/number';
+
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -12,6 +15,14 @@
 	function hideTooltip(id: number) {
 		showTooltipById[id] = false;
 	}
+
+	function vps(value: number | string, seconds: number): string {
+		const v = Number(value);
+		if (isNaN(v) === false && isFinite(v)) {
+			return formatNumber(seconds > 0 ? Math.round((1000 * v) / seconds) : 0);
+		}
+		return '0';
+	}
 </script>
 
 <h1>Boss Kill {data.bosskill.id}</h1>
@@ -19,19 +30,32 @@
 	<div>
 		<dl>
 			<dt>Boss</dt>
-			<dd>{data.bosskill.entry}</dd>
+			<dd>
+				<a href="https://mop-twinhead.twinstar.cz/?npc={data.bosskill.entry}">
+					{data.bosskill.entry}
+				</a>
+			</dd>
 
 			<dt>Raid</dt>
 			<dd>{data.bosskill.map}</dd>
 
 			<dt>Guild</dt>
-			<dd>{data.bosskill.guild}</dd>
+			<dd>
+				<a
+					href="https://mop-twinhead.twinstar.cz/?guild={encodeURIComponent(
+						data.bosskill.guild
+					)}&realm={data.bosskill.realm}"
+				>
+					{data.bosskill.guild}
+				</a>
+			</dd>
 
 			<dt>Realm</dt>
 			<dd>{data.bosskill.realm}</dd>
 
 			<dt>Killed at</dt>
-			<dd>{data.bosskill.time}</dd>
+
+			<dd>{formatLocalized(data.bosskill.time)}</dd>
 
 			<dt>Wipes</dt>
 			<dd>{data.bosskill.wipes}</dd>
@@ -40,7 +64,7 @@
 			<dd>{data.bosskill.deaths}</dd>
 
 			<dt>Fight Length</dt>
-			<dd>{data.bosskill.length}</dd>
+			<dd>{formatSecondsInterval(data.bosskill.length)}</dd>
 
 			<dt>Ressurects</dt>
 			<dd>{data.bosskill.ressUsed}</dd>
@@ -82,7 +106,67 @@
 <div>TODO</div>
 
 <h2>Stats</h2>
-<div>TODO</div>
+<div>
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Class</th>
+				<th>DPS</th>
+				<th>Dmg Done</th>
+				<th>Dmg Taken</th>
+				<th>Dmg Absorb</th>
+				<th>HPS</th>
+				<th>Healing Done</th>
+				<th>Absorb Done</th>
+				<th>Overheal</th>
+				<th>Heal Taken</th>
+				<th>I</th>
+				<th>D</th>
+				<th>Avg iLvl</th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each data.bosskill.boss_kills_players as player}
+				<tr class="player">
+					<td>{player.name}</td>
+					<td>
+						<img
+							class="icon"
+							src={player.classIconUrl}
+							title={player.classString}
+							alt="Icon for class {player.classString}"
+						/>
+						<img
+							class="icon"
+							src={player.talentSpecIconUrl}
+							title={`Talent spec ${player.talent_spec}`}
+							alt="Icon for talent spec {player.talent_spec}"
+						/>
+						<img
+							class="icon"
+							src={player.raceIconUrl}
+							title={player.raceString}
+							alt="Icon for race {player.raceString}"
+						/>
+					</td>
+					<td>{vps(player.dmgDone, data.bosskill.length)}</td>
+					<td>{formatNumber(player.dmgDone)}</td>
+					<td>{formatNumber(player.dmgTaken)}</td>
+					<td>{formatNumber(player.dmgAbsorbed)}</td>
+					<td>{vps(player.healingDone, data.bosskill.length)}</td>
+					<td>{formatNumber(player.healingDone)}</td>
+					<td>{formatNumber(player.absorbDone)}</td>
+					<td>{formatNumber(player.overhealingDone)}</td>
+					<td>{formatNumber(player.healingTaken)}</td>
+					<td>{player.interrupts}</td>
+					<td>{player.dispels}</td>
+					<td>{player.avg_item_lvl}</td>
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+</div>
 
 <style>
 	.grid {
@@ -101,5 +185,10 @@
 	.tooltip {
 		position: absolute;
 		background: white;
+	}
+
+	.player td img {
+		width: 24px;
+		height: 24px;
 	}
 </style>

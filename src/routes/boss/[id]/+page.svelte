@@ -1,11 +1,11 @@
 <script lang="ts">
+	import { formatNumber } from '$lib/number';
 	import { STATS_TYPE_DMG } from '$lib/stats-type';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
 	const title = `Boss ${data.boss.name}`;
-	const fmt = new Intl.NumberFormat();
 </script>
 
 <svelte:head>
@@ -29,12 +29,10 @@
 						{#each stat.value as item}
 							<tr>
 								<td>
-									<a href="/character/{item.guid}">
-										{data.charactersByGUID[item.guid]?.name ?? 'Unknown'}
-									</a>
+									Player {item.guid}
 								</td>
 								<td>{item.talentSpec}</td>
-								<td>{fmt.format(item.amount)}</td>
+								<td>{formatNumber(item.amount)}</td>
 							</tr>
 						{/each}
 					</tbody>

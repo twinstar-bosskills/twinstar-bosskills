@@ -1,34 +1,44 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+	import { formatLocalized, formatSecondsInterval } from '$lib/date';
+	import { getPageFromURL, getPageSizeFromURL } from '$lib/paginations';
+	import Pagination from '../../components/Pagination.svelte';
 	import type { PageData } from './$types';
+
+	let pageSize = getPageSizeFromURL($page.url);
+	let page_ = getPageFromURL($page.url);
 
 	export let data: PageData;
 </script>
 
-<h1>Latest bosskills</h1>
+<h1>Latest Bosskills</h1>
 <div>
 	<table>
 		<thead>
 			<tr>
-				<th>id</th>
-				<th>boss</th>
-				<th>map</th>
-				<th>mode</th>
-				<th>guild</th>
-				<th>details</th>
+				<th>Boss</th>
+				<th>Raid</th>
+				<th>Difficulty</th>
+				<th>Guild</th>
+				<th>Fight Length</th>
+				<th>Killed</th>
+				<th>Details</th>
 			</tr>
 		</thead>
 		<tbody>
-			{#each data.latest as bosskill}
+			{#each data.latest.data as bosskill}
 				<tr>
-					<td>{bosskill.id}</td>
 					<td>
-						<a href="https://mop-twinhead.twinstar.cz/?npc={bosskill.entry}">
-							boss {bosskill.entry}
+						<a href="/boss/{bosskill.entry}">
+							{bosskill.creature_name}
 						</a>
 					</td>
 					<td>{bosskill.map}</td>
-					<td>{bosskill.mode}</td>
-					<td>{bosskill.guild}</td>
+					<td>{bosskill.difficulty}</td>
+					<td>{bosskill.guild == '' ? `Mixed group <${bosskill.realm}>` : bosskill.guild}</td>
+					<td>{formatSecondsInterval(bosskill.length)}</td>
+					<td>{formatLocalized(bosskill.time)}</td>
+
 					<td>
 						<a href="/boss-kills/{bosskill.id}">Detail</a>
 						<a href="https://mop-twinhead.twinstar.cz/?boss-kill={bosskill.id}">Twinhead</a>
@@ -36,5 +46,18 @@
 				</tr>
 			{/each}
 		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="7">
+					<Pagination page={page_} {pageSize} totalItems={data.latest.total} />
+				</td>
+			</tr>
+		</tfoot>
 	</table>
 </div>
+
+<style>
+	table {
+		width: 100%;
+	}
+</style>

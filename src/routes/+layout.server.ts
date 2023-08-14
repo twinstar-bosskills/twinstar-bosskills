@@ -1,1 +1,2 @@
-export const prerender = true;
+// TODO: enable when ready for deploy
+export const prerender = false;

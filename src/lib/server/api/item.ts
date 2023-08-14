@@ -1,4 +1,8 @@
-const ITEM = {
+import { TWINSTAR_API_URL } from '$env/static/private';
+import type { Item, ItemTooltip } from '$lib/model';
+import { withCache } from '../cache';
+
+const API_ITEM = {
 	item: {
 		ID: 86166,
 		Class: 4,
@@ -147,28 +151,24 @@ const ITEM = {
 	}
 };
 
-export type Item = {
-	id: number;
-	name: string;
-	iconUrl: string | null;
-	quality: number;
-};
-
 export const getItem = async (id: number): Promise<Item | null> => {
-	try {
-		const r = await fetch(`https://twinstar-api.twinstar-wow.com/item/${id}`);
-		const item: typeof ITEM = await r.json();
-		return {
-			id: item.item.ID,
-			name: item.itemSparse.Name,
-			iconUrl: await getIconUrl(id),
-			quality: item.itemSparse.Quality
-		};
-	} catch (e) {
-		console.error(e);
-	}
+	const fallback = async () => {
+		try {
+			const r = await fetch(`${TWINSTAR_API_URL}/item/${id}`);
+			const item: typeof API_ITEM = await r.json();
+			return {
+				id: item.item.ID,
+				name: item.itemSparse.Name,
+				iconUrl: await getIconUrl(id),
+				quality: item.itemSparse.Quality
+			};
+		} catch (e) {
+			console.error(e);
+		}
 
-	return null;
+		return null;
+	};
+	return withCache({ deps: ['item', id], fallback });
 };
 
 export const getIconUrl = async (id: number): Promise<string | null> => {
@@ -183,20 +183,13 @@ export const getIconUrl = async (id: number): Promise<string | null> => {
 	}
     */
 
-	return `https://twinstar-api.twinstar-wow.com/item/icon/${id}`;
+	return `${TWINSTAR_API_URL}/item/icon/${id}`;
 };
 
-export type ItemTooltip = {
-	quality: string;
-	icon: string;
-	/**
-	 * HTML string
-	 */
-	tooltip: string;
-};
 export const getItemTooltip = async (id: number): Promise<ItemTooltip | null> => {
 	try {
-		const r = await fetch(`https://mop-twinhead.twinstar.cz/?tooltip&type=item&id=${id}`);
+		// const r = await fetch(`https://mop-twinhead.twinstar.cz/?tooltip&type=item&id=${id}`);
+		const r = await fetch(`${TWINSTAR_API_URL}/item/tooltip?id=${id}&expansion=4`);
 		const json = await r.json();
 		return json?.['data'] ?? null;
 	} catch (e) {

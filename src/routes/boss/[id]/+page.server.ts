@@ -1,4 +1,3 @@
-import type { CharacterByGUID } from '$lib/server/db';
 import * as db from '$lib/server/db';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
@@ -22,18 +21,11 @@ export const load: PageServerLoad = async ({ params }) => {
 		guids[item.guid] = item.guid;
 	}
 
-	const characters = await db.findCharactersByGUIDs(Object.values(guids));
-	const charactersByGUID = characters.reduce((acc, c) => {
-		acc[c.guid] = c;
-		return acc;
-	}, {} as CharacterByGUID);
-
 	return {
 		boss,
 		stats: [
 			{ type: STATS_TYPE_DMG, value: dmg },
 			{ type: STATS_TYPE_HEAL, value: heal }
-		],
-		charactersByGUID
+		]
 	};
 };

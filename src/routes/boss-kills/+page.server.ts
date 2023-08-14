@@ -1,8 +1,16 @@
-import * as db from '$lib/server/db';
+import { getPageFromURL, getPageSizeFromURL } from '$lib/paginations';
+import * as api from '$lib/server/api';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ url }) => {
+	const page = getPageFromURL(url);
+	const pageSize = getPageSizeFromURL(url);
+
+	const latest = await api.getLatestBossKills({
+		page,
+		pageSize
+	});
 	return {
-		latest: await db.getLatestBossKills()
+		latest
 	};
 };

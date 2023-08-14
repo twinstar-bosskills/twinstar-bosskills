@@ -5,7 +5,6 @@
 		</li>
 		<li>
 			<a href="/boss-kills">Latest</a>
-			<a href="/characters">Characters</a>
 			<a href="/bosses">Bosses</a>
 		</li>
 	</ul>
@@ -33,19 +32,31 @@
 		--color-r1: #ff8040 !important;
 		--color-r2: #ff0 !important;
 		--color-r3: #40bf40 !important;
+
 		--color-r4: #808080 !important;
 	}
 
-	nav ul {
+	:global(ul, ol) {
 		margin: 0;
 		padding: 0;
-		display: flex;
 	}
-	nav ul li {
+
+	:global(li) {
 		margin: 0;
-		margin-right: 0.5rem;
 		padding: 0;
 		text-indent: 0;
 		list-style-type: none;
+	}
+
+	:global(body) {
+		padding: 0.5rem;
+	}
+
+	nav ul {
+		display: flex;
+	}
+
+	nav ul li {
+		margin-right: 0.5rem;
 	}
 </style>

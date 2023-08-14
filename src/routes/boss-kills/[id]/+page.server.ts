@@ -1,33 +1,33 @@
-import type { Item, ItemTooltip } from '$lib/server/db';
-import * as db from '$lib/server/db';
+import type { Item, ItemTooltip } from '$lib/model';
+import * as api from '$lib/server/api';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
-	const id = Number(params.id);
-	const bosskill = await db.getBossKill(id);
+	const id = params.id;
+
+	const bosskill = await api.getBossKillDetail(id);
 	if (!bosskill) {
 		throw error(404, {
 			message: 'Not found'
 		});
 	}
 
-	const loot = await db.getBossKillLoot(id);
-
+	const loot = bosskill.boss_kills_loot;
 	const queue = [];
 	const items: Item[] = [];
 	const tooltips: Record<Item['id'], ItemTooltip> = [];
 	for (const lootItem of loot) {
-		const { itemId } = lootItem;
+		const itemId = Number(lootItem.itemId);
 		queue.push(
-			db.getItem(itemId).then((item) => {
+			api.getItem(itemId).then((item) => {
 				if (item) {
 					items.push(item);
 				}
 			})
 		);
 		queue.push(
-			db.getItemTooltip(itemId).then((tooltip) => {
+			api.getItemTooltip(itemId).then((tooltip) => {
 				if (tooltip) {
 					tooltips[itemId] = tooltip;
 				}
