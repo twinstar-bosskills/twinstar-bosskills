@@ -1,11 +1,15 @@
+<script>
+	import Link from '../components/Link.svelte';
+</script>
+
 <nav>
 	<ul>
 		<li>
-			<a href="/">Home</a>
+			<Link href="/">Home</Link>
 		</li>
 		<li>
-			<a href="/boss-kills">Latest</a>
-			<a href="/raids">Raids</a>
+			<Link href="/boss-kills">Latest</Link>
+			<Link href="/raids">Raids</Link>
 			<!-- <a href="/bosses">Bosses</a> -->
 		</li>
 	</ul>

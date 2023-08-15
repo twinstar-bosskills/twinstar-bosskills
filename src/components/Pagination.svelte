@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getPage, getPageSize } from '$lib/paginations';
+	import Link from './Link.svelte';
 
 	export let page = 0;
 	export let pageSize = 100;
@@ -22,7 +23,7 @@
 	<ol>
 		{#each options as option}
 			<li>
-				<a href="/boss-kills?page={option.page}">{option.page + 1}</a>
+				<Link href="/boss-kills?page={option.page}">{option.page + 1}</Link>
 			</li>
 		{/each}
 	</ol>

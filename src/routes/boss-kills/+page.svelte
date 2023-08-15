@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/paginations';
+	import Link from '../../components/Link.svelte';
 	import Pagination from '../../components/Pagination.svelte';
 	import type { PageData } from './$types';
 
@@ -29,9 +30,9 @@
 			{#each data.latest.data as bosskill}
 				<tr>
 					<td>
-						<a href="/boss/{bosskill.entry}">
+						<Link href="/boss/{bosskill.entry}">
 							{bosskill.creature_name}
-						</a>
+						</Link>
 					</td>
 					<td>{bosskill.map}</td>
 					<td>{bosskill.difficulty}</td>
@@ -40,7 +41,7 @@
 					<td>{formatLocalized(bosskill.time)}</td>
 
 					<td>
-						<a href="/boss-kills/{bosskill.id}">Detail</a>
+						<Link href="/boss-kills/{bosskill.id}">Detail</Link>
 						<a href="https://mop-twinhead.twinstar.cz/?boss-kill={bosskill.id}">Twinhead</a>
 					</td>
 				</tr>

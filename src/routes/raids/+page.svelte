@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Link from '../../components/Link.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -13,7 +14,7 @@
 				<ul>
 					{#each raid.bosses as boss}
 						<li>
-							<a href="/boss/{boss.entry}">{boss.name}</a>
+							<Link href="/boss/{boss.entry}">{boss.name}</Link>
 						</li>
 					{/each}
 				</ul>
