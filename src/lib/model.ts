@@ -17,6 +17,37 @@ export type BossKill = {
 	difficulty: string;
 };
 
+export type Player = {
+	id: number;
+	guid: number;
+	talent_spec: number;
+	avg_item_lvl: number;
+	dmgDone: string;
+	healingDone: string;
+	overhealingDone: string;
+	absorbDone: string;
+	dmgTaken: string;
+	dmgAbsorbed: string;
+	healingTaken: string;
+	usefullTime: number;
+	dispels: number;
+	interrupts: number;
+	hidden: boolean;
+	name: string;
+	race: number;
+	class: number;
+	gender: number;
+	level: number;
+
+	// extra
+	classString: string;
+	classIconUrl: string;
+
+	raceIconUrl: string;
+	raceString: string;
+
+	talentSpecIconUrl: string;
+};
 export type BossKillDetail = {
 	id: string;
 	map: string;
@@ -46,37 +77,7 @@ export type BossKillDetail = {
 		raidDamage: string;
 		raidHeal: string;
 	}[];
-	boss_kills_players: {
-		id: number;
-		guid: number;
-		talent_spec: number;
-		avg_item_lvl: number;
-		dmgDone: string;
-		healingDone: string;
-		overhealingDone: string;
-		absorbDone: string;
-		dmgTaken: string;
-		dmgAbsorbed: string;
-		healingTaken: string;
-		usefullTime: number;
-		dispels: number;
-		interrupts: number;
-		hidden: boolean;
-		name: string;
-		race: number;
-		class: number;
-		gender: number;
-		level: number;
-
-		// extra
-		classString: string;
-		classIconUrl: string;
-
-		raceIconUrl: string;
-		raceString: string;
-
-		talentSpecIconUrl: string;
-	}[];
+	boss_kills_players: Player[];
 	boss_kills_loot: {
 		id: number;
 		itemId: string;
@@ -103,6 +104,16 @@ export type ItemTooltip = {
 	 * HTML string
 	 */
 	tooltip: string;
+};
+
+export type Boss = {
+	entry: number;
+	name: string;
+};
+
+export type Raid = {
+	map: string;
+	bosses: Boss[];
 };
 
 enum Difficulty {

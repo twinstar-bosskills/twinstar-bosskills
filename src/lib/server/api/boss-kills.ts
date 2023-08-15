@@ -32,8 +32,9 @@ const mutateItem = <T extends BossKillDetail | BossKill>(item: T): T => {
 	return item;
 };
 
+export type BossKillQueryArgs = QueryArgs<keyof BossKill>;
 type BossKillsData = Response<BossKill[]>;
-export const getBossKills = async (q: QueryArgs): Promise<BossKillsData> => {
+export const getBossKills = async (q: BossKillQueryArgs): Promise<BossKillsData> => {
 	try {
 		const r = await fetch(`${TWINSTAR_API_URL}/bosskills?${queryString(q)}`);
 		const json: BossKillsData = await r.json();
@@ -49,7 +50,7 @@ export const getBossKills = async (q: QueryArgs): Promise<BossKillsData> => {
 };
 
 export const getLatestBossKills = async (
-	q: Omit<QueryArgs, 'sorter'> = {}
+	q: Omit<BossKillQueryArgs, 'sorter'> = {}
 ): Promise<BossKillsData> => {
 	return getBossKills({
 		...q,

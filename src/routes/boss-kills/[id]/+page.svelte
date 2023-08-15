@@ -23,6 +23,78 @@
 		}
 		return '0';
 	}
+
+	import { format, precisionFixed } from 'd3-format';
+	import { scaleOrdinal } from 'd3-scale';
+	import { Html, LayerCake, ScaledSvg, flatten } from 'layercake';
+
+	import AxisX from '../../../components/chart/multiline/AxisX.html.svelte';
+	import AxisY from '../../../components/chart/multiline/AxisY.html.svelte';
+	import GroupLabels from '../../../components/chart/multiline/GroupLabels.html.svelte';
+	import MultiLine from '../../../components/chart/multiline/MultiLine.svelte';
+	import SharedTooltip from '../../../components/chart/multiline/SharedTooltip.percent-range.html.svelte';
+
+	const timeline = data.bosskill.boss_kills_maps;
+	const timelineLength = timeline.length;
+	const ticksGap = Math.ceil(timelineLength / 20);
+
+	type TimelineItem = (typeof data.bosskill.boss_kills_maps)[0];
+	type SeriesKey = keyof TimelineItem;
+	type Series = {
+		key: SeriesKey;
+		label: string;
+		color: string;
+	}[];
+	const xKey: SeriesKey = 'time';
+	const yKey = 'value';
+	const zKey = 'metric';
+	const seriesNames: Series = [
+		{
+			key: 'encounterHeal',
+			label: 'Enemy Healing',
+			color: 'lightblue'
+		},
+		{
+			key: 'encounterDamage',
+			label: 'Enemy Damage',
+			color: 'red'
+		},
+		{
+			key: 'raidDamage',
+			label: 'Raid Damage',
+			color: 'gold'
+		},
+		{
+			key: 'raidHeal',
+			label: 'Raid Healing',
+			color: 'green'
+		}
+	];
+	const seriesColors = seriesNames.map((s) => s.color);
+	const dataLong = seriesNames.map(({ key, label }) => {
+		return {
+			[zKey]: label,
+			values: timeline.map((d) => {
+				return {
+					[yKey]: +d[key],
+					[xKey]: d[xKey],
+					[zKey]: key
+				};
+			})
+		};
+	});
+	type DataLong = typeof dataLong;
+	const formatTickX = (v: TimelineItem[typeof xKey], i: number) => {
+		// TODO: fix multiple ticks at the end
+		if (i === 0 || i % ticksGap === 0 || i === timelineLength - 1) {
+			return `${v}s`;
+		}
+
+		return '';
+	};
+	const formatTickY = (d: DataLong[0]['values'][0][typeof yKey]) => {
+		return format(`.${precisionFixed(d)}s`)(d);
+	};
 </script>
 
 <h1>Boss Kill {data.bosskill.id}</h1>
@@ -103,7 +175,56 @@
 </div>
 
 <h2>Fight timeline</h2>
-<div>TODO</div>
+<div>
+	<style>
+		/*
+		  The wrapper div needs to have an explicit width and height in CSS.
+		  It can also be a flexbox child or CSS grid element.
+		  The point being it needs dimensions since the <LayerCake> element will
+		  expand to fill it.
+		*/
+		.chart-container {
+			width: 100%;
+			height: 250px;
+		}
+	</style>
+
+	<div class="chart-container">
+		<LayerCake
+			ssr={true}
+			percentRange={true}
+			padding={{ top: 7, right: 10, bottom: 20, left: 25 }}
+			x={xKey}
+			y={yKey}
+			z={zKey}
+			zScale={scaleOrdinal()}
+			zRange={seriesColors}
+			flatData={flatten(dataLong, 'values')}
+			yDomain={[0, null]}
+			data={dataLong}
+		>
+			<Html>
+				<AxisX
+					gridlines={false}
+					ticks={timeline.map((d) => d[xKey]).sort((a, b) => a - b)}
+					formatTick={formatTickX}
+					snapTicks={true}
+					tickMarks={true}
+				/>
+				<AxisY baseline={true} formatTick={formatTickY} />
+			</Html>
+
+			<ScaledSvg>
+				<MultiLine />
+			</ScaledSvg>
+
+			<Html>
+				<GroupLabels />
+				<SharedTooltip offset={0} dataset={timeline} />
+			</Html>
+		</LayerCake>
+	</div>
+</div>
 
 <h2>Stats</h2>
 <div>

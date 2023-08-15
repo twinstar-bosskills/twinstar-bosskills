@@ -8,7 +8,7 @@
 <ul>
 	{#each data.bosses as boss}
 		<li>
-			<a href="/boss/{boss.id}">{boss.name}</a>
+			<a href="/boss/{boss.entry}">{boss.name}</a>
 		</li>
 	{/each}
 </ul>

@@ -1,7 +1,7 @@
 import { REALM_HELIOS } from '../realm';
 
-export interface Sorter {
-	column: string;
+export interface Sorter<TColumn = string> {
+	column: TColumn;
 	order: 'asc' | 'desc';
 }
 
@@ -11,18 +11,18 @@ export enum FilterOperator {
 	IN = 'in'
 }
 
-export interface Filter {
-	column: string;
+export interface Filter<TColumn = string> {
+	column: TColumn;
 	value: any;
 	operator: FilterOperator;
 }
 
-export type QueryArgs = {
+export type QueryArgs<TColumn = string> = {
 	realm?: string;
 	page?: number;
 	pageSize?: number;
-	filters?: Filter[];
-	sorter?: Sorter;
+	filters?: Filter<TColumn>[];
+	sorter?: Sorter<TColumn>;
 };
 
 export const queryString = ({

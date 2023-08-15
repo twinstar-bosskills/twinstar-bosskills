@@ -12,11 +12,12 @@
 	<title>{title}</title>
 </svelte:head>
 <h1>{title}</h1>
+<h2>Top stats by spec (last 100 kills)</h2>
 <div class="grid" style="--stats-length: {data.stats.length}">
 	{#each data.stats as stat}
 		<div>
 			{#if stat.value.length > 0}
-				<h2>{stat.type === STATS_TYPE_DMG ? 'Top Dmg done' : 'Top Healing done'}</h2>
+				<h3>{stat.type === STATS_TYPE_DMG ? 'Top Dmg done' : 'Top Healing done'}</h3>
 				<table>
 					<thead>
 						<tr>
@@ -28,10 +29,15 @@
 					<tbody>
 						{#each stat.value as item}
 							<tr>
+								<td>{item.player.name}</td>
 								<td>
-									Player {item.guid}
+									<img
+										style="width: 16px;"
+										src={item.player.talentSpecIconUrl}
+										title={`Talent spec ${item.player.talent_spec}`}
+										alt="Icon for talent spec {item.player.talent_spec}"
+									/>
 								</td>
-								<td>{item.talentSpec}</td>
 								<td>{formatNumber(item.amount)}</td>
 							</tr>
 						{/each}

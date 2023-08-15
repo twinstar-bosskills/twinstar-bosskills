@@ -11,7 +11,6 @@
 	let options: { page: number }[] = [];
 	$: {
 		let totalPages = Math.ceil(totalItems / safePageSize);
-		console.log({ safePage, safePageSize, totalItems, totalPages });
 
 		for (let i = 0; i < totalPages; i++) {
 			options.push({ page: i });

@@ -1,5 +1,5 @@
 const CACHE: Record<string, unknown> = {};
-
+const TIMERS: Record<string, number> = {};
 /**
  * @see https://jameshfisher.com/2017/10/30/web-cryptography-api-hello-world/
  */
@@ -13,13 +13,32 @@ async function sha256(str: string) {
 type Args<T> = {
 	deps: unknown[];
 	fallback: () => Promise<T>;
+	/**
+	 * In seconds
+	 * Default: 300
+	 */
+	expire?: number;
 };
-export const withCache = async <T = unknown>({ deps, fallback }: Args<T>): Promise<T> => {
+
+export const withCache = async <T = unknown>({
+	deps,
+	fallback,
+	expire = 60 * 5
+}: Args<T>): Promise<T> => {
 	const key = await sha256(JSON.stringify(deps));
 	if (typeof CACHE[key] === 'undefined') {
 		// console.log(`cache-miss, key: ${key}`);
+		CACHE[key] = await fallback();
 		try {
-			CACHE[key] = await fallback();
+			if (typeof TIMERS[key] !== 'undefined') {
+				clearTimeout(TIMERS[key]);
+			}
+
+			try {
+				TIMERS[key] = setTimeout(() => {
+					delete CACHE[key];
+				}, 1000 * expire);
+			} catch (e) {}
 		} catch (e) {
 			// ignore
 		}

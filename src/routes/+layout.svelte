@@ -5,7 +5,8 @@
 		</li>
 		<li>
 			<a href="/boss-kills">Latest</a>
-			<a href="/bosses">Bosses</a>
+			<a href="/raids">Raids</a>
+			<!-- <a href="/bosses">Bosses</a> -->
 		</li>
 	</ul>
 </nav>
@@ -34,6 +35,10 @@
 		--color-r3: #40bf40 !important;
 
 		--color-r4: #808080 !important;
+	}
+
+	:global(table) {
+		width: 100%;
 	}
 
 	:global(ul, ol) {
