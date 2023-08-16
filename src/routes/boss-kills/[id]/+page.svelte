@@ -2,6 +2,7 @@
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
 	import type { Item } from '$lib/model';
+	import { isRaidDifficultyWithLoot } from '$lib/model';
 	import { formatNumber } from '$lib/number';
 
 	import type { PageData } from './$types';
@@ -28,12 +29,12 @@
 	import { scaleOrdinal } from 'd3-scale';
 	import { Html, LayerCake, ScaledSvg, flatten } from 'layercake';
 
-	import Icon from '../../../components/Icon.svelte';
-	import AxisX from '../../../components/chart/multiline/AxisX.html.svelte';
-	import AxisY from '../../../components/chart/multiline/AxisY.html.svelte';
-	import GroupLabels from '../../../components/chart/multiline/GroupLabels.html.svelte';
-	import MultiLine from '../../../components/chart/multiline/MultiLine.svelte';
-	import SharedTooltip from '../../../components/chart/multiline/SharedTooltip.percent-range.html.svelte';
+	import Icon from '$lib/components/Icon.svelte';
+	import AxisX from '$lib/components/chart/multiline/AxisX.html.svelte';
+	import AxisY from '$lib/components/chart/multiline/AxisY.html.svelte';
+	import GroupLabels from '$lib/components/chart/multiline/GroupLabels.html.svelte';
+	import MultiLine from '$lib/components/chart/multiline/MultiLine.svelte';
+	import SharedTooltip from '$lib/components/chart/multiline/SharedTooltip.percent-range.html.svelte';
 
 	const timeline = data.bosskill.boss_kills_maps;
 	const timelineLength = timeline.length;
@@ -105,7 +106,7 @@
 			<dt>Boss</dt>
 			<dd>
 				<a href="https://mop-twinhead.twinstar.cz/?npc={data.bosskill.entry}">
-					{data.bosskill.entry}
+					{data.boss.name}
 				</a>
 			</dd>
 
@@ -114,13 +115,17 @@
 
 			<dt>Guild</dt>
 			<dd>
-				<a
-					href="https://mop-twinhead.twinstar.cz/?guild={encodeURIComponent(
-						data.bosskill.guild
-					)}&realm={data.bosskill.realm}"
-				>
-					{data.bosskill.guild}
-				</a>
+				{#if data.bosskill.guild != ''}
+					<a
+						href="https://mop-twinhead.twinstar.cz/?guild={encodeURIComponent(
+							data.bosskill.guild
+						)}&realm={data.bosskill.realm}"
+					>
+						{data.bosskill.guild}
+					</a>
+				{:else}
+					-
+				{/if}
 			</dd>
 
 			<dt>Realm</dt>
@@ -146,32 +151,36 @@
 
 	<div>
 		<h2>Boss Loot</h2>
-		<div role="table">
-			{#each data.items as item}
-				<div
-					tabindex="0"
-					role="row"
-					class="item"
-					style="border: 2px solid var({quality(item.quality)})"
-					on:mouseover={() => showTooltip(item.id)}
-					on:focus={() => showTooltip(item.id)}
-					on:mouseout={() => hideTooltip(item.id)}
-					on:blur={() => hideTooltip(item.id)}
-				>
-					<img src={item.iconUrl} alt="Icon of {item.name}" width="36" height="36" />
-					{item.name}
-				</div>
-
-				{@const tooltip = data.tooltips[item.id]}
-				{#if tooltip && showTooltipById[item.id]}
-					<div class="tooltip" style="border: 2px solid var({quality(item.quality)})">
-						<!-- TODO(security): iframe this -->
-						<!-- https://stackoverflow.com/questions/9975810/make-iframe-automatically-adjust-height-according-to-the-contents-without-using -->
-						{@html tooltip.tooltip}
+		{#if isRaidDifficultyWithLoot(data.bosskill.mode)}
+			<div role="table">
+				{#each data.items as item}
+					<div
+						tabindex="0"
+						role="row"
+						class="item"
+						style="border: 2px solid var({quality(item.quality)})"
+						on:mouseover={() => showTooltip(item.id)}
+						on:focus={() => showTooltip(item.id)}
+						on:mouseout={() => hideTooltip(item.id)}
+						on:blur={() => hideTooltip(item.id)}
+					>
+						<img src={item.iconUrl} alt="Icon of {item.name}" width="36" height="36" />
+						{item.name}
 					</div>
-				{/if}
-			{/each}
-		</div>
+
+					{@const tooltip = data.tooltips[item.id]}
+					{#if tooltip && showTooltipById[item.id]}
+						<div class="tooltip" style="border: 2px solid var({quality(item.quality)})">
+							<!-- TODO(security): iframe this -->
+							<!-- https://stackoverflow.com/questions/9975810/make-iframe-automatically-adjust-height-according-to-the-contents-without-using -->
+							{@html tooltip.tooltip}
+						</div>
+					{/if}
+				{/each}
+			</div>
+		{:else}
+			This difficulty has no loot
+		{/if}
 	</div>
 </div>
 

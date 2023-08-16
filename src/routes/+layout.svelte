@@ -1,19 +1,33 @@
-<script>
-	import Link from '../components/Link.svelte';
+<script lang="ts">
+	import { page } from '$app/stores';
+	import Link from '$lib/components/Link.svelte';
+	import SelectCharacter from '$lib/components/SelectCharacter.svelte';
+	import type { LayoutData } from './$types';
+	export let data: LayoutData;
 </script>
 
-<nav>
-	<ul>
-		<li>
-			<Link href="/">Home</Link>
-		</li>
-		<li>
-			<Link href="/boss-kills">Latest</Link>
-			<Link href="/raids">Raids</Link>
-			<!-- <a href="/bosses">Bosses</a> -->
-		</li>
-	</ul>
-</nav>
+<div class="top">
+	<nav>
+		<ul>
+			<li>
+				<Link href="/">Home</Link>
+			</li>
+			<li>
+				<Link href="/boss-kills">Latest</Link>
+				<!-- <a href="/bosses">Bosses</a> -->
+			</li>
+			<li>
+				<Link href="/raids">Raids</Link>
+			</li>
+		</ul>
+	</nav>
+	<div>
+		<SelectCharacter
+			redirectUrl={$page.url.pathname + $page.url.search + $page.url.hash}
+			character={data.character}
+		/>
+	</div>
+</div>
 
 <main>
 	<slot />
@@ -44,13 +58,20 @@
 	:global(table) {
 		display: block;
 		overflow-x: auto;
+		table-layout: fixed;
 		white-space: nowrap;
 		width: 100%;
+		border-collapse: collapse;
 	}
-
-	:global(table tbody, table thead) {
-		display: table;
-		width: 100%;
+	:global(table th) {
+		background: gold;
+	}
+	:global(table tbody tr:nth-child(even)) {
+		background: rgb(0 0 0 / 8%);
+	}
+	:global(table tr td, table tr th) {
+		border: 1px solid rgba(0, 0, 0, 0.3);
+		padding: 0.25rem;
 	}
 
 	:global(ul, ol) {
@@ -69,6 +90,10 @@
 		padding: 0.5rem;
 	}
 
+	.top {
+		display: grid;
+		grid-template-columns: 1fr max-content;
+	}
 	nav ul {
 		display: flex;
 	}

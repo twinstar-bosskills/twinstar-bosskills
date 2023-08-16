@@ -1,3 +1,7 @@
+import { getClassIconUrl } from './class';
+import { getRaceIconUrl } from './race';
+import { getTalentSpecIconUrl } from './talent';
+
 export type BossKill = {
 	id: string;
 	entry: number;
@@ -47,6 +51,17 @@ export type Player = {
 	raceString: string;
 
 	talentSpecIconUrl: string;
+};
+
+export const mutatePlayer = (player: Player): Player => {
+	player.classString = classToString(player.class);
+	player.classIconUrl = getClassIconUrl(player.class);
+
+	player.raceString = raceToString(player.race);
+	player.raceIconUrl = getRaceIconUrl({ race: player.race, gender: player.gender });
+
+	player.talentSpecIconUrl = getTalentSpecIconUrl(player.talent_spec);
+	return player;
 };
 export type BossKillDetail = {
 	id: string;
@@ -116,24 +131,24 @@ export type Raid = {
 	bosses: Boss[];
 };
 
-export enum Difficulty {
-	DIFFICULTY_NONE = 0,
+export const Difficulty = {
+	DIFFICULTY_NONE: 0,
 
-	DIFFICULTY_NORMAL = 1,
-	DIFFICULTY_HEROIC = 2,
-	DIFFICULTY_10_N = 3,
-	DIFFICULTY_25_N = 4,
-	DIFFICULTY_10_HC = 5,
-	DIFFICULTY_25_HC = 6,
-	DIFFICULTY_LFR = 7,
-	DIFFICULTY_CHALLENGE = 8,
-	DIFFICULTY_40 = 9,
-	DIFFICULTY_HC_SCENARIO = 11,
-	DIFFICULTY_N_SCENARIO = 12,
-	DIFFICULTY_FLEX = 14,
+	DIFFICULTY_NORMAL: 1,
+	DIFFICULTY_HEROIC: 2,
+	DIFFICULTY_10_N: 3,
+	DIFFICULTY_25_N: 4,
+	DIFFICULTY_10_HC: 5,
+	DIFFICULTY_25_HC: 6,
+	DIFFICULTY_LFR: 7,
+	DIFFICULTY_CHALLENGE: 8,
+	DIFFICULTY_40: 9,
+	DIFFICULTY_HC_SCENARIO: 11,
+	DIFFICULTY_N_SCENARIO: 12,
+	DIFFICULTY_FLEX: 14,
 
-	MAX_DIFFICULTY = 15
-}
+	MAX_DIFFICULTY: 15
+};
 const DIFFICULTY_TO_STRING = {
 	[Difficulty.DIFFICULTY_NONE]: 'None',
 	[Difficulty.DIFFICULTY_NORMAL]: 'N',
@@ -150,10 +165,22 @@ const DIFFICULTY_TO_STRING = {
 	[Difficulty.DIFFICULTY_FLEX]: 'Flex',
 	[Difficulty.MAX_DIFFICULTY]: 'Max'
 };
-export const modeToString = (mode: number): string => {
-	return DIFFICULTY_TO_STRING[mode as Difficulty] ?? 'None';
-};
 
+export const difficultyToString = (diff: number): string => {
+	return DIFFICULTY_TO_STRING[diff] ?? 'None';
+};
+export const isRaidDifficulty = (diff: number) => {
+	return isRaidDifficultyWithLoot(diff) || diff === Difficulty.DIFFICULTY_LFR;
+};
+export const isRaidDifficultyWithLoot = (diff: number) => {
+	return (
+		diff === Difficulty.DIFFICULTY_10_N ||
+		diff === Difficulty.DIFFICULTY_10_HC ||
+		diff === Difficulty.DIFFICULTY_25_N ||
+		diff === Difficulty.DIFFICULTY_25_HC ||
+		diff === Difficulty.DIFFICULTY_FLEX
+	);
+};
 enum Class {
 	WARRIOR = 1,
 	PALADIN = 2,
@@ -222,4 +249,50 @@ const RACE_TO_STRING: Record<Race, string> = {
 
 export const raceToString = (race: number): string => {
 	return RACE_TO_STRING[race as Race] ?? 'Unknown';
+};
+
+export const TalentSpec = {
+	MAGE_ARCANE: 62,
+	MAGE_FIRE: 63,
+	MAGE_FROST: 64,
+	PALADIN_HOLY: 65,
+	PALADIN_PROT: 66,
+	PALADIN_RET: 70,
+	WARR_ARMS: 71,
+	WARR_FURY: 72,
+	WARR_PROT: 73,
+
+	DRUID_BALA: 102,
+	DRUID_CAT: 103,
+	DRUID_BEAR: 104,
+	DRUID_RESTO: 105,
+
+	DK_BLOOD: 250,
+	DK_FROST: 251,
+	DK_UNHOLY: 252,
+	HUNTER_BM: 253,
+	HUNTER_MM: 254,
+	HUNTER_SURV: 255,
+
+	PRIEST_DISC: 256,
+	PRIEST_HOLY: 257,
+	PRIEST_SHADOW: 258,
+
+	ROGUE_ASSA: 259,
+	ROGUE_COMBAT: 260,
+	ROGUE_SUB: 261,
+
+	SHAMAN_ELE: 262,
+	SHAMAN_ENHA: 263,
+	SHAMAN_RESTO: 264,
+
+	WARLOCK_AFFLI: 265,
+	WARLOCK_DEMO: 266,
+	WARLOCK_DESTO: 267,
+
+	MONK_BREWMASTER: 268,
+	MONK_BATTLEDANCER: 269,
+	MONK_MISTWEAVER: 270
+
+	// TODO: https://wow.tools/dbc/?dbc=chrspecialization&build=5.4.8.18273#page=1
 };

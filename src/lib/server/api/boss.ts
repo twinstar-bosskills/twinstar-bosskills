@@ -1,7 +1,8 @@
-import type { Boss, Player } from '$lib/model';
+import { TWINSTAR_API_URL } from '$env/static/private';
+import { mutatePlayer, type Boss, type Player } from '$lib/model';
 import { withCache } from '../cache';
 import { getBossKillDetail, getLatestBossKills, type BossKillQueryArgs } from './boss-kills';
-import { FilterOperator } from './filter';
+import { FilterOperator, queryString, type QueryArgs } from './filter';
 import { getRaids } from './raids';
 
 export const getBoss = async (id: number): Promise<Boss | null> => {
@@ -83,4 +84,45 @@ export const getBossStats = async (id: number): Promise<BossStats> => {
 	};
 
 	return withCache({ deps: [`boss-stats`, q], fallback }) ?? EMPTY_STATS;
+};
+
+type BossStatsQueryArgs = Pick<
+	QueryArgs<'dmgDone' | 'healingDone'>,
+	'sorter' | 'difficulty' | 'pageSize' | 'talentSpec'
+>;
+export const getBossStatsV2 = async (id: number, qa: BossStatsQueryArgs): Promise<BossStats> => {
+	const q: BossStatsQueryArgs = {
+		sorter: {
+			column: 'dmgDone',
+			order: 'desc'
+		},
+		...qa
+	};
+
+	const fallback = async (): Promise<BossStats> => {
+		// https://twinstar-api.twinstar-wow.com/bosskills/top/59915?realm=Helios&pageSize=10&mode=4&sorter={%22column%22:%22dmgDone%22,%22order%22:%22desc%22}
+		const url = `${TWINSTAR_API_URL}/bosskills/top/${id}?${queryString(q)}`;
+		const byClass: BossStats['byClass'] = {};
+		const bySpec: BossStats['bySpec'] = {};
+		try {
+			const r = await fetch(url);
+			const data: Player[] = await r.json();
+
+			for (const player of data) {
+				mutatePlayer(player);
+				// TODO: this eats memory
+				byClass[player.class] ??= [];
+				bySpec[player.talent_spec] ??= [];
+
+				byClass[player.class]!.push(player);
+				bySpec[player.talent_spec]!.push(player);
+			}
+			return { byClass, bySpec };
+		} catch (e) {
+			console.error(e, url);
+			throw e;
+		}
+	};
+
+	return withCache({ deps: [`boss-stats-v2`, id, q], fallback });
 };

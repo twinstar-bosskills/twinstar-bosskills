@@ -15,7 +15,7 @@ type Args<T> = {
 	fallback: () => Promise<T>;
 	/**
 	 * In seconds
-	 * Default: 300
+	 * Default: 60 * 60 = 1 hour
 	 */
 	expire?: number;
 };
@@ -23,7 +23,7 @@ type Args<T> = {
 export const withCache = async <T = unknown>({
 	deps,
 	fallback,
-	expire = 60 * 5
+	expire = 60 * 60
 }: Args<T>): Promise<T> => {
 	const key = await sha256(JSON.stringify(deps));
 	if (typeof CACHE[key] === 'undefined') {

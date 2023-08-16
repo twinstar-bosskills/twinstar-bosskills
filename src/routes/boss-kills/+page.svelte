@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import Link from '$lib/components/Link.svelte';
+	import Pagination from '$lib/components/Pagination.svelte';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/paginations';
-	import Link from '../../components/Link.svelte';
-	import Pagination from '../../components/Pagination.svelte';
 	import type { PageData } from './$types';
 
 	let pageSize = getPageSizeFromURL($page.url);

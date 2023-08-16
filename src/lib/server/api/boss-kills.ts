@@ -1,31 +1,16 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
-import {
-	classToString,
-	modeToString,
-	raceToString,
-	type BossKill,
-	type BossKillDetail
-} from '$lib/model';
+import { difficultyToString, mutatePlayer, type BossKill, type BossKillDetail } from '$lib/model';
 import { withCache } from '../cache';
-import { getClassIconUrl } from './class';
 import { queryString, type QueryArgs } from './filter';
-import { getRaceIconUrl } from './race';
 import { EMPTY_RESPONSE, type Response } from './response';
-import { getTalentSpecIconUrl } from './talent';
 
 const mutateItem = <T extends BossKillDetail | BossKill>(item: T): T => {
-	item.difficulty = modeToString(item.mode);
+	item.difficulty = difficultyToString(item.mode);
 
 	// @ts-ignore
 	if (Array.isArray(item.boss_kills_players)) {
 		for (const player of (item as BossKillDetail).boss_kills_players) {
-			player.classString = classToString(player.class);
-			player.classIconUrl = getClassIconUrl(player.class);
-
-			player.raceString = raceToString(player.race);
-			player.raceIconUrl = getRaceIconUrl({ race: player.race, gender: player.gender });
-
-			player.talentSpecIconUrl = getTalentSpecIconUrl(player.talent_spec);
+			mutatePlayer(player);
 		}
 	}
 

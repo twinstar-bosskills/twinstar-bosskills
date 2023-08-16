@@ -1,5 +1,6 @@
 import type { Item, ItemTooltip } from '$lib/model';
 import * as api from '$lib/server/api';
+import { getBoss } from '$lib/server/api';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -10,6 +11,13 @@ export const load: PageServerLoad = async ({ params }) => {
 	if (!bosskill) {
 		throw error(404, {
 			message: 'Not found'
+		});
+	}
+
+	const boss = await getBoss(bosskill.entry);
+	if (!boss) {
+		throw error(404, {
+			message: `Boss ${id} not found`
 		});
 	}
 
@@ -39,6 +47,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	return {
 		bosskill,
+		boss,
 		loot,
 		items,
 		tooltips
