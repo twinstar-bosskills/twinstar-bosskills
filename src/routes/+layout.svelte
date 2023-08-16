@@ -42,6 +42,14 @@
 	}
 
 	:global(table) {
+		display: block;
+		overflow-x: auto;
+		white-space: nowrap;
+		width: 100%;
+	}
+
+	:global(table tbody, table thead) {
+		display: table;
 		width: 100%;
 	}
 

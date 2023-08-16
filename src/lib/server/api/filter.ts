@@ -6,7 +6,7 @@ export interface Sorter<TColumn = string> {
 }
 
 export enum FilterOperator {
-	EQUAL = 'equal',
+	EQUALS = 'equals',
 	ILIKE = 'ilike',
 	IN = 'in'
 }

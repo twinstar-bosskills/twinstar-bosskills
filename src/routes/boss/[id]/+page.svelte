@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { formatNumber } from '$lib/number';
 	import { STATS_TYPE_DMG } from '$lib/stats-type';
+	import Icon from '../../../components/Icon.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -21,21 +22,22 @@
 				<table>
 					<thead>
 						<tr>
+							<th>Rank</th>
 							<th>Player</th>
-							<th>Talent spec</th>
+							<th>Spec</th>
 							<th>Amount</th>
 						</tr>
 					</thead>
 					<tbody>
-						{#each stat.value as item}
+						{#each stat.value as item, i}
 							<tr>
+								<td>{i + 1}</td>
 								<td>{item.player.name}</td>
 								<td>
-									<img
-										style="width: 16px;"
+									<Icon
 										src={item.player.talentSpecIconUrl}
-										title={`Talent spec ${item.player.talent_spec}`}
-										alt="Icon for talent spec {item.player.talent_spec}"
+										label="Talent spec {item.player.talent_spec}"
+										style="width: 16px; height: auto;"
 									/>
 								</td>
 								<td>{formatNumber(item.amount)}</td>

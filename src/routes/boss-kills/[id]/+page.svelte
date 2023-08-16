@@ -28,6 +28,7 @@
 	import { scaleOrdinal } from 'd3-scale';
 	import { Html, LayerCake, ScaledSvg, flatten } from 'layercake';
 
+	import Icon from '../../../components/Icon.svelte';
 	import AxisX from '../../../components/chart/multiline/AxisX.html.svelte';
 	import AxisY from '../../../components/chart/multiline/AxisY.html.svelte';
 	import GroupLabels from '../../../components/chart/multiline/GroupLabels.html.svelte';
@@ -252,24 +253,9 @@
 				<tr class="player">
 					<td>{player.name}</td>
 					<td>
-						<img
-							class="icon"
-							src={player.classIconUrl}
-							title={player.classString}
-							alt="Icon for class {player.classString}"
-						/>
-						<img
-							class="icon"
-							src={player.talentSpecIconUrl}
-							title={`Talent spec ${player.talent_spec}`}
-							alt="Icon for talent spec {player.talent_spec}"
-						/>
-						<img
-							class="icon"
-							src={player.raceIconUrl}
-							title={player.raceString}
-							alt="Icon for race {player.raceString}"
-						/>
+						<Icon src={player.classIconUrl} label={player.classString} />
+						<Icon src={player.talentSpecIconUrl} label={String(player.talent_spec)} />
+						<Icon src={player.raceIconUrl} label={String(player.raceString)} />
 					</td>
 					<td>{vps(player.dmgDone, data.bosskill.length)}</td>
 					<td>{formatNumber(player.dmgDone)}</td>
@@ -306,10 +292,5 @@
 	.tooltip {
 		position: absolute;
 		background: white;
-	}
-
-	.player td img {
-		width: 24px;
-		height: 24px;
 	}
 </style>

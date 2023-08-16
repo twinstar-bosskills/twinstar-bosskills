@@ -116,7 +116,7 @@ export type Raid = {
 	bosses: Boss[];
 };
 
-enum Difficulty {
+export enum Difficulty {
 	DIFFICULTY_NONE = 0,
 
 	DIFFICULTY_NORMAL = 1,

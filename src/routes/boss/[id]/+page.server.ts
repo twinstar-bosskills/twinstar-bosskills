@@ -18,8 +18,8 @@ export const load: PageServerLoad = async ({ params }) => {
 		player: Player;
 		amount: number;
 	};
-	const dmg: Stats[] = [];
-	const heal: Stats[] = [];
+	let dmg: Stats[] = [];
+	let heal: Stats[] = [];
 	for (const bySpec of Object.values(stats.bySpec)) {
 		for (const player of bySpec) {
 			const dmgDone = Number(player.dmgDone);
@@ -39,8 +39,8 @@ export const load: PageServerLoad = async ({ params }) => {
 			}
 		}
 	}
-	dmg.sort((a, b) => b.amount - a.amount);
-	heal.sort((a, b) => b.amount - a.amount);
+	dmg = dmg.sort((a, b) => b.amount - a.amount).slice(0, 100);
+	heal = heal.sort((a, b) => b.amount - a.amount).slice(0, 100);
 	return {
 		boss,
 		stats: [

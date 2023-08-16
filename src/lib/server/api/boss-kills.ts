@@ -35,18 +35,21 @@ const mutateItem = <T extends BossKillDetail | BossKill>(item: T): T => {
 export type BossKillQueryArgs = QueryArgs<keyof BossKill>;
 type BossKillsData = Response<BossKill[]>;
 export const getBossKills = async (q: BossKillQueryArgs): Promise<BossKillsData> => {
-	try {
-		const r = await fetch(`${TWINSTAR_API_URL}/bosskills?${queryString(q)}`);
-		const json: BossKillsData = await r.json();
-		for (const item of json.data) {
-			mutateItem(item);
+	const url = `${TWINSTAR_API_URL}/bosskills?${queryString(q)}`;
+	const fallback = async () => {
+		try {
+			const r = await fetch(url);
+			const json: BossKillsData = await r.json();
+			for (const item of json.data) {
+				mutateItem(item);
+			}
+			return json;
+		} catch (e) {
+			console.error(e, url);
+			throw e;
 		}
-		return json;
-	} catch (e) {
-		console.error(e);
-	}
-
-	return EMPTY_RESPONSE as BossKillsData;
+	};
+	return withCache({ deps: [`boss-kills`, q], fallback }) ?? (EMPTY_RESPONSE as BossKillsData);
 };
 
 export const getLatestBossKills = async (
