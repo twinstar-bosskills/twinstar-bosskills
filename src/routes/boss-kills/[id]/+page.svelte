@@ -1,20 +1,22 @@
 <script lang="ts">
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
-	import type { Item } from '$lib/model';
-	import { isRaidDifficultyWithLoot } from '$lib/model';
+	import { isRaidDifficultyWithLoot, type Item } from '$lib/model';
 	import { formatNumber } from '$lib/number';
 
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
-	let showTooltipById: Record<Item['id'], boolean> = {};
-	function showTooltip(id: number) {
-		showTooltipById[id] = true;
+	let showTooltipById: Record<string, boolean> = {};
+	function tooltipKey(item: Item, i: number) {
+		return `${item.id}-${i}`;
 	}
-	function hideTooltip(id: number) {
-		showTooltipById[id] = false;
+	function showTooltip(key: string) {
+		showTooltipById[key] = true;
+	}
+	function hideTooltip(key: string) {
+		showTooltipById[key] = false;
 	}
 
 	function vps(value: number | string, seconds: number): string {
@@ -153,23 +155,23 @@
 		<h2>Boss Loot</h2>
 		{#if isRaidDifficultyWithLoot(data.bosskill.mode)}
 			<div role="table">
-				{#each data.items as item}
+				{#each data.items as item, i}
 					<div
 						tabindex="0"
 						role="row"
 						class="item"
 						style="border: 2px solid var({quality(item.quality)})"
-						on:mouseover={() => showTooltip(item.id)}
-						on:focus={() => showTooltip(item.id)}
-						on:mouseout={() => hideTooltip(item.id)}
-						on:blur={() => hideTooltip(item.id)}
+						on:mouseover={() => showTooltip(tooltipKey(item, i))}
+						on:focus={() => showTooltip(tooltipKey(item, i))}
+						on:mouseout={() => hideTooltip(tooltipKey(item, i))}
+						on:blur={() => hideTooltip(tooltipKey(item, i))}
 					>
 						<img src={item.iconUrl} alt="Icon of {item.name}" width="36" height="36" />
 						{item.name}
 					</div>
 
 					{@const tooltip = data.tooltips[item.id]}
-					{#if tooltip && showTooltipById[item.id]}
+					{#if tooltip && showTooltipById[tooltipKey(item, i)]}
 						<div class="tooltip" style="border: 2px solid var({quality(item.quality)})">
 							<!-- TODO(security): iframe this -->
 							<!-- https://stackoverflow.com/questions/9975810/make-iframe-automatically-adjust-height-according-to-the-contents-without-using -->
