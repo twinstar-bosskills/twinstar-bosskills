@@ -47,14 +47,14 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	let difficulty: number | undefined = Difficulty.DIFFICULTY_10_N;
 	if (difficultyStr !== null) {
 		const v = Number(difficultyStr);
-		difficulty = isFinite(v) ? v : Difficulty.DIFFICULTY_10_N;
+		difficulty = isFinite(v) ? v : difficulty;
 	}
 
 	const talentSpecStr = url.searchParams.get('spec');
 	let talentSpec: number | undefined = undefined;
 	if (talentSpecStr !== null) {
 		const v = Number(talentSpecStr);
-		talentSpec = isFinite(v) ? v : undefined;
+		talentSpec = isFinite(v) ? v : talentSpec;
 	}
 
 	const [byDamageDone, byHealingDone] = await Promise.all([

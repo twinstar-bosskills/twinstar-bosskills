@@ -54,6 +54,9 @@
 
 		--color-r4: #808080 !important;
 	}
+	:global(*) {
+		box-sizing: border-box;
+	}
 
 	:global(table) {
 		display: block;

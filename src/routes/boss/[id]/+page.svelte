@@ -15,27 +15,34 @@
 	const title = `Boss ${data.boss.name}`;
 
 	let searchParams = new URLSearchParams($page.url.searchParams);
-	const specs: { id: number; iconUrl: string; href: string }[] = [];
+	const currentDifficulty = String(searchParams.get('difficulty') ?? Difficulty.DIFFICULTY_10_N);
+	const currentSpec = searchParams.get('spec');
+
+	const specs: { id: number; iconUrl: string; href: string; isActive: boolean }[] = [];
 	for (const id of Object.values(TalentSpec)) {
+		const isActive = currentSpec === String(id);
 		searchParams.set('spec', String(id));
 		specs.push({
 			id,
 			iconUrl: getTalentSpecIconUrl(id),
-			href: `?${searchParams}`
+			href: `?${searchParams}`,
+			isActive
 		});
 	}
 	searchParams.delete('spec');
 	const specResetHref = `?${searchParams}`;
 
 	searchParams = new URLSearchParams($page.url.searchParams);
-	const diffs: { id: number; label: string; href: string }[] = [];
+	const diffs: { id: number; label: string; href: string; isActive: boolean }[] = [];
 	for (const id of Object.values(Difficulty)) {
 		if (isRaidDifficulty(id)) {
+			const isActive = currentDifficulty === String(id);
 			searchParams.set('difficulty', String(id));
 			diffs.push({
 				id,
 				label: difficultyToString(id),
-				href: `?${searchParams}`
+				href: `?${searchParams}`,
+				isActive
 			});
 		}
 	}
@@ -50,22 +57,26 @@
 <h2>Top stats by spec</h2>
 <div>
 	<ul>
-		<li><Link href={difficultyResetHref}>Reset</Link></li>
-		{#each diffs as { label, href }}
-			<li>
-				<Link {href}>
-					{label}
-				</Link>
+		<li><Link style="display: flex;" href={difficultyResetHref}>Reset</Link></li>
+		{#each diffs as { label, href, isActive }}
+			<li class:active={isActive}>
+				<div class:active={isActive}>
+					<Link style="display: flex;" {href}>
+						{label}
+					</Link>
+				</div>
 			</li>
 		{/each}
 	</ul>
 	<ul>
-		<li><Link href={specResetHref}>Reset</Link></li>
-		{#each specs as { id, iconUrl, href }}
-			<li>
-				<Link {href}>
-					<Icon src={iconUrl} label="Talent spec {id}" style="width: 24px; height: auto;" />
-				</Link>
+		<li><Link style="display: flex;" href={specResetHref}>Reset</Link></li>
+		{#each specs as { id, iconUrl, href, isActive }}
+			<li class:active={isActive}>
+				<div class:active={isActive}>
+					<Link style="display: flex;" {href}>
+						<Icon src={iconUrl} label="Talent spec {id}" style="width: 24px; height: auto;" />
+					</Link>
+				</div>
 			</li>
 		{/each}
 	</ul>
@@ -113,10 +124,19 @@
 </div>
 
 <style>
+	div.active {
+		border: 4px solid gold;
+		border-radius: 6px;
+	}
+	li.active {
+		border: 2px solid black;
+		border-radius: 6px;
+	}
 	ul {
 		display: flex;
 		align-items: center;
 		flex-wrap: wrap;
+		margin-bottom: 0.5rem;
 	}
 	ul li {
 		margin-right: 0.25rem;
