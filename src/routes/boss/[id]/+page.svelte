@@ -24,6 +24,8 @@
 			href: `?${searchParams}`
 		});
 	}
+	searchParams.delete('spec');
+	const specResetHref = `?${searchParams}`;
 
 	searchParams = new URLSearchParams($page.url.searchParams);
 	const diffs: { id: number; label: string; href: string }[] = [];
@@ -37,31 +39,37 @@
 			});
 		}
 	}
+	searchParams.delete('difficulty');
+	const difficultyResetHref = `?${searchParams}`;
 </script>
 
 <svelte:head>
 	<title>{title}</title>
 </svelte:head>
 <h1>{title}</h1>
-<h2>Top stats by spec (last 100 kills)</h2>
-<ul class="specs">
-	{#each diffs as { label, href }}
-		<li>
-			<Link {href}>
-				{label}
-			</Link>
-		</li>
-	{/each}
-</ul>
-<ul class="specs">
-	{#each specs as { id, iconUrl, href }}
-		<li>
-			<Link {href}>
-				<Icon src={iconUrl} label="Talent spec {id}" style="width: 24px; height: auto;" />
-			</Link>
-		</li>
-	{/each}
-</ul>
+<h2>Top stats by spec</h2>
+<div>
+	<ul>
+		<li><Link href={difficultyResetHref}>Reset</Link></li>
+		{#each diffs as { label, href }}
+			<li>
+				<Link {href}>
+					{label}
+				</Link>
+			</li>
+		{/each}
+	</ul>
+	<ul>
+		<li><Link href={specResetHref}>Reset</Link></li>
+		{#each specs as { id, iconUrl, href }}
+			<li>
+				<Link {href}>
+					<Icon src={iconUrl} label="Talent spec {id}" style="width: 24px; height: auto;" />
+				</Link>
+			</li>
+		{/each}
+	</ul>
+</div>
 <div class="grid" style="--stats-length: {data.stats.length}">
 	{#each data.stats as stat}
 		<div>
@@ -105,10 +113,12 @@
 </div>
 
 <style>
-	.specs {
+	ul {
 		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
 	}
-	.specs li {
+	ul li {
 		margin-right: 0.25rem;
 	}
 	.grid {
