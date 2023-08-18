@@ -7,10 +7,14 @@ export const actions: Actions = {
 
 		cookies.set('character', character);
 
+		/*
 		const redirectUrl = String(form.get('redirectUrl') ?? '').trim();
 		if (redirectUrl.startsWith('/') === false) {
 			throw redirect(303, '/');
 		}
 		throw redirect(303, redirectUrl);
+		*/
+
+		throw redirect(303, `/character/${character}`);
 	}
-};
+} satisfies Actions;

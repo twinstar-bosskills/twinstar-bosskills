@@ -260,26 +260,26 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each data.bosskill.boss_kills_players as player}
-				<tr class="player">
-					<td>{player.name}</td>
+			{#each data.bosskill.boss_kills_players as character}
+				<tr>
+					<td>{character.name}</td>
 					<td>
-						<Icon src={player.classIconUrl} label={player.classString} />
-						<Icon src={player.talentSpecIconUrl} label={String(player.talent_spec)} />
-						<Icon src={player.raceIconUrl} label={String(player.raceString)} />
+						<Icon src={character.classIconUrl} label={character.classString} />
+						<Icon src={character.talentSpecIconUrl} label={String(character.talent_spec)} />
+						<Icon src={character.raceIconUrl} label={String(character.raceString)} />
 					</td>
-					<td>{vps(player.dmgDone, data.bosskill.length)}</td>
-					<td>{formatNumber(player.dmgDone)}</td>
-					<td>{formatNumber(player.dmgTaken)}</td>
-					<td>{formatNumber(player.dmgAbsorbed)}</td>
-					<td>{vps(player.healingDone, data.bosskill.length)}</td>
-					<td>{formatNumber(player.healingDone)}</td>
-					<td>{formatNumber(player.absorbDone)}</td>
-					<td>{formatNumber(player.overhealingDone)}</td>
-					<td>{formatNumber(player.healingTaken)}</td>
-					<td>{player.interrupts}</td>
-					<td>{player.dispels}</td>
-					<td>{player.avg_item_lvl}</td>
+					<td>{vps(character.dmgDone, data.bosskill.length)}</td>
+					<td>{formatNumber(character.dmgDone)}</td>
+					<td>{formatNumber(character.dmgTaken)}</td>
+					<td>{formatNumber(character.dmgAbsorbed)}</td>
+					<td>{vps(character.healingDone, data.bosskill.length)}</td>
+					<td>{formatNumber(character.healingDone)}</td>
+					<td>{formatNumber(character.absorbDone)}</td>
+					<td>{formatNumber(character.overhealingDone)}</td>
+					<td>{formatNumber(character.healingTaken)}</td>
+					<td>{character.interrupts}</td>
+					<td>{character.dispels}</td>
+					<td>{character.avg_item_lvl}</td>
 				</tr>
 			{/each}
 		</tbody>

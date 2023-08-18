@@ -1,4 +1,3 @@
-import type { Difficulty } from '$lib/model';
 import { REALM_HELIOS } from '../realm';
 
 export interface Sorter<TColumn = string> {
@@ -20,7 +19,10 @@ export interface Filter<TColumn = string> {
 
 export type QueryArgs<TColumn = string> = {
 	realm?: string;
-	difficulty?: Difficulty | undefined;
+	map?: string;
+	guid?: number;
+	name?: string;
+	difficulty?: number | undefined;
 	talentSpec?: number | undefined;
 	page?: number;
 	pageSize?: number;
@@ -30,6 +32,9 @@ export type QueryArgs<TColumn = string> = {
 
 export const queryString = ({
 	realm = REALM_HELIOS,
+	map,
+	guid,
+	name,
 	difficulty,
 	talentSpec,
 	page = 0,
@@ -42,6 +47,15 @@ export const queryString = ({
 	q.append('realm', realm);
 	if (typeof difficulty !== 'undefined') {
 		q.append('mode', String(difficulty));
+	}
+	if (typeof map !== 'undefined') {
+		q.append('map', map);
+	}
+	if (typeof guid !== 'undefined') {
+		q.append('guid', String(guid));
+	}
+	if (typeof name !== 'undefined') {
+		q.append('name', name);
 	}
 	if (typeof talentSpec !== 'undefined') {
 		q.append('talent_spec', String(talentSpec));

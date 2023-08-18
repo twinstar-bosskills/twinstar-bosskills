@@ -10,6 +10,18 @@ async function sha256(str: string) {
 		.join('');
 }
 
+const setupTimer = (key: string, expire: number) => {
+	try {
+		if (typeof TIMERS[key] !== 'undefined') {
+			clearTimeout(TIMERS[key]);
+		}
+
+		TIMERS[key] = setTimeout(() => {
+			delete CACHE[key];
+		}, 1000 * expire);
+	} catch (e) {}
+};
+
 type Args<T> = {
 	deps: unknown[];
 	fallback: () => Promise<T>;
@@ -28,22 +40,16 @@ export const withCache = async <T = unknown>({
 	const key = await sha256(JSON.stringify(deps));
 	if (typeof CACHE[key] === 'undefined') {
 		// console.log(`cache-miss, key: ${key}`);
-		CACHE[key] = await fallback();
 		try {
-			if (typeof TIMERS[key] !== 'undefined') {
-				clearTimeout(TIMERS[key]);
-			}
-
-			try {
-				TIMERS[key] = setTimeout(() => {
-					delete CACHE[key];
-				}, 1000 * expire);
-			} catch (e) {}
+			CACHE[key] = await fallback();
+			setupTimer(key, expire);
 		} catch (e) {
 			// ignore
 		}
 	} else {
 		// console.log(`cache-hit, key: ${key}`, CACHE[key]);
+		// refresh timer on cache hit
+		setupTimer(key, expire);
 	}
 
 	return CACHE[key] as T;

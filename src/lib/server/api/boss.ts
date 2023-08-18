@@ -1,5 +1,5 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
-import { mutatePlayer, type Boss, type Player } from '$lib/model';
+import { mutateCharacter, type Boss, type Character } from '$lib/model';
 import { withCache } from '../cache';
 import { getBossKillDetail, getLatestBossKills, type BossKillQueryArgs } from './boss-kills';
 import { FilterOperator, queryString, type QueryArgs } from './filter';
@@ -27,8 +27,8 @@ export const getBoss = async (id: number): Promise<Boss | null> => {
 };
 
 type BossStats = {
-	byClass: Record<number, Player[]>;
-	bySpec: Record<number, Player[]>;
+	byClass: Record<number, Character[]>;
+	bySpec: Record<number, Character[]>;
 };
 const EMPTY_STATS: BossStats = { byClass: {}, bySpec: {} };
 export const getBossStats = async (id: number): Promise<BossStats> => {
@@ -66,13 +66,13 @@ export const getBossStats = async (id: number): Promise<BossStats> => {
 			const details = await Promise.all(bosskills.data.map((bk) => getBossKillDetail(bk.id)));
 			for (const detail of details) {
 				if (detail) {
-					for (const player of detail.boss_kills_players) {
+					for (const character of detail.boss_kills_players) {
 						// TODO: this eats memory
-						byClass[player.class] ??= [];
-						bySpec[player.talent_spec] ??= [];
+						byClass[character.class] ??= [];
+						bySpec[character.talent_spec] ??= [];
 
-						byClass[player.class]!.push(player);
-						bySpec[player.talent_spec]!.push(player);
+						byClass[character.class]!.push(character);
+						bySpec[character.talent_spec]!.push(character);
 					}
 				}
 			}
@@ -106,16 +106,16 @@ export const getBossStatsV2 = async (id: number, qa: BossStatsQueryArgs): Promis
 		const bySpec: BossStats['bySpec'] = {};
 		try {
 			const r = await fetch(url);
-			const data: Player[] = await r.json();
+			const data: Character[] = await r.json();
 
-			for (const player of data) {
-				mutatePlayer(player);
+			for (const character of data) {
+				mutateCharacter(character);
 				// TODO: this eats memory
-				byClass[player.class] ??= [];
-				bySpec[player.talent_spec] ??= [];
+				byClass[character.class] ??= [];
+				bySpec[character.talent_spec] ??= [];
 
-				byClass[player.class]!.push(player);
-				bySpec[player.talent_spec]!.push(player);
+				byClass[character.class]!.push(character);
+				bySpec[character.talent_spec]!.push(character);
 			}
 			return { byClass, bySpec };
 		} catch (e) {

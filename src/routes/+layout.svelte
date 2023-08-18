@@ -21,7 +21,7 @@
 			</li>
 		</ul>
 	</nav>
-	<div>
+	<div class="select-character">
 		<SelectCharacter
 			redirectUrl={$page.url.pathname + $page.url.search + $page.url.hash}
 			character={data.character}
@@ -95,6 +95,7 @@
 
 	.top {
 		display: grid;
+		gap: 0.5rem;
 		grid-template-columns: 1fr max-content;
 	}
 	nav ul {
@@ -103,5 +104,10 @@
 
 	nav ul li {
 		margin-right: 0.5rem;
+	}
+	@media (max-width: 480px) {
+		.top {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

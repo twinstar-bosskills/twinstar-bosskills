@@ -1,4 +1,4 @@
-import { Difficulty, type Player } from '$lib/model';
+import { Difficulty, type Character } from '$lib/model';
 import * as api from '$lib/server/api';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	}
 
 	type Stats = {
-		player: Player;
+		char: Character;
 		amount: number;
 	};
 	let dmg: Stats[] = [];
@@ -79,11 +79,11 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	]);
 
 	for (const bySpec of Object.values(byDamageDone.bySpec)) {
-		for (const player of bySpec) {
-			const amount = Number(player.dmgDone);
+		for (const char of bySpec) {
+			const amount = Number(char.dmgDone);
 			if (isFinite(amount)) {
 				dmg.push({
-					player,
+					char: char,
 					amount: amount
 				});
 			}
@@ -91,11 +91,11 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	}
 
 	for (const bySpec of Object.values(byHealingDone.bySpec)) {
-		for (const player of bySpec) {
-			const amount = Number(player.healingDone);
+		for (const char of bySpec) {
+			const amount = Number(char.healingDone);
 			if (isFinite(amount)) {
 				heal.push({
-					player,
+					char: char,
 					amount: amount
 				});
 			}

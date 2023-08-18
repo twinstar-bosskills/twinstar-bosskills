@@ -20,8 +20,19 @@ export type BossKill = {
 	// extras
 	difficulty: string;
 };
+export const mutateBossKill = <T extends BossKillDetail | BossKill>(item: T): T => {
+	item.difficulty = difficultyToString(item.mode);
 
-export type Player = {
+	// @ts-ignore
+	if (Array.isArray(item.boss_kills_players)) {
+		for (const character of (item as BossKillDetail).boss_kills_players) {
+			mutateCharacter(character);
+		}
+	}
+
+	return item;
+};
+export type Character = {
 	id: number;
 	guid: number;
 	talent_spec: number;
@@ -42,6 +53,7 @@ export type Player = {
 	class: number;
 	gender: number;
 	level: number;
+	boss_kills?: BossKill;
 
 	// extra
 	classString: string;
@@ -53,15 +65,18 @@ export type Player = {
 	talentSpecIconUrl: string;
 };
 
-export const mutatePlayer = (player: Player): Player => {
-	player.classString = classToString(player.class);
-	player.classIconUrl = getClassIconUrl(player.class);
+export const mutateCharacter = (character: Character): Character => {
+	character.classString = classToString(character.class);
+	character.classIconUrl = getClassIconUrl(character.class);
 
-	player.raceString = raceToString(player.race);
-	player.raceIconUrl = getRaceIconUrl({ race: player.race, gender: player.gender });
+	character.raceString = raceToString(character.race);
+	character.raceIconUrl = getRaceIconUrl({ race: character.race, gender: character.gender });
 
-	player.talentSpecIconUrl = getTalentSpecIconUrl(player.talent_spec);
-	return player;
+	character.talentSpecIconUrl = getTalentSpecIconUrl(character.talent_spec);
+	if (typeof character.boss_kills !== 'undefined') {
+		character.boss_kills = mutateBossKill(character.boss_kills);
+	}
+	return character;
 };
 export type BossKillDetail = {
 	id: string;
@@ -92,7 +107,7 @@ export type BossKillDetail = {
 		raidDamage: string;
 		raidHeal: string;
 	}[];
-	boss_kills_players: Player[];
+	boss_kills_players: Character[];
 	boss_kills_loot: {
 		id: number;
 		itemId: string;

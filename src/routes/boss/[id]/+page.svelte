@@ -3,14 +3,14 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Link from '$lib/components/Link.svelte';
 	import { Difficulty, TalentSpec, difficultyToString, isRaidDifficulty } from '$lib/model';
-	import { formatNumber } from '$lib/number';
+	import { formatNumber, formatValuePerSecond } from '$lib/number';
 	import { STATS_TYPE_DMG } from '$lib/stats-type';
 	import { getTalentSpecIconUrl } from '$lib/talent';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-	function characterIsMe(player: string) {
-		return player.toLowerCase() === data.character.toLowerCase();
+	function characterIsMe(character: string) {
+		return character.toLowerCase() === data.character.toLowerCase();
 	}
 	const title = `Boss ${data.boss.name}`;
 
@@ -85,35 +85,53 @@
 	{#each data.stats as stat}
 		<div>
 			{#if stat.value.length > 0}
-				<h3>{stat.type === STATS_TYPE_DMG ? 'Top Dmg done' : 'Top Healing done'}</h3>
+				{@const name = stat.type === STATS_TYPE_DMG ? 'Damage done' : 'Healing done'}
+				{@const namePerSecond = stat.type === STATS_TYPE_DMG ? 'DPS' : 'HPS'}
+				<h3>{stat.type === STATS_TYPE_DMG ? 'Top Damage done' : 'Top Healing done'}</h3>
 				<table style="position: relative;">
 					<thead>
 						<tr>
 							<th>Rank</th>
-							<th>Player</th>
+							<th>Character</th>
 							<th>Spec</th>
-							<th>Amount</th>
+							<th>{name}</th>
+							<th>{namePerSecond}</th>
+							<th>Details</th>
 						</tr>
 					</thead>
 					<tbody>
 						{#each stat.value as item, i}
-							{@const isMe = characterIsMe(item.player.name)}
+							{@const isMe = characterIsMe(item.char.name)}
 							{@const style = isMe ? 'font-weight: bold;' : ''}
+							{@const amount = formatNumber(item.amount)}
+							{@const amountPerSecond = formatValuePerSecond(
+								item.amount,
+								item.char.boss_kills?.length ?? 0
+							)}
+							{@const bossKillId = item.char.boss_kills?.id ?? ''}
 							<tr>
 								<td {style}>{i + 1}</td>
 								<td {style}>
-									{isMe ? '>>> ' : ''}
-									{item.player.name}
-									{isMe ? ' <<<' : ''}
+									<Link href="/character/{item.char.name}">
+										{isMe ? '>>> ' : ''}
+										{item.char.name}
+										{isMe ? ' <<<' : ''}
+									</Link>
 								</td>
 								<td {style}>
 									<Icon
-										src={item.player.talentSpecIconUrl}
-										label="Talent spec {item.player.talent_spec}"
+										src={item.char.talentSpecIconUrl}
+										label="Talent spec {item.char.talent_spec}"
 										style="width: 16px; height: auto;"
 									/>
 								</td>
-								<td {style}>{formatNumber(item.amount)}</td>
+								<td {style}>{amount}</td>
+								<td {style}>{amountPerSecond}</td>
+								<td>
+									{#if bossKillId !== ''}
+										<Link href="/boss-kills/{bossKillId}">Detail</Link>
+									{/if}
+								</td>
 							</tr>
 						{/each}
 					</tbody>

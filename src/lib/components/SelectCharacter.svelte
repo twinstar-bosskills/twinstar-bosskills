@@ -3,7 +3,7 @@
 	export let character: string = '';
 </script>
 
-<form method="POST" action="/character?/select">
+<form method="POST" action="/characters?/select">
 	<label>
 		Character <input type="text" name="character" value={character} />
 	</label>
