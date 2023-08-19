@@ -225,7 +225,7 @@ const CLASS_TO_STRING: Record<Class, string> = {
 };
 
 export const classToString = (cls: number): string => {
-	return CLASS_TO_STRING[cls as Class] ?? 'Unknown';
+	return CLASS_TO_STRING[cls as Class] ?? 'Unknown class';
 };
 
 enum Race {
@@ -263,7 +263,7 @@ const RACE_TO_STRING: Record<Race, string> = {
 };
 
 export const raceToString = (race: number): string => {
-	return RACE_TO_STRING[race as Race] ?? 'Unknown';
+	return RACE_TO_STRING[race as Race] ?? 'Unknown race';
 };
 
 export const TalentSpec = {

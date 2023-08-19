@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import Icon from '$lib/components/Icon.svelte';
 	import Link from '$lib/components/Link.svelte';
+	import { links } from '$lib/links';
 	import { Difficulty, TalentSpec, difficultyToString, isRaidDifficulty } from '$lib/model';
 	import { formatNumber, formatValuePerSecond } from '$lib/number';
 	import { STATS_TYPE_DMG } from '$lib/stats-type';
@@ -112,7 +113,7 @@
 							<tr>
 								<td {style}>{i + 1}</td>
 								<td {style}>
-									<Link href="/character/{item.char.name}">
+									<Link href={links.character(item.char.name)}>
 										{isMe ? '>>> ' : ''}
 										{item.char.name}
 										{isMe ? ' <<<' : ''}
@@ -129,7 +130,7 @@
 								<td {style}>{amountPerSecond}</td>
 								<td>
 									{#if bossKillId !== ''}
-										<Link href="/boss-kills/{bossKillId}">Detail</Link>
+										<Link href={links.bossKill(bossKillId)}>Detail</Link>
 									{/if}
 								</td>
 							</tr>

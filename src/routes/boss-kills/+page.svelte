@@ -3,6 +3,7 @@
 	import Link from '$lib/components/Link.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { distanceTzNow, formatSecondsInterval, formatTzLocalized } from '$lib/date';
+	import { links } from '$lib/links';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/paginations';
 	import type { PageData } from './$types';
 
@@ -30,7 +31,7 @@
 			{#each data.latest.data as bosskill}
 				<tr>
 					<td>
-						<Link href="/boss/{bosskill.entry}">
+						<Link href={links.boss(bosskill.entry)}>
 							{bosskill.creature_name}
 						</Link>
 					</td>
@@ -41,7 +42,7 @@
 					<td>{formatTzLocalized(bosskill.time)} ({distanceTzNow(bosskill.time)} ago)</td>
 
 					<td>
-						<Link href="/boss-kills/{bosskill.id}">Detail</Link>
+						<Link href={links.bossKill(bosskill.id)}>Detail</Link>
 						<a href="https://mop-twinhead.twinstar.cz/?boss-kill={bosskill.id}">Twinhead</a>
 					</td>
 				</tr>

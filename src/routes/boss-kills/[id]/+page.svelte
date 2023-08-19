@@ -32,11 +32,13 @@
 	import { Html, LayerCake, ScaledSvg, flatten } from 'layercake';
 
 	import Icon from '$lib/components/Icon.svelte';
+	import Link from '$lib/components/Link.svelte';
 	import AxisX from '$lib/components/chart/multiline/AxisX.html.svelte';
 	import AxisY from '$lib/components/chart/multiline/AxisY.html.svelte';
 	import GroupLabels from '$lib/components/chart/multiline/GroupLabels.html.svelte';
 	import MultiLine from '$lib/components/chart/multiline/MultiLine.svelte';
 	import SharedTooltip from '$lib/components/chart/multiline/SharedTooltip.percent-range.html.svelte';
+	import { links } from '$lib/links';
 
 	const timeline = data.bosskill.boss_kills_maps;
 	const timelineLength = timeline.length;
@@ -101,7 +103,7 @@
 	};
 </script>
 
-<h1>Boss Kill {data.bosskill.id}</h1>
+<h1>Boss Kill Details - {data.bosskill.id}</h1>
 <div class="grid">
 	<div>
 		<dl>
@@ -262,7 +264,9 @@
 		<tbody>
 			{#each data.bosskill.boss_kills_players as character}
 				<tr>
-					<td>{character.name}</td>
+					<td>
+						<Link href={links.character(character.name)}>{character.name}</Link>
+					</td>
 					<td>
 						<Icon src={character.classIconUrl} label={character.classString} />
 						<Icon src={character.talentSpecIconUrl} label={String(character.talent_spec)} />

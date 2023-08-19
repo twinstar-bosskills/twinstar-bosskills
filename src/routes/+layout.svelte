@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import Link from '$lib/components/Link.svelte';
 	import SelectCharacter from '$lib/components/SelectCharacter.svelte';
+	import { links } from '$lib/links';
 	import type { LayoutData } from './$types';
 	export let data: LayoutData;
 </script>
@@ -13,11 +14,11 @@
 				<Link href="/">Home</Link>
 			</li>
 			<li>
-				<Link href="/boss-kills">Latest</Link>
+				<Link href={links.BOSS_KILLS}>Latest</Link>
 				<!-- <a href="/bosses">Bosses</a> -->
 			</li>
 			<li>
-				<Link href="/raids">Raids</Link>
+				<Link href={links.RAIDS}>Raids</Link>
 			</li>
 		</ul>
 	</nav>
@@ -54,8 +55,14 @@
 
 		--color-r4: #808080 !important;
 	}
+
 	:global(*) {
 		box-sizing: border-box;
+	}
+
+	:global(body) {
+		max-width: 1920px;
+		margin: 0px auto;
 	}
 
 	:global(table) {

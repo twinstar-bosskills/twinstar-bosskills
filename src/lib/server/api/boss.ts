@@ -3,7 +3,7 @@ import { mutateCharacter, type Boss, type Character } from '$lib/model';
 import { withCache } from '../cache';
 import { getBossKillDetail, getLatestBossKills, type BossKillQueryArgs } from './boss-kills';
 import { FilterOperator, queryString, type QueryArgs } from './filter';
-import { getRaids } from './raids';
+import { getRaids } from './raid';
 
 export const getBoss = async (id: number): Promise<Boss | null> => {
 	const fallback = async () => {
