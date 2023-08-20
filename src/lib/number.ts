@@ -16,3 +16,10 @@ export const formatValuePerSecond = (
 	}
 	return def;
 };
+export const formatAvgItemLvl = (value: string | number) => {
+	const v = Number(value);
+	if (isNaN(v) === false && isFinite(v)) {
+		return formatNumber(Math.round(v));
+	}
+	return 'N/A';
+};

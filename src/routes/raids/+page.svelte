@@ -12,13 +12,13 @@
 		<li>
 			<div>{raid.map}</div>
 			<div class="bosses">
-				<ul>
-					{#each raid.bosses as boss}
+				<ol>
+					{#each raid.bosses as boss, i}
 						<li>
-							<Link href={links.boss(boss.entry)}>{boss.name}</Link>
+							{`${i + 1}. `}<Link href={links.boss(boss.entry)}>{boss.name}</Link>
 						</li>
 					{/each}
-				</ul>
+				</ol>
 			</div>
 		</li>
 	{/each}

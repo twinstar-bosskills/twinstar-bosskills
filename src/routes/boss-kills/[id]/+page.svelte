@@ -2,12 +2,12 @@
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
 	import { isRaidDifficultyWithLoot, type Item } from '$lib/model';
-	import { formatNumber } from '$lib/number';
+	import { formatAvgItemLvl, formatNumber } from '$lib/number';
 
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-
+	const twinheadBossKillId = data.bosskill.id.replace(`${REALM_HELIO_ID}_`, '');
 	let showTooltipById: Record<string, boolean> = {};
 	function tooltipKey(item: Item, i: number) {
 		return `${item.id}-${i}`;
@@ -19,26 +19,26 @@
 		showTooltipById[key] = false;
 	}
 
-	function vps(value: number | string, seconds: number): string {
-		const v = Number(value);
-		if (isNaN(v) === false && isFinite(v)) {
-			return formatNumber(seconds > 0 ? Math.round((1000 * v) / seconds) : 0);
-		}
-		return '0';
-	}
+	// Chart
 
 	import { format, precisionFixed } from 'd3-format';
 	import { scaleOrdinal } from 'd3-scale';
 	import { Html, LayerCake, ScaledSvg, flatten } from 'layercake';
 
-	import Icon from '$lib/components/Icon.svelte';
-	import Link from '$lib/components/Link.svelte';
 	import AxisX from '$lib/components/chart/multiline/AxisX.html.svelte';
 	import AxisY from '$lib/components/chart/multiline/AxisY.html.svelte';
 	import GroupLabels from '$lib/components/chart/multiline/GroupLabels.html.svelte';
 	import MultiLine from '$lib/components/chart/multiline/MultiLine.svelte';
 	import SharedTooltip from '$lib/components/chart/multiline/SharedTooltip.percent-range.html.svelte';
-	import { links } from '$lib/links';
+	import Table from '$lib/components/table/Table.svelte';
+	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
+	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
+	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
+	import Class from '$lib/components/table/column/Class.column.svelte';
+	import { formatCell } from '$lib/components/table/column/cell';
+	import { characterDps, characterHps } from '$lib/metrics';
+	import { REALM_HELIO_ID } from '$lib/realm';
+	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
 
 	const timeline = data.bosskill.boss_kills_maps;
 	const timelineLength = timeline.length;
@@ -101,9 +101,115 @@
 	const formatTickY = (d: DataLong[0]['values'][0][typeof yKey]) => {
 		return format(`.${precisionFixed(d)}s`)(d);
 	};
+
+	// Table
+	type T = (typeof data.bosskill.boss_kills_players)[0];
+	const columns: ColumnDef<T>[] = [
+		{
+			id: 'name',
+			accessorFn: (row) => row.name,
+			header: () => 'Name',
+			cell: (info) => flexRender(CharacterName, { character: info.row.original })
+		},
+
+		{
+			id: 'class',
+			accessorFn: (row) => row.class,
+			cell: ({ row }) => {
+				const { original } = row;
+				return flexRender(Class, {
+					character: original
+				});
+			},
+			header: () => 'Class'
+		},
+		{
+			id: 'dps',
+			accessorFn: (row) => characterDps(row),
+			cell: (info) => flexRender(CharacterDps, { character: info.row.original }),
+			header: () => 'DPS'
+		},
+		{
+			id: 'dmgDone',
+			accessorFn: (row) => row.dmgDone,
+			cell: formatCell,
+			header: () => 'Dmg Done'
+		},
+		{
+			id: 'dmgTaken',
+			accessorFn: (row) => row.dmgTaken,
+			cell: formatCell,
+			header: () => 'Dmg Taken'
+		},
+		{
+			id: 'dmgAbsorbed',
+			accessorFn: (row) => row.dmgAbsorbed,
+			cell: formatCell,
+			header: () => 'Dmg Absorb'
+		},
+		{
+			id: 'hps',
+			accessorFn: (row) => characterHps(row),
+			header: () => 'HPS',
+			cell: (info) =>
+				flexRender(CharacterHPS, {
+					character: info.row.original
+				})
+		},
+		{
+			id: 'healingDone',
+			accessorFn: (row) => row.healingDone,
+			cell: formatCell,
+			header: () => 'Healing Done'
+		},
+		{
+			id: 'absorbDone',
+			accessorFn: (row) => formatNumber(row.absorbDone),
+			cell: formatCell,
+			header: () => 'Absorb Done'
+		},
+		{
+			id: 'overhealingDone',
+			accessorFn: (row) => formatNumber(row.overhealingDone),
+			cell: formatCell,
+			header: () => 'Overheal'
+		},
+		{
+			id: 'healingTaken',
+			accessorFn: (row) => formatNumber(row.healingTaken),
+			cell: formatCell,
+			header: () => 'Heal Taken'
+		},
+		{
+			id: 'interrupts',
+			accessorFn: (row) => row.interrupts,
+			cell: formatCell,
+			header: () => 'I'
+		},
+		{
+			id: 'dispells',
+			accessorFn: (row) => row.dispels,
+			cell: formatCell,
+			header: () => 'D'
+		},
+		{
+			id: 'avgItemLvl',
+			accessorFn: (row) => row.avg_item_lvl,
+			cell: (info) => formatAvgItemLvl(info.row.original.avg_item_lvl),
+			header: () => 'Avg iLvl'
+		}
+	];
+	const columnsUnknown = columns as any as ColumnDef<unknown>[];
 </script>
 
 <h1>Boss Kill Details - {data.bosskill.id}</h1>
+<a
+	href="https://mop-twinhead.twinstar.cz/?boss-kill={twinheadBossKillId}"
+	about="_blank"
+	rel="noopener"
+>
+	Twinhead
+</a>
 <div class="grid">
 	<div>
 		<dl>
@@ -241,8 +347,10 @@
 </div>
 
 <h2>Stats</h2>
+
 <div>
-	<table>
+	<Table data={data.bosskill.boss_kills_players} columns={columnsUnknown} />
+	<!-- <table>
 		<thead>
 			<tr>
 				<th>Name</th>
@@ -272,11 +380,11 @@
 						<Icon src={character.talentSpecIconUrl} label={String(character.talent_spec)} />
 						<Icon src={character.raceIconUrl} label={String(character.raceString)} />
 					</td>
-					<td>{vps(character.dmgDone, data.bosskill.length)}</td>
+					<td>{formatNumber(characterDps(character))}</td>
 					<td>{formatNumber(character.dmgDone)}</td>
 					<td>{formatNumber(character.dmgTaken)}</td>
 					<td>{formatNumber(character.dmgAbsorbed)}</td>
-					<td>{vps(character.healingDone, data.bosskill.length)}</td>
+					<td>{formatNumber(characterHps(character))}</td>
 					<td>{formatNumber(character.healingDone)}</td>
 					<td>{formatNumber(character.absorbDone)}</td>
 					<td>{formatNumber(character.overhealingDone)}</td>
@@ -287,7 +395,7 @@
 				</tr>
 			{/each}
 		</tbody>
-	</table>
+	</table> -->
 </div>
 
 <style>

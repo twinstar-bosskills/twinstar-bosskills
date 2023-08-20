@@ -7,7 +7,13 @@ export const getRaids = async (): Promise<Raid[]> => {
 	const fallback = async () => {
 		try {
 			const r = await fetch(url);
-			return r.json();
+			const raids: Raid[] = await r.json();
+			for (const raid of raids) {
+				// remove Elder Asani
+				raid.bosses = raid.bosses.filter((b) => b.entry !== 60586);
+			}
+
+			return raids;
 		} catch (e) {
 			console.error(e, url);
 			throw e;

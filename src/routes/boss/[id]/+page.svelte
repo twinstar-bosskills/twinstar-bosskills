@@ -105,10 +105,7 @@
 							{@const isMe = characterIsMe(item.char.name)}
 							{@const style = isMe ? 'font-weight: bold;' : ''}
 							{@const amount = formatNumber(item.amount)}
-							{@const amountPerSecond = formatValuePerSecond(
-								item.amount,
-								item.char.boss_kills?.length ?? 0
-							)}
+							{@const amountPerSecond = formatValuePerSecond(item.amount, item.char.usefullTime)}
 							{@const bossKillId = item.char.boss_kills?.id ?? ''}
 							<tr>
 								<td {style}>{i + 1}</td>

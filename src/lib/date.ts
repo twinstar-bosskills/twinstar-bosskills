@@ -1,5 +1,7 @@
 import { format, formatDistance, formatDuration, intervalToDuration, parseISO } from 'date-fns';
 import { utcToZonedTime } from 'date-fns-tz';
+
+export const parseZonedISO = (ds: string) => utcToZonedTime(ds, 'UTC');
 export const distanceNow = (ds: string): string => {
 	try {
 		return formatDistance(parseISO(ds), new Date());
@@ -9,7 +11,7 @@ export const distanceNow = (ds: string): string => {
 
 export const distanceTzNow = (ds: string): string => {
 	try {
-		return formatDistance(utcToZonedTime(ds, 'UTC'), new Date());
+		return formatDistance(parseZonedISO(ds), new Date(), { addSuffix: true });
 	} catch (e) {}
 	return '-';
 };
@@ -23,7 +25,7 @@ export const formatLocalized = (ds: string): string => {
 
 export const formatTzLocalized = (ds: string): string => {
 	try {
-		return format(utcToZonedTime(ds, 'UTC'), 'Pp');
+		return format(parseZonedISO(ds), 'Pp');
 	} catch (e) {}
 	return '-';
 };

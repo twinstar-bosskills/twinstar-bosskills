@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	const loot = bosskill.boss_kills_loot;
 	const queue = [];
 	const items: Item[] = [];
-	const tooltips: Record<Item['id'], ItemTooltip> = [];
+	const tooltips: Record<Item['id'], ItemTooltip> = {};
 	for (const lootItem of loot) {
 		const itemId = Number(lootItem.itemId);
 		queue.push(

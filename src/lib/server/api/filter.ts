@@ -1,4 +1,4 @@
-import { REALM_HELIOS } from '../realm';
+import { REALM_HELIOS } from '../../realm';
 
 export interface Sorter<TColumn = string> {
 	column: TColumn;

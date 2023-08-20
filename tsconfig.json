@@ -10,7 +10,7 @@
 		"sourceMap": true,
 		"strict": true,
 		"allowUnreachableCode": false,
-		"exactOptionalPropertyTypes": true,
+		// "exactOptionalPropertyTypes": true,
 		"noImplicitAny": true,
 		"noImplicitOverride": true,
 		"noImplicitReturns": true,

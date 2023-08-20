@@ -28,3 +28,5 @@ export const getCharacterBossKills = async (q: CharacterQueryArgs): Promise<Char
 
 	return withCache<Character[]>({ deps: [`character`, q], fallback }) ?? [];
 };
+
+// https://twinstar-api.twinstar-wow.com/characters?page=0&pageSize=25&name=gareo
