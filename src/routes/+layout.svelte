@@ -64,6 +64,7 @@
 	:global(body) {
 		font-size: 16px;
 		max-width: 1920px;
+		padding: 0.5rem;
 		margin: 0px auto;
 	}
 
@@ -101,10 +102,6 @@
 		list-style-type: none;
 	}
 
-	:global(body) {
-		padding: 0.5rem;
-	}
-
 	.top {
 		display: grid;
 		gap: 0.5rem;
@@ -120,9 +117,8 @@
 	}
 
 	footer {
-		position: fixed;
-		bottom: 0;
-		width: 100%;
+		/* TODO: move this to bottom, but not with position: fixed */
+		padding: 0.5rem;
 		text-align: center;
 		font-size: 75%;
 		color: gray;
