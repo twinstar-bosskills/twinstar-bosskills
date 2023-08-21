@@ -2,12 +2,19 @@
 	import { page } from '$app/stores';
 	import Icon from '$lib/components/Icon.svelte';
 	import Link from '$lib/components/Link.svelte';
-	import { links } from '$lib/links';
+	import Table from '$lib/components/table/Table.svelte';
+	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
+	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
+	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
+	import Spec from '$lib/components/table/column/Spec.column.svelte';
+	import { formatCell } from '$lib/components/table/column/cell';
+	import { characterDps, characterHps } from '$lib/metrics';
 	import { Difficulty, TalentSpec, difficultyToString, isRaidDifficulty } from '$lib/model';
-	import { formatNumber, formatValuePerSecond } from '$lib/number';
-	import { STATS_TYPE_DMG } from '$lib/stats-type';
+	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
 	import { getTalentSpecIconUrl } from '$lib/talent';
+	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
+	import BossKillDetailLink from './components/BossKillDetailLink.svelte';
 
 	export let data: PageData;
 	function characterIsMe(character: string) {
@@ -49,6 +56,61 @@
 	}
 	searchParams.delete('difficulty');
 	const difficultyResetHref = `?${searchParams}`;
+
+	const columnByStatsType: Record<StatsType | string, ColumnDef<unknown>[]> = {
+		[STATS_TYPE_DMG]: [],
+		[STATS_TYPE_HEAL]: []
+	};
+	for (const stat of data.stats) {
+		type T = (typeof stat.value)[0];
+		const isDmg = stat.type === STATS_TYPE_DMG;
+		const columns: ColumnDef<T>[] = [
+			{ id: 'rank', accessorFn: (_, i) => i + 1, header: () => 'Rank' },
+			{
+				id: 'character',
+				accessorFn: (row) => row.char,
+				header: () => 'Character',
+				cell: (info) => flexRender(CharacterName, { character: info.row.original.char })
+			},
+
+			{
+				id: 'spec',
+				accessorFn: (row) => row.char.talent_spec,
+				cell: ({ row }) => {
+					const { original } = row;
+					return flexRender(Spec, {
+						character: original.char
+					});
+				},
+				header: () => 'Spec'
+			},
+			{
+				id: 'amount',
+				accessorFn: (row) => row.amount,
+				cell: formatCell,
+				header: () => (isDmg ? 'Damage Done' : 'Healing Done')
+			},
+			{
+				id: 'amountPerSecond',
+				accessorFn: (row) => (isDmg ? characterDps(row.char) : characterHps(row.char)),
+				cell: (info) =>
+					isDmg
+						? flexRender(CharacterDps, { character: info.row.original.char })
+						: flexRender(CharacterHps, { character: info.row.original.char }),
+				header: () => (isDmg ? 'DPS' : 'HPS')
+			},
+			{
+				id: 'detail',
+				cell: (info) => {
+					const bossKillId = info.row.original.char.boss_kills?.id;
+					return flexRender(BossKillDetailLink, { id: bossKillId });
+				},
+				header: () => 'Detail',
+				enableSorting: false
+			}
+		];
+		columnByStatsType[stat.type] = columns as any as ColumnDef<unknown>[];
+	}
 </script>
 
 <svelte:head>
@@ -86,10 +148,9 @@
 	{#each data.stats as stat}
 		<div>
 			{#if stat.value.length > 0}
-				{@const name = stat.type === STATS_TYPE_DMG ? 'Damage done' : 'Healing done'}
-				{@const namePerSecond = stat.type === STATS_TYPE_DMG ? 'DPS' : 'HPS'}
-				<h3>{stat.type === STATS_TYPE_DMG ? 'Top Damage done' : 'Top Healing done'}</h3>
-				<table style="position: relative;">
+				<h3>{stat.type === STATS_TYPE_DMG ? 'Top Damage Done' : 'Top Healing Done'}</h3>
+				<Table data={stat.value} columns={columnByStatsType[stat.type]} />
+				<!-- <table style="position: relative;">
 					<thead>
 						<tr>
 							<th>Rank</th>
@@ -133,7 +194,7 @@
 							</tr>
 						{/each}
 					</tbody>
-				</table>
+				</table> -->
 			{/if}
 		</div>
 	{/each}

@@ -7,10 +7,10 @@
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
 	import Spec from '$lib/components/table/column/Spec.column.svelte';
 	import { formatSecondsInterval } from '$lib/date';
-	import { character } from '$lib/links';
+
+	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
 	import { formatAvgItemLvl } from '$lib/number';
-	import { REALM_HELIOS } from '$lib/realm';
 	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
@@ -88,14 +88,7 @@
 <h1>
 	Character {data.name}
 </h1>
-<a
-	class="armory"
-	href="https://armory.twinstar-wow.com/character?name={character.name}&realm={REALM_HELIOS}"
-	target="_blank"
-	rel="noopener"
->
-	Armory
-</a>
+<a class="armory" href={links.twinstarArmory(data.name)} target="_blank" rel="noopener"> Armory </a>
 
 <div>
 	<!-- <table>

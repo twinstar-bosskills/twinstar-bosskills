@@ -14,12 +14,17 @@ export const healingAndAbsorbDone = (character: Character) => {
 	}
 	return 0;
 };
-export const characterDps = (character: Character) => {
-	return valuePerSecond(Number(character.dmgDone), character.usefullTime);
+export const characterDps = (character: Character, fightLength: number = 0) => {
+	return valuePerSecond(
+		Number(character.dmgDone),
+		// character.usefullTime,
+		(character.boss_kills?.length ?? fightLength) / 1000
+	);
 };
-export const characterHps = (character: Character) => {
+export const characterHps = (character: Character, fightLength: number = 0) => {
 	return valuePerSecond(
 		Number(character.healingDone) + Number(character.absorbDone),
-		character.usefullTime
+		// character.usefullTime,
+		(character.boss_kills?.length ?? fightLength) / 1000
 	);
 };

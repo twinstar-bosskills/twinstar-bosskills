@@ -1,9 +1,17 @@
-export const CHARACTERS = '/characters';
-export const RAIDS = '/raids';
-export const BOSS_KILLS = '/boss-kills';
-export const character = (name: string) => `/character/${name}`;
-export const boss = (id: number) => `/boss/${id}`;
-export const bossKill = (id: string) => `/boss-kills/${id}`;
+import { REALM_HELIOS, REALM_HELIOS_ID } from './realm';
+
+const CHARACTERS = '/characters';
+const RAIDS = '/raids';
+const BOSS_KILLS = '/boss-kills';
+const character = (name: string) => `/character/${name}`;
+const boss = (id: number) => `/boss/${id}`;
+const bossKill = (id: string) => `/boss-kills/${id}`;
+const twinstarBossKill = (id: string) => {
+	const bkid = id.replace(`${REALM_HELIOS_ID}_`, '');
+	return `https://mop-twinhead.twinstar.cz/?boss-kill=${bkid}`;
+};
+export const twinstarArmory = (name: string) =>
+	`https://armory.twinstar-wow.com/character?name=${name}&realm=${REALM_HELIOS}`;
 
 export const links = {
 	CHARACTERS,
@@ -11,5 +19,7 @@ export const links = {
 	BOSS_KILLS,
 	character,
 	boss,
-	bossKill
+	bossKill,
+	twinstarBossKill,
+	twinstarArmory
 };

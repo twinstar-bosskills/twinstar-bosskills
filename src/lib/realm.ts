@@ -1,2 +1,2 @@
 export const REALM_HELIOS = 'Helios';
-export const REALM_HELIO_ID = 18;
+export const REALM_HELIOS_ID = 18;

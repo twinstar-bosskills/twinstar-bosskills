@@ -53,7 +53,10 @@
 <h2>Info</h2>
 <h3>DPS and HPS</h3>
 <p>DPS and HPS numbers might be slightly different from the ones you can see on Twinhead.</p>
-<p>We are dividing the value by usefullTime when calculating the average.</p>
+<p>
+	We are dividing the value by <span class="strike">usefullTime</span> bosskill length when calculating
+	the average.
+</p>
 
 <!-- <h2>Highlights</h2>
 <h3>Best damager of the week: TODO</h3>
@@ -61,5 +64,8 @@
 <style>
 	.top {
 		font-weight: bold;
+	}
+	.strike {
+		text-decoration: line-through;
 	}
 </style>

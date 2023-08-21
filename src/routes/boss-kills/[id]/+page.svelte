@@ -7,7 +7,9 @@
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-	const twinheadBossKillId = data.bosskill.id.replace(`${REALM_HELIO_ID}_`, '');
+
+	const fightLength = data.bosskill.length;
+
 	let showTooltipById: Record<string, boolean> = {};
 	function tooltipKey(item: Item, i: number) {
 		return `${item.id}-${i}`;
@@ -36,8 +38,8 @@
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
 	import Class from '$lib/components/table/column/Class.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
+	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
-	import { REALM_HELIO_ID } from '$lib/realm';
 	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
 
 	const timeline = data.bosskill.boss_kills_maps;
@@ -125,8 +127,8 @@
 		},
 		{
 			id: 'dps',
-			accessorFn: (row) => characterDps(row),
-			cell: (info) => flexRender(CharacterDps, { character: info.row.original }),
+			accessorFn: (row) => characterDps(row, fightLength),
+			cell: (info) => flexRender(CharacterDps, { character: info.row.original, fightLength }),
 			header: () => 'DPS'
 		},
 		{
@@ -149,11 +151,12 @@
 		},
 		{
 			id: 'hps',
-			accessorFn: (row) => characterHps(row),
+			accessorFn: (row) => characterHps(row, fightLength),
 			header: () => 'HPS',
 			cell: (info) =>
 				flexRender(CharacterHPS, {
-					character: info.row.original
+					character: info.row.original,
+					fightLength
 				})
 		},
 		{
@@ -203,13 +206,7 @@
 </script>
 
 <h1>Boss Kill Details - {data.bosskill.id}</h1>
-<a
-	href="https://mop-twinhead.twinstar.cz/?boss-kill={twinheadBossKillId}"
-	about="_blank"
-	rel="noopener"
->
-	Twinhead
-</a>
+<a href={links.twinstarBossKill(data.bosskill.id)} about="_blank" rel="noopener"> Twinhead </a>
 <div class="grid">
 	<div>
 		<dl>
