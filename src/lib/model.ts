@@ -66,6 +66,16 @@ export type Character = {
 };
 
 export const mutateCharacter = (character: Character): Character => {
+	character.dmgDone = Number(character.dmgDone);
+	character.healingDone = Number(character.healingDone);
+	character.absorbDone = Number(character.absorbDone);
+	character.dmgTaken = Number(character.dmgTaken);
+	character.dmgAbsorbed = Number(character.dmgAbsorbed);
+	character.healingTaken = Number(character.healingTaken);
+	character.usefullTime = Number(character.usefullTime);
+	character.dispels = Number(character.dispels);
+	character.interrupts = Number(character.interrupts);
+
 	character.classString = classToString(character.class);
 	character.classIconUrl = getClassIconUrl(character.class);
 
