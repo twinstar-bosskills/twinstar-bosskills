@@ -15,7 +15,6 @@
 			</li>
 			<li>
 				<Link href={links.BOSS_KILLS}>Latest</Link>
-				<!-- <a href="/bosses">Bosses</a> -->
 			</li>
 			<li>
 				<Link href={links.RAIDS}>Raids</Link>
@@ -33,6 +32,8 @@
 <main>
 	<slot />
 </main>
+
+<footer>Made by hop and hopefully some others, maybe you?</footer>
 
 <style>
 	:global(:root) {
@@ -61,6 +62,7 @@
 	}
 
 	:global(body) {
+		font-size: 16px;
 		max-width: 1920px;
 		margin: 0px auto;
 	}
@@ -73,12 +75,15 @@
 		width: 100%;
 		border-collapse: collapse;
 	}
+
 	:global(table th) {
 		background: gold;
 	}
+
 	:global(table tbody tr:nth-child(even)) {
 		background: rgb(0 0 0 / 8%);
 	}
+
 	:global(table tr td, table tr th) {
 		border: 1px solid rgba(0, 0, 0, 0.3);
 		padding: 0.25rem;
@@ -105,6 +110,7 @@
 		gap: 0.5rem;
 		grid-template-columns: 1fr max-content;
 	}
+
 	nav ul {
 		display: flex;
 	}
@@ -112,6 +118,16 @@
 	nav ul li {
 		margin-right: 0.5rem;
 	}
+
+	footer {
+		position: fixed;
+		bottom: 0;
+		width: 100%;
+		text-align: center;
+		font-size: 75%;
+		color: gray;
+	}
+
 	@media (max-width: 480px) {
 		.top {
 			grid-template-columns: 1fr;

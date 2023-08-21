@@ -8,6 +8,7 @@
 	import Spec from '$lib/components/table/column/Spec.column.svelte';
 	import { formatSecondsInterval } from '$lib/date';
 
+	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
 	import { formatAvgItemLvl } from '$lib/number';
@@ -88,7 +89,12 @@
 <h1>
 	Character {data.name}
 </h1>
-<a class="armory" href={links.twinstarArmory(data.name)} target="_blank" rel="noopener"> Armory </a>
+<LinkExternal
+	style="display: inline-block;margin: 0.5rem 0;"
+	href={links.twinstarArmory(data.name)}
+>
+	Armory
+</LinkExternal>
 
 <div>
 	<!-- <table>
@@ -140,9 +146,5 @@
 <style>
 	h1 {
 		margin-bottom: 0;
-	}
-	.armory {
-		display: inline-block;
-		margin: 0.5rem 0;
 	}
 </style>

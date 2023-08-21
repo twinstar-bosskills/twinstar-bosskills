@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Link from '$lib/components/Link.svelte';
+	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import { links } from '$lib/links';
 	import type { BossKill } from '$lib/model';
 
@@ -7,4 +8,4 @@
 </script>
 
 <Link href={links.bossKill(bosskill.id)}>Detail</Link>
-<a href={links.twinstarBossKill(bosskill.id)} about="_blank" rel="noopener">Twinhead</a>
+<LinkExternal href={links.twinstarBossKill(bosskill.id)}>Twinhead</LinkExternal>

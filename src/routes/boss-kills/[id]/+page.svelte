@@ -27,8 +27,9 @@
 	import { scaleOrdinal } from 'd3-scale';
 	import { Html, LayerCake, ScaledSvg, flatten } from 'layercake';
 
-	import AxisX from '$lib/components/chart/multiline/AxisX.html.svelte';
-	import AxisY from '$lib/components/chart/multiline/AxisY.html.svelte';
+	import LinkExternal from '$lib/components/LinkExternal.svelte';
+	import AxisX from '$lib/components/chart/AxisX.html.svelte';
+	import AxisY from '$lib/components/chart/AxisY.html.svelte';
 	import GroupLabels from '$lib/components/chart/multiline/GroupLabels.html.svelte';
 	import MultiLine from '$lib/components/chart/multiline/MultiLine.svelte';
 	import SharedTooltip from '$lib/components/chart/multiline/SharedTooltip.percent-range.html.svelte';
@@ -206,30 +207,26 @@
 </script>
 
 <h1>Boss Kill Details - {data.bosskill.id}</h1>
-<a href={links.twinstarBossKill(data.bosskill.id)} about="_blank" rel="noopener"> Twinhead </a>
+<LinkExternal href={links.twinstarBossKill(data.bosskill.id)}>Twinhead</LinkExternal>
 <div class="grid">
 	<div>
 		<dl>
 			<dt>Boss</dt>
 			<dd>
-				<a href="https://mop-twinhead.twinstar.cz/?npc={data.bosskill.entry}">
+				<LinkExternal href={links.twinstarNPC(data.bosskill.entry)}>
 					{data.boss.name}
-				</a>
+				</LinkExternal>
 			</dd>
 
 			<dt>Raid</dt>
-			<dd>{data.bosskill.map}</dd>
+			<dd>{data.bosskill.map} ({data.bosskill.difficulty})</dd>
 
 			<dt>Guild</dt>
 			<dd>
 				{#if data.bosskill.guild != ''}
-					<a
-						href="https://mop-twinhead.twinstar.cz/?guild={encodeURIComponent(
-							data.bosskill.guild
-						)}&realm={data.bosskill.realm}"
-					>
+					<LinkExternal href={links.twinstarGuild(data.bosskill.guild)}>
 						{data.bosskill.guild}
-					</a>
+					</LinkExternal>
 				{:else}
 					-
 				{/if}
@@ -294,12 +291,6 @@
 <h2>Fight timeline</h2>
 <div>
 	<style>
-		/*
-		  The wrapper div needs to have an explicit width and height in CSS.
-		  It can also be a flexbox child or CSS grid element.
-		  The point being it needs dimensions since the <LayerCake> element will
-		  expand to fill it.
-		*/
 		.chart-container {
 			width: 100%;
 			height: 250px;

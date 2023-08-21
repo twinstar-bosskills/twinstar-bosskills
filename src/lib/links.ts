@@ -12,7 +12,9 @@ const twinstarBossKill = (id: string) => {
 };
 export const twinstarArmory = (name: string) =>
 	`https://armory.twinstar-wow.com/character?name=${name}&realm=${REALM_HELIOS}`;
-
+export const twinstarNPC = (id: number) => `https://mop-twinhead.twinstar.cz/?npc=${id}`;
+export const twinstarGuild = (guild: string) =>
+	`https://mop-twinhead.twinstar.cz/?guild=${encodeURIComponent(guild)}&realm=${REALM_HELIOS}`;
 export const links = {
 	CHARACTERS,
 	RAIDS,
@@ -21,5 +23,7 @@ export const links = {
 	boss,
 	bossKill,
 	twinstarBossKill,
-	twinstarArmory
+	twinstarArmory,
+	twinstarNPC,
+	twinstarGuild
 };

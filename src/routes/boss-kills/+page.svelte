@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Link from '$lib/components/Link.svelte';
+	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { distanceTzNow, formatSecondsInterval, formatTzLocalized } from '$lib/date';
 	import { links } from '$lib/links';
@@ -43,7 +44,7 @@
 
 					<td>
 						<Link href={links.bossKill(bosskill.id)}>Detail</Link>
-						<a href="https://mop-twinhead.twinstar.cz/?boss-kill={bosskill.id}">Twinhead</a>
+						<LinkExternal href={links.twinstarBossKill(bosskill.id)}>Twinhead</LinkExternal>
 					</td>
 				</tr>
 			{/each}
