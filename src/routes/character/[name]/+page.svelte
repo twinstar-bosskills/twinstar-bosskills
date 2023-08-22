@@ -140,7 +140,7 @@
 			{/each}
 		</tbody>
 	</table> -->
-	<Table data={bosskills} columns={columnsUnknown} />
+	<Table data={bosskills} columns={columnsUnknown} sorting={[{ id: 'dps', desc: true }]} />
 </div>
 
 <style>

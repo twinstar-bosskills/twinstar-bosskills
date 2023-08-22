@@ -124,5 +124,5 @@ export const getBossStatsV2 = async (id: number, qa: BossStatsQueryArgs): Promis
 		}
 	};
 
-	return withCache({ deps: [`boss-stats-v2`, id, q], fallback });
+	return withCache({ deps: [`boss-stats-v2`, id, q], fallback }) ?? EMPTY_STATS;
 };

@@ -3,6 +3,7 @@
 	import Link from '$lib/components/Link.svelte';
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
+	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
 	import { distanceTzNow, formatSecondsInterval, formatTzLocalized } from '$lib/date';
 	import { links } from '$lib/links';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/paginations';
@@ -40,7 +41,7 @@
 					<td>{bosskill.difficulty}</td>
 					<td>{bosskill.guild == '' ? `Mixed group <${bosskill.realm}>` : bosskill.guild}</td>
 					<td>{formatSecondsInterval(bosskill.length)}</td>
-					<td>{formatTzLocalized(bosskill.time)} ({distanceTzNow(bosskill.time)} ago)</td>
+					<td><KilledAt {bosskill} /></td>
 
 					<td>
 						<Link href={links.bossKill(bosskill.id)}>Detail</Link>
@@ -52,7 +53,12 @@
 		<tfoot>
 			<tr>
 				<td colspan="7">
-					<Pagination page={page_} {pageSize} totalItems={data.latest.total} />
+					<Pagination
+						path={links.BOSS_KILLS}
+						page={page_}
+						{pageSize}
+						totalItems={data.latest.total}
+					/>
 				</td>
 			</tr>
 		</tfoot>

@@ -120,11 +120,13 @@
 <h2>Top stats by spec</h2>
 <div>
 	<ul>
-		<li><Link style="display: flex;" href={difficultyResetHref}>Reset</Link></li>
+		<li>
+			<Link data-sveltekit-reload style="display: flex;" href={difficultyResetHref}>Reset</Link>
+		</li>
 		{#each diffs as { label, href, isActive }}
 			<li class:active={isActive}>
 				<div class:active={isActive}>
-					<Link style="display: flex;" {href}>
+					<Link data-sveltekit-reload style="display: flex;" {href}>
 						{label}
 					</Link>
 				</div>
@@ -132,12 +134,12 @@
 		{/each}
 	</ul>
 	<ul>
-		<li><Link style="display: flex;" href={specResetHref}>Reset</Link></li>
+		<li><Link data-sveltekit-reload style="display: flex;" href={specResetHref}>Reset</Link></li>
 		{#each specs as { id, iconUrl, href, isActive }}
 			<li class:active={isActive}>
 				<div class:active={isActive}>
-					<Link style="display: flex;" {href}>
-						<Icon src={iconUrl} label="Talent spec {id}" style="width: 24px; height: auto;" />
+					<Link data-sveltekit-reload style="display: flex;" {href}>
+						<Icon src={iconUrl} label="Talent spec {id}" style="width: 24px; height: 24px;" />
 					</Link>
 				</div>
 			</li>
@@ -148,8 +150,13 @@
 	{#each data.stats as stat}
 		<div>
 			{#if stat.value.length > 0}
-				<h3>{stat.type === STATS_TYPE_DMG ? 'Top Damage Done' : 'Top Healing Done'}</h3>
-				<Table data={stat.value} columns={columnByStatsType[stat.type]} />
+				{@const isDmg = stat.type === STATS_TYPE_DMG}
+				<h3>{isDmg ? 'Top Damage Done' : 'Top Healing Done'}</h3>
+				<Table
+					data={stat.value}
+					columns={columnByStatsType[stat.type]}
+					sorting={[{ id: 'amount', desc: true }]}
+				/>
 				<!-- <table style="position: relative;">
 					<thead>
 						<tr>
@@ -201,13 +208,11 @@
 </div>
 
 <style>
-	div.active {
-		border: 4px solid gold;
-		border-radius: 6px;
+	ul li div {
+		padding: 0.25rem;
 	}
-	li.active {
-		border: 2px solid black;
-		border-radius: 6px;
+	ul li div.active {
+		border: 4px solid var(--color-link--visited);
 	}
 	ul {
 		display: flex;
