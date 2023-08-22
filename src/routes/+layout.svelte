@@ -81,6 +81,7 @@
 		font-family: 'Helvetica', 'Arial', sans-serif;
 
 		width: 100%;
+		min-height: 100vh;
 
 		background: url('/bg-1.blur.darken.png');
 		background-repeat: no-repeat;
