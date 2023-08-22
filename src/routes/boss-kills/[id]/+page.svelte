@@ -8,6 +8,7 @@
 
 	export let data: PageData;
 
+	const title = `Boss Kill Details - ${data.bosskill.id}`;
 	const fightLength = data.bosskill.length;
 
 	let showTooltipById: Record<string, boolean> = {};
@@ -206,7 +207,10 @@
 	const columnsUnknown = columns as any as ColumnDef<unknown>[];
 </script>
 
-<h1>Boss Kill Details - {data.bosskill.id}</h1>
+<svelte:head>
+	<title>{title}</title>
+</svelte:head>
+<h1>{title}</h1>
 <LinkExternal href={links.twinstarBossKill(data.bosskill.id)}>Twinhead</LinkExternal>
 <div class="grid">
 	<div>
@@ -256,7 +260,7 @@
 	<div>
 		<h2>Boss Loot</h2>
 		{#if isRaidDifficultyWithLoot(data.bosskill.mode)}
-			<div role="table">
+			<div class="loot" role="table">
 				{#each data.items as item, i}
 					<div
 						tabindex="0"
@@ -268,13 +272,16 @@
 						on:mouseout={() => hideTooltip(tooltipKey(item, i))}
 						on:blur={() => hideTooltip(tooltipKey(item, i))}
 					>
-						<img src={item.iconUrl} alt="Icon of {item.name}" width="36" height="36" />
+						<img src={item.iconUrl} alt="Icon of {item.name}" width="36px" height="36px" />
 						{item.name}
 					</div>
 
 					{@const tooltip = data.tooltips[item.id]}
 					{#if tooltip && showTooltipById[tooltipKey(item, i)]}
-						<div class="tooltip" style="border: 2px solid var({quality(item.quality)})">
+						<div
+							class="tooltip"
+							style="--top: {i + 1}; --height: 36px; --quality: var({quality(item.quality)})"
+						>
 							<!-- TODO(security): iframe this -->
 							<!-- https://stackoverflow.com/questions/9975810/make-iframe-automatically-adjust-height-according-to-the-contents-without-using -->
 							{@html tooltip.tooltip}
@@ -396,16 +403,27 @@
 		grid-template-columns: 1fr 1fr;
 		column-gap: 1rem;
 	}
+	.loot {
+		display: grid;
+		grid-template-columns: max-content;
+		position: relative;
+	}
 	.item {
 		display: flex;
 		align-items: center;
+		padding-right: 0.5rem;
 	}
 	.item img {
 		width: 36px;
 		height: 36px;
+		margin-right: 0.5rem;
 	}
 	.tooltip {
 		position: absolute;
-		background: white;
+		padding: 0.5rem;
+		top: calc(var(--top, 1) * var(--height, 36px) + 4px);
+		/* width: 120px; */
+		background-color: rgba(var(--color-bg), 0.75);
+		border: 2px solid var(--quality);
 	}
 </style>

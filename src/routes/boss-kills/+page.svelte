@@ -4,7 +4,7 @@
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
-	import { distanceTzNow, formatSecondsInterval, formatTzLocalized } from '$lib/date';
+	import { formatSecondsInterval } from '$lib/date';
 	import { links } from '$lib/links';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/paginations';
 	import type { PageData } from './$types';
@@ -15,6 +15,9 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>Latest Bosskills</title>
+</svelte:head>
 <h1>Latest Bosskills</h1>
 <div>
 	<table>

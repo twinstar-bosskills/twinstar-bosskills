@@ -6,6 +6,9 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>Bosses</title>
+</svelte:head>
 <h1>Bosses</h1>
 <ul>
 	{#each data.bosses as boss}

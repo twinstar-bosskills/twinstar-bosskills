@@ -24,7 +24,10 @@ export const getBossKills = async (q: BossKillQueryArgs): Promise<BossKillsData>
 
 	// do not cache
 	if (q.page === 0) {
-		return fallback();
+		return fallback().catch((e) => {
+			console.error(e);
+			return EMPTY_RESPONSE as BossKillsData;
+		});
 	}
 
 	return withCache({ deps: [`boss-kills`, q], fallback }) ?? (EMPTY_RESPONSE as BossKillsData);
@@ -55,5 +58,5 @@ export const getBossKillDetail = async (id: string): Promise<BossKillDetail | nu
 		return null;
 	};
 
-	return withCache({ deps: [`boss-kill-detail`, id], fallback });
+	return withCache({ deps: [`boss-kill-detail`, id], fallback }) ?? null;
 };

@@ -86,6 +86,10 @@
 	const columnsUnknown = columns as any as ColumnDef<unknown>[];
 </script>
 
+<svelte:head>
+	<title>Character {data.name}</title>
+</svelte:head>
+
 <h1>
 	Character {data.name}
 </h1>

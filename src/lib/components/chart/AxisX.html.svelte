@@ -89,7 +89,7 @@
 	}
 
 	.tick .text {
-		color: #666;
+		color: var(--color-fg, #666);
 		position: relative;
 		white-space: nowrap;
 		transform: translateX(-50%);

@@ -18,12 +18,13 @@ export const getBoss = async (id: number): Promise<Boss | null> => {
 			}
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
 
 		return null;
 	};
 
-	return withCache({ deps: [`boss`, id], fallback });
+	return withCache({ deps: [`boss`, id], fallback }) ?? null;
 };
 
 type BossStats = {

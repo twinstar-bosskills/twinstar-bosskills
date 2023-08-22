@@ -63,17 +63,13 @@
 
 <style>
 	.pagination {
-		max-width: 95vw;
 		overflow: auto;
 	}
 	.pagination ol {
 		display: flex;
+		padding: 0.25rem 0;
 	}
-	.pagination ol li {
-		padding: 0.125rem 0;
-		margin-right: 0.25rem;
-	}
-	.pagination ol li:last-child {
-		margin-right: 0;
+	.pagination ol li :global(> *) {
+		padding: 0.5rem 0.75rem;
 	}
 </style>
