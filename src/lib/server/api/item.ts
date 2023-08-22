@@ -168,7 +168,7 @@ export const getItem = async (id: number): Promise<Item | null> => {
 
 		return null;
 	};
-	return withCache({ deps: ['item', id], fallback });
+	return withCache({ deps: ['item', id], fallback }) ?? null;
 };
 
 export const getIconUrl = async (id: number): Promise<string | null> => {
@@ -187,14 +187,19 @@ export const getIconUrl = async (id: number): Promise<string | null> => {
 };
 
 export const getItemTooltip = async (id: number): Promise<ItemTooltip | null> => {
-	try {
-		// const r = await fetch(`https://mop-twinhead.twinstar.cz/?tooltip&type=item&id=${id}`);
-		const r = await fetch(`${TWINSTAR_API_URL}/item/tooltip?id=${id}&expansion=4`);
-		const json = await r.json();
-		return json?.['data'] ?? null;
-	} catch (e) {
-		console.error(e);
-	}
+	const fallback = async () => {
+		try {
+			// const r = await fetch(`https://mop-twinhead.twinstar.cz/?tooltip&type=item&id=${id}`);
+			const r = await fetch(`${TWINSTAR_API_URL}/item/tooltip?id=${id}&expansion=4`);
+			const json = await r.json();
+			return json?.['data'] ?? null;
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
 
-	return null;
+		// @ts-ignore
+		return null;
+	};
+	return withCache({ deps: [`item-tooltip`, id], fallback }) ?? null;
 };

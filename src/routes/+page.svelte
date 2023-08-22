@@ -30,7 +30,10 @@
 	const yDomainByHour = byHour.map((v) => v.key);
 </script>
 
-<h1>Welcome to Bosskills</h1>
+<svelte:head>
+	<title>Twinstar Bosskills</title>
+</svelte:head>
+<h1>Welcome to Twinstar Bosskills</h1>
 
 {#if data.first && data.last}
 	<h2>
@@ -68,7 +71,7 @@
 				<li class:top={i === 0}>
 					{key}: {value}
 					{#if i === 0}
-						(top raiding day)
+						<div class="top-raid">(top raiding day)</div>
 					{/if}
 				</li>
 			{/each}
@@ -105,7 +108,7 @@
 				<li class:top={i === 0}>
 					{key}: {value}
 					{#if i === 0}
-						(top raiding hour)
+						<div class="top-raid">(top raiding hour)</div>
 					{/if}
 				</li>
 			{/each}
@@ -136,6 +139,7 @@
 	}
 	.top {
 		font-weight: bold;
+		color: greenyellow;
 	}
 	.strike {
 		text-decoration: line-through;
@@ -144,5 +148,11 @@
 		display: grid;
 		grid-template-columns: 1fr max-content;
 		column-gap: 1rem;
+	}
+	ul .top-raid {
+		display: block;
+		margin-left: 1rem;
+		font-size: 75%;
+		color: greenyellow;
 	}
 </style>

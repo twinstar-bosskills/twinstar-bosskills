@@ -17,9 +17,7 @@
 	import BossKillDetailLink from './components/BossKillDetailLink.svelte';
 
 	export let data: PageData;
-	function characterIsMe(character: string) {
-		return character.toLowerCase() === data.character.toLowerCase();
-	}
+
 	const title = `Boss ${data.boss.name}`;
 
 	let searchParams = new URLSearchParams($page.url.searchParams);
@@ -146,7 +144,7 @@
 		{/each}
 	</ul>
 </div>
-<div class="grid" style="--stats-length: {data.stats.length}">
+<div class="flex">
 	{#each data.stats as stat}
 		<div>
 			{#if stat.value.length > 0}
@@ -212,7 +210,7 @@
 		padding: 0.25rem;
 	}
 	ul li div.active {
-		border: 4px solid var(--color-link--visited);
+		border: 4px solid var(--color-primary);
 	}
 	ul {
 		display: flex;
@@ -223,9 +221,12 @@
 	ul li {
 		margin-right: 0.25rem;
 	}
-	.grid {
-		display: grid;
-		column-gap: 1rem;
-		grid-template-columns: repeat(var(--stats-length, 2), max-content);
+	.flex {
+		display: flex;
+		flex-wrap: wrap;
+		overflow: auto;
+	}
+	.flex div {
+		margin-right: 1rem;
 	}
 </style>

@@ -6,11 +6,14 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>Raids</title>
+</svelte:head>
 <h1>Raids</h1>
 <ul class="raids">
 	{#each data.raids as raid}
-		<li>
-			<div>{raid.map}</div>
+		<li class="raid">
+			<h2>{raid.map}</h2>
 			<div class="bosses">
 				<ol>
 					{#each raid.bosses as boss, i}
@@ -26,11 +29,18 @@
 
 <style>
 	.raids {
-		display: grid;
-		grid-template-columns: repeat(3, max-content);
-		column-gap: 1rem;
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.raid {
+		margin-left: 1rem;
+		margin-top: 0.5rem;
+	}
+	.raid h2 {
+		margin: 0;
 	}
 	.bosses {
 		margin-left: 1rem;
+		margin-top: 0.5rem;
 	}
 </style>

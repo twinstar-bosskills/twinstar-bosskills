@@ -1,4 +1,6 @@
 <script lang="ts">
+	import arrowDown from '$lib/assets/icons/arrow-down.svg?raw';
+	import arrowUp from '$lib/assets/icons/arrow-up.svg?raw';
 	import {
 		createSvelteTable,
 		flexRender as flexRenderOrig,
@@ -10,8 +12,6 @@
 	} from '@tanstack/svelte-table';
 	import type { ComponentType, SvelteComponent } from 'svelte';
 	import { writable } from 'svelte/store';
-	import arrowUp from '$lib/assets/icons/arrow-up.svg?raw';
-	import arrowDown from '$lib/assets/icons/arrow-down.svg?raw';
 
 	const flexRender = <P extends Record<string, any>, C = any>(
 		component: C,
@@ -59,7 +59,7 @@
 	const table = createSvelteTable(options);
 </script>
 
-<table>
+<table style="--columns: {columns.length}">
 	<thead>
 		{#each $table.getHeaderGroups() as headerGroup}
 			<tr>
@@ -119,5 +119,19 @@
 <style>
 	.cursor-pointer {
 		cursor: pointer;
+	}
+	table {
+		display: grid;
+		grid-template-columns: repeat(var(--columns), max-content);
+		/* grid-template-columns: repeat(var(--columns), minmax(max-content, 1fr)); */
+	}
+	thead,
+	tbody,
+	tr {
+		display: contents;
+	}
+	tr td {
+		display: flex;
+		align-items: center;
 	}
 </style>

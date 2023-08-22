@@ -45,9 +45,8 @@
 	:global(:root) {
 		--color-fg: whitesmoke;
 		--color-bg: 0, 0, 0;
-		--color-th: goldenrod;
-		--color-link: palegoldenrod;
-		--color-link--visited: hsl(43 89% 50% / 1);
+		--color-primary: goldenrod;
+		--color-secondary: hsl(43 89% 50% / 1);
 
 		--color-q: #ffd100 !important;
 		--color-q0: #9d9d9d !important;
@@ -79,6 +78,8 @@
 		padding: 0.5rem;
 		margin: 0px auto;
 
+		font-family: 'Helvetica', 'Arial', sans-serif;
+
 		width: 100%;
 
 		background: url('/bg-1.blur.darken.png');
@@ -91,11 +92,11 @@
 	}
 
 	:global(a) {
-		color: var(--color-link);
+		color: var(--color-primary);
 	}
 
 	:global(a:visited) {
-		color: var(--color-link--visited);
+		color: var(--color-secondary);
 	}
 
 	:global(table) {
@@ -108,7 +109,7 @@
 	}
 
 	:global(table th) {
-		color: var(--color-th);
+		color: var(--color-primary);
 	}
 
 	:global(table tbody tr:nth-child(even)) {
@@ -140,7 +141,7 @@
 		font-size: 1.25rem;
 
 		padding-bottom: 0.5rem;
-		border-bottom: 2px solid var(--color-link--visited);
+		border-bottom: 2px solid var(--color-primary);
 	}
 
 	.select-character {
@@ -151,7 +152,7 @@
 
 	:global(nav a) {
 		text-decoration: none;
-		color: var(--color-link--visited);
+		color: var(--color-primary);
 	}
 
 	nav {
