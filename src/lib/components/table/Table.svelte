@@ -10,6 +10,8 @@
 	} from '@tanstack/svelte-table';
 	import type { ComponentType, SvelteComponent } from 'svelte';
 	import { writable } from 'svelte/store';
+	import arrowUp from '$lib/assets/icons/arrow-up.svg?raw';
+	import arrowDown from '$lib/assets/icons/arrow-down.svg?raw';
 
 	const flexRender = <P extends Record<string, any>, C = any>(
 		component: C,
@@ -20,12 +22,12 @@
 	type T = unknown;
 	export let data: T[] = [];
 	export let columns: ColumnDef<T>[] = [];
+	export let sorting: SortingState = [];
 
 	const SORT_DIRECTION: Record<string, string> = {
-		asc: ' 🔼',
-		desc: ' 🔽'
+		asc: arrowUp,
+		desc: arrowDown
 	};
-	let sorting: SortingState = [];
 
 	const setSorting: TableOptions<T>['onSortingChange'] = (updater) => {
 		if (updater instanceof Function) {
@@ -67,6 +69,7 @@
 							<!-- svelte-ignore a11y-click-events-have-key-events -->
 							<!-- svelte-ignore a11y-no-static-element-interactions -->
 							<div
+								style="display: flex; align-items: center;"
 								class:cursor-pointer={header.column.getCanSort()}
 								class:select-none={header.column.getCanSort()}
 								on:click={header.column.getToggleSortingHandler()}
@@ -74,7 +77,9 @@
 								<svelte:component
 									this={flexRender(header.column.columnDef.header, header.getContext())}
 								/>
-								{SORT_DIRECTION[header.column.getIsSorted().toString()] ?? ''}
+								<div style="height: 1rem;">
+									{@html SORT_DIRECTION[header.column.getIsSorted().toString()] ?? ''}
+								</div>
 							</div>
 						{/if}
 					</th>

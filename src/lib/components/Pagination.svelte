@@ -2,12 +2,13 @@
 	import { getPage, getPageSize } from '$lib/paginations';
 	import Link from './Link.svelte';
 
-	export let page = 0;
-	export let pageSize = 100;
+	export let path: string;
+	export let page: number = 0;
+	export let pageSize: number = 100;
 
-	export let totalItems = 0;
+	export let totalItems: number = 0;
 
-	export let pageWindowSize = 5;
+	export let pageWindowSize: number = 5;
 
 	let safePage = getPage(page);
 	let safePageSize = getPageSize(pageSize);
@@ -26,7 +27,6 @@
 			prevWindow = 0;
 		}
 
-		console.log({ prevWindow, nextWindow });
 		for (let i = 0; i < totalPages; i++) {
 			// safePage - pageWindowSize > i ||
 			const prevPages = i >= prevWindow;
@@ -42,21 +42,21 @@
 <div class="pagination">
 	<ol>
 		<li>
-			<Link href="/boss-kills?page=0">{'|<'} First</Link>
+			<Link href="{path}?page=0">{'|<'} First</Link>
 		</li>
 		<li style="margin-right: 0.5rem">
-			<Link href="/boss-kills?page={prevPage}">{'<<'} Prev</Link>
+			<Link href="{path}?page={prevPage}">{'<<'} Prev</Link>
 		</li>
 		{#each options as option}
 			<li>
-				<Link href="/boss-kills?page={option.page}">{option.page + 1}</Link>
+				<Link href="{path}?page={option.page}">{option.page + 1}</Link>
 			</li>
 		{/each}
 		<li style="margin-left: 0.5rem">
-			<Link href="/boss-kills?page={nextPage}">Next {'>>'}</Link>
+			<Link href="{path}?page={nextPage}">Next {'>>'}</Link>
 		</li>
 		<li>
-			<Link href="/boss-kills?page={lastPage}">Last {'>|'}</Link>
+			<Link href="{path}?page={lastPage}">Last {'>|'}</Link>
 		</li>
 	</ol>
 </div>

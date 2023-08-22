@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Link from '$lib/components/Link.svelte';
+	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import SelectCharacter from '$lib/components/SelectCharacter.svelte';
 	import { links } from '$lib/links';
 	import type { LayoutData } from './$types';
@@ -33,10 +34,21 @@
 	<slot />
 </main>
 
-<footer>Made by hop and hopefully some others, maybe you?</footer>
+<footer>
+	Made by hop and hopefully some others, maybe you?
+	<LinkExternal href="https://github.com/twinstar-bosskills/twinstar-bosskills">
+		We are open source
+	</LinkExternal>
+</footer>
 
 <style>
 	:global(:root) {
+		--color-fg: whitesmoke;
+		--color-bg: 0, 0, 0;
+		--color-th: goldenrod;
+		--color-link: palegoldenrod;
+		--color-link--visited: hsl(43 89% 50% / 1);
+
 		--color-q: #ffd100 !important;
 		--color-q0: #9d9d9d !important;
 		--color-q1: #fff !important;
@@ -66,6 +78,24 @@
 		max-width: 1920px;
 		padding: 0.5rem;
 		margin: 0px auto;
+
+		width: 100%;
+
+		background: url('/bg-1.blur.darken.png');
+		background-repeat: no-repeat;
+		background-size: cover;
+		backdrop-filter: blur(12px);
+		background-color: rgba(0, 0, 0, 0.5);
+
+		color: var(--color-fg);
+	}
+
+	:global(a) {
+		color: var(--color-link);
+	}
+
+	:global(a:visited) {
+		color: var(--color-link--visited);
 	}
 
 	:global(table) {
@@ -78,15 +108,15 @@
 	}
 
 	:global(table th) {
-		background: gold;
+		color: var(--color-th);
 	}
 
 	:global(table tbody tr:nth-child(even)) {
-		background: rgb(0 0 0 / 8%);
+		background: rgb(var(--color-bg) / 75%);
 	}
 
 	:global(table tr td, table tr th) {
-		border: 1px solid rgba(0, 0, 0, 0.3);
+		border: 1px solid rgba(var(--color-bg), 0.3);
 		padding: 0.25rem;
 	}
 
@@ -106,6 +136,27 @@
 		display: grid;
 		gap: 0.5rem;
 		grid-template-columns: 1fr max-content;
+
+		font-size: 1.25rem;
+
+		padding-bottom: 0.5rem;
+		border-bottom: 2px solid var(--color-link--visited);
+	}
+
+	.select-character {
+		padding: 0.25rem 0;
+		display: flex;
+		align-items: center;
+	}
+
+	:global(nav a) {
+		text-decoration: none;
+		color: var(--color-link--visited);
+	}
+
+	nav {
+		display: flex;
+		align-items: center;
 	}
 
 	nav ul {
@@ -113,6 +164,7 @@
 	}
 
 	nav ul li {
+		padding: 0.25rem 0;
 		margin-right: 0.5rem;
 	}
 

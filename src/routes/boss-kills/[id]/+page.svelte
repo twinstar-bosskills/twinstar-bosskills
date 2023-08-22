@@ -337,7 +337,11 @@
 <h2>Stats</h2>
 
 <div>
-	<Table data={data.bosskill.boss_kills_players} columns={columnsUnknown} />
+	<Table
+		data={data.bosskill.boss_kills_players}
+		columns={columnsUnknown}
+		sorting={[{ id: 'dmgDone', desc: true }]}
+	/>
 	<!-- <table>
 		<thead>
 			<tr>

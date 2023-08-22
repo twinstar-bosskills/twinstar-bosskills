@@ -16,6 +16,14 @@
 		align-items: center;
 	}
 	input {
+		font-size: 1.5rem;
+		max-width: 200px;
 		margin-left: 0.5rem;
+	}
+
+	@media (max-width: 320px) {
+		input {
+			max-width: 160px;
+		}
 	}
 </style>
