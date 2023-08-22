@@ -42,21 +42,21 @@
 <div class="pagination">
 	<ol>
 		<li>
-			<Link href="{path}?page=0">{'|<'} First</Link>
+			<Link data-sveltekit-reload href="{path}?page=0">{'|<'} First</Link>
 		</li>
 		<li style="margin-right: 0.5rem">
-			<Link href="{path}?page={prevPage}">{'<<'} Prev</Link>
+			<Link data-sveltekit-reload href="{path}?page={prevPage}">{'<<'} Prev</Link>
 		</li>
 		{#each options as option}
 			<li>
-				<Link href="{path}?page={option.page}">{option.page + 1}</Link>
+				<Link data-sveltekit-reload href="{path}?page={option.page}">{option.page + 1}</Link>
 			</li>
 		{/each}
 		<li style="margin-left: 0.5rem">
-			<Link href="{path}?page={nextPage}">Next {'>>'}</Link>
+			<Link data-sveltekit-reload href="{path}?page={nextPage}">Next {'>>'}</Link>
 		</li>
 		<li>
-			<Link href="{path}?page={lastPage}">Last {'>|'}</Link>
+			<Link data-sveltekit-reload href="{path}?page={lastPage}">Last {'>|'}</Link>
 		</li>
 	</ol>
 </div>
