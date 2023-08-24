@@ -5,7 +5,7 @@
 
 <form method="POST" action="/characters?/select">
 	<label for="character"> Character </label>
-	<input type="text" name="character" value={character} />
+	<input type="text" id="character" name="character" value={character} />
 	<input type="hidden" name="redirectUrl" value={redirectUrl} />
 </form>
 
