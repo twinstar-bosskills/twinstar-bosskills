@@ -213,7 +213,7 @@
 <h1>{title}</h1>
 <LinkExternal href={links.twinstarBossKill(data.bosskill.id)}>Twinhead</LinkExternal>
 <div class="grid">
-	<div>
+	<div class="grid-boss">
 		<dl>
 			<dt>Boss</dt>
 			<dd>
@@ -257,7 +257,7 @@
 		</dl>
 	</div>
 
-	<div>
+	<div class="grid-loot">
 		<h2>Boss Loot</h2>
 		{#if isRaidDifficultyWithLoot(data.bosskill.mode)}
 			<div class="loot" role="table">
@@ -266,7 +266,7 @@
 						tabindex="0"
 						role="row"
 						class="item"
-						style="border: 2px solid var({quality(item.quality)})"
+						style="--quality: var({quality(item.quality)});"
 						on:mouseover={() => showTooltip(tooltipKey(item, i))}
 						on:focus={() => showTooltip(tooltipKey(item, i))}
 						on:mouseout={() => hideTooltip(tooltipKey(item, i))}
@@ -349,81 +349,69 @@
 		columns={columnsUnknown}
 		sorting={[{ id: 'dmgDone', desc: true }]}
 	/>
-	<!-- <table>
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Class</th>
-				<th>DPS</th>
-				<th>Dmg Done</th>
-				<th>Dmg Taken</th>
-				<th>Dmg Absorb</th>
-				<th>HPS</th>
-				<th>Healing Done</th>
-				<th>Absorb Done</th>
-				<th>Overheal</th>
-				<th>Heal Taken</th>
-				<th>I</th>
-				<th>D</th>
-				<th>Avg iLvl</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each data.bosskill.boss_kills_players as character}
-				<tr>
-					<td>
-						<Link href={links.character(character.name)}>{character.name}</Link>
-					</td>
-					<td>
-						<Icon src={character.classIconUrl} label={character.classString} />
-						<Icon src={character.talentSpecIconUrl} label={String(character.talent_spec)} />
-						<Icon src={character.raceIconUrl} label={String(character.raceString)} />
-					</td>
-					<td>{formatNumber(characterDps(character))}</td>
-					<td>{formatNumber(character.dmgDone)}</td>
-					<td>{formatNumber(character.dmgTaken)}</td>
-					<td>{formatNumber(character.dmgAbsorbed)}</td>
-					<td>{formatNumber(characterHps(character))}</td>
-					<td>{formatNumber(character.healingDone)}</td>
-					<td>{formatNumber(character.absorbDone)}</td>
-					<td>{formatNumber(character.overhealingDone)}</td>
-					<td>{formatNumber(character.healingTaken)}</td>
-					<td>{character.interrupts}</td>
-					<td>{character.dispels}</td>
-					<td>{character.avg_item_lvl}</td>
-				</tr>
-			{/each}
-		</tbody>
-	</table> -->
 </div>
 
 <style>
+	:root {
+		--loot-item-height: 3rem;
+		--loot-item-margin-vertical: 0.25rem;
+	}
+
 	.grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
+		display: flex;
+		flex-wrap: wrap;
+
+		/* display: grid; */
+		/* grid-template-columns: minmax(max-content, 1fr) minmax(max-content, 250px); */
 		column-gap: 1rem;
 	}
+
+	.grid-boss,
+	.grid-loot {
+		flex-grow: 1;
+	}
+
 	.loot {
 		display: grid;
-		grid-template-columns: max-content;
+		/* grid-template-columns: max-content; */
 		position: relative;
 	}
+
 	.item {
 		display: flex;
 		align-items: center;
 		padding-right: 0.5rem;
+		padding-left: 2px;
+		border-left: 6px solid var(--quality);
+		margin: var(--loot-item-margin-vertical) 0;
 	}
+
 	.item img {
 		width: 36px;
 		height: 36px;
 		margin-right: 0.5rem;
 	}
+
+	/* 
+	.item::before {
+		content: '';
+		width: calc(var(--loot-item-height) / 2);
+		height: calc(var(--loot-item-height) / 2);
+		border-radius: 50%;
+		background-color: var(--quality);
+		margin: 0 0.25rem;
+	} */
+
 	.tooltip {
 		position: absolute;
 		padding: 0.5rem;
-		top: calc(var(--top, 1) * var(--height, 36px) + 4px);
+		left: calc(0.5rem + var(--loot-item-height) / 2);
+		top: calc(
+			(var(--top, 1) * var(--height, 36px)) + 2 * var(--top, 1) * var(--loot-item-margin-vertical)
+		);
 		/* width: 120px; */
 		background-color: rgba(var(--color-bg), 0.75);
-		border: 2px solid var(--quality);
+		border: 2px solid rgba(var(--quality), 0.75);
+		z-index: 1;
 	}
 </style>

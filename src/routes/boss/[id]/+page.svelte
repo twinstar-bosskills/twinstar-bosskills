@@ -155,51 +155,6 @@
 					columns={columnByStatsType[stat.type]}
 					sorting={[{ id: 'amount', desc: true }]}
 				/>
-				<!-- <table style="position: relative;">
-					<thead>
-						<tr>
-							<th>Rank</th>
-							<th>Character</th>
-							<th>Spec</th>
-							<th>{name}</th>
-							<th>{namePerSecond}</th>
-							<th>Details</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each stat.value as item, i}
-							{@const isMe = characterIsMe(item.char.name)}
-							{@const style = isMe ? 'font-weight: bold;' : ''}
-							{@const amount = formatNumber(item.amount)}
-							{@const amountPerSecond = formatValuePerSecond(item.amount, item.char.usefullTime)}
-							{@const bossKillId = item.char.boss_kills?.id ?? ''}
-							<tr>
-								<td {style}>{i + 1}</td>
-								<td {style}>
-									<Link href={links.character(item.char.name)}>
-										{isMe ? '>>> ' : ''}
-										{item.char.name}
-										{isMe ? ' <<<' : ''}
-									</Link>
-								</td>
-								<td {style}>
-									<Icon
-										src={item.char.talentSpecIconUrl}
-										label="Talent spec {item.char.talent_spec}"
-										style="width: 16px; height: auto;"
-									/>
-								</td>
-								<td {style}>{amount}</td>
-								<td {style}>{amountPerSecond}</td>
-								<td>
-									{#if bossKillId !== ''}
-										<Link href={links.bossKill(bossKillId)}>Detail</Link>
-									{/if}
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table> -->
 			{/if}
 		</div>
 	{/each}
@@ -224,9 +179,17 @@
 	.flex {
 		display: flex;
 		flex-wrap: wrap;
-		overflow: auto;
 	}
 	.flex div {
 		margin-right: 1rem;
+		overflow: auto;
+	}
+	:global(.flex table) {
+		max-height: 75vh;
+	}
+	@media (max-width: 720px) {
+		:global(.flex table) {
+			max-height: 500px;
+		}
 	}
 </style>

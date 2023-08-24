@@ -7,5 +7,5 @@
 	export let bosskill: BossKill;
 </script>
 
-<Link href={links.bossKill(bosskill.id)}>Detail</Link>
+<Link href={links.bossKill(bosskill.id)} style="margin-right: 0.5rem;">Detail</Link>
 <LinkExternal href={links.twinstarBossKill(bosskill.id)}>Twinhead</LinkExternal>
