@@ -67,9 +67,32 @@
 
 		--color-r4: #808080 !important;
 	}
+	:global(h1) {
+		margin: 1rem 0;
+	}
 
 	:global(*) {
 		box-sizing: border-box;
+
+		scrollbar-color: rgba(var(--color-bg), 0.75) var(--color-primary);
+		/* scrollbar-width: thin; */
+	}
+
+	:global(::-webkit-scrollbar) {
+		width: 0.75rem;
+		height: 0.75rem;
+	}
+
+	:global(::-webkit-scrollbar-track) {
+		background: var(--color-primary);
+	}
+
+	:global(::-webkit-scrollbar-thumb) {
+		background: rgba(var(--color-bg), 0.75);
+	}
+
+	:global(::-webkit-scrollbar-thumb:hover) {
+		background: rgba(var(--color-bg), 1);
 	}
 
 	:global(body) {

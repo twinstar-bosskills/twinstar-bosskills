@@ -8,6 +8,7 @@
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
 	import Spec from '$lib/components/table/column/Spec.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
+	import { formatSecondsInterval } from '$lib/date';
 	import { characterDps, characterHps } from '$lib/metrics';
 	import { Difficulty, TalentSpec, difficultyToString, isRaidDifficulty } from '$lib/model';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
@@ -63,14 +64,13 @@
 		type T = (typeof stat.value)[0];
 		const isDmg = stat.type === STATS_TYPE_DMG;
 		const columns: ColumnDef<T>[] = [
-			{ id: 'rank', accessorFn: (_, i) => i + 1, header: () => 'Rank' },
 			{
 				id: 'character',
 				accessorFn: (row) => row.char,
 				header: () => 'Character',
 				cell: (info) => flexRender(CharacterName, { character: info.row.original.char })
 			},
-
+			{ id: 'rank', accessorFn: (_, i) => i + 1, header: () => 'Rank' },
 			{
 				id: 'spec',
 				accessorFn: (row) => row.char.talent_spec,
@@ -98,12 +98,18 @@
 				header: () => (isDmg ? 'DPS' : 'HPS')
 			},
 			{
+				id: 'fightLength',
+				accessorFn: (row) => row.char.boss_kills?.length ?? 0,
+				cell: (info) => formatSecondsInterval(info.getValue() as number),
+				header: () => 'Fight Length'
+			},
+			{
 				id: 'detail',
 				cell: (info) => {
 					const bossKillId = info.row.original.char.boss_kills?.id;
 					return flexRender(BossKillDetailLink, { id: bossKillId });
 				},
-				header: () => 'Detail',
+				header: () => 'Details',
 				enableSorting: false
 			}
 		];

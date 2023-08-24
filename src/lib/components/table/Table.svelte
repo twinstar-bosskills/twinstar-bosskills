@@ -93,10 +93,18 @@
 		{/each}
 	</thead>
 	<tbody>
-		{#each $table.getRowModel().rows as row}
+		{#each $table.getRowModel().rows as row, i}
 			<tr>
-				{#each row.getVisibleCells() as cell, i}
-					<td class:sticky-left={i === 0} style={i === 0 ? '--left: 0;' : undefined}>
+				{#each row.getVisibleCells() as cell, j}
+					<td
+						class:sticky-left={j === 0}
+						style={[
+							j === 0 ? '--left: 0' : undefined,
+							i % 2 === 0 ? 'background: rgba(var(--color-bg), 0.75)' : undefined
+						]
+							.filter(Boolean)
+							.join(';')}
+					>
 						<svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
 					</td>
 				{/each}
@@ -144,6 +152,10 @@
 		background: rgba(var(--color-bg), 0.8);
 		left: var(--left, 0);
 		z-index: 1;
+		border-left: 1px solid var(--color-primary);
+		border-right: 1px solid var(--color-primary);
+		border-top: none;
+		border-bottom: none;
 	}
 	.sticky-top {
 		position: sticky;
@@ -152,6 +164,17 @@
 		z-index: 2;
 	}
 	.sticky-left.sticky-top {
-		z-index: 2;
+		z-index: 3;
+		border: 1px solid var(--color-primary);
+	}
+	@media (max-width: 320px) {
+		.sticky-top,
+		.sticky-left {
+			position: static;
+			background: none;
+			top: unset;
+			left: unset;
+			z-index: unset;
+		}
 	}
 </style>
