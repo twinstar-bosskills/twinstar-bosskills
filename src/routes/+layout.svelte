@@ -114,12 +114,12 @@
 	}
 
 	:global(table tbody tr:nth-child(even)) {
-		background: rgb(var(--color-bg) / 75%);
+		background: rgba(var(--color-bg), 0.75);
 	}
 
 	:global(table tr td, table tr th) {
 		border: 1px solid rgba(var(--color-bg), 0.3);
-		padding: 0.25rem;
+		padding: 0.25rem 0.5rem;
 	}
 
 	:global(ul, ol) {

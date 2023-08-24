@@ -61,10 +61,15 @@
 
 <table style="--columns: {columns.length}">
 	<thead>
-		{#each $table.getHeaderGroups() as headerGroup}
+		{#each $table.getHeaderGroups() as headerGroup, i}
 			<tr>
-				{#each headerGroup.headers as header}
-					<th colSpan={header.colSpan}>
+				{#each headerGroup.headers as header, j}
+					<th
+						colSpan={header.colSpan}
+						class:sticky-top={i === 0}
+						class:sticky-left={j === 0}
+						style={j === 0 ? '--left: 0;' : undefined}
+					>
 						{#if !header.isPlaceholder}
 							<!-- svelte-ignore a11y-click-events-have-key-events -->
 							<!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -90,8 +95,8 @@
 	<tbody>
 		{#each $table.getRowModel().rows as row}
 			<tr>
-				{#each row.getVisibleCells() as cell}
-					<td>
+				{#each row.getVisibleCells() as cell, i}
+					<td class:sticky-left={i === 0} style={i === 0 ? '--left: 0;' : undefined}>
 						<svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
 					</td>
 				{/each}
@@ -133,5 +138,20 @@
 	tr td {
 		display: flex;
 		align-items: center;
+	}
+	.sticky-left {
+		position: sticky;
+		background: rgba(var(--color-bg), 0.8);
+		left: var(--left, 0);
+		z-index: 1;
+	}
+	.sticky-top {
+		position: sticky;
+		background: rgba(var(--color-bg), 0.8);
+		top: 0;
+		z-index: 2;
+	}
+	.sticky-left.sticky-top {
+		z-index: 2;
 	}
 </style>

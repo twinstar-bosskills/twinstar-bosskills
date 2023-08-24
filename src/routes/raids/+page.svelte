@@ -17,8 +17,8 @@
 			<div class="bosses">
 				<ol>
 					{#each raid.bosses as boss, i}
-						<li>
-							{`${i + 1}. `}<Link href={links.boss(boss.entry)}>{boss.name}</Link>
+						<li style="list-style-type: decimal;">
+							<Link href={links.boss(boss.entry)}>{boss.name}</Link>
 						</li>
 					{/each}
 				</ol>
