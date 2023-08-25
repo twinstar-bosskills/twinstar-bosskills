@@ -61,7 +61,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		api.getBossStatsV2(id, {
 			difficulty,
 			talentSpec,
-			pageSize: 100,
+			pageSize: 200,
 			sorter: {
 				column: 'dmgDone',
 				order: 'desc'
@@ -70,7 +70,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		api.getBossStatsV2(id, {
 			difficulty,
 			talentSpec,
-			pageSize: 100,
+			pageSize: 200,
 			sorter: {
 				column: 'healingDone',
 				order: 'desc'
