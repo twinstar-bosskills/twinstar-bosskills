@@ -48,6 +48,9 @@
 		--color-primary: goldenrod;
 		--color-secondary: hsl(43 89% 50% / 1);
 
+		--color-success: lawngreen;
+		--color-error: orangered;
+
 		--color-q: #ffd100 !important;
 		--color-q0: #9d9d9d !important;
 		--color-q1: #fff !important;
@@ -96,7 +99,7 @@
 	}
 
 	:global(body) {
-		font-size: 16px;
+		font-size: 14px;
 		max-width: 1920px;
 		padding: 0.5rem;
 		margin: 0px auto;
@@ -106,11 +109,12 @@
 		width: 100%;
 		min-height: 100vh;
 
-		background: url('/bg-1.blur.darken.png');
-		background-repeat: no-repeat;
-		background-size: cover;
-		backdrop-filter: blur(12px);
-		background-color: rgba(0, 0, 0, 0.5);
+		/* background: url('/bg-1.blur.darken.png'); */
+		/* background-repeat: no-repeat; */
+		/* background-size: cover; */
+		/* backdrop-filter: blur(12px); */
+		/* background-color: rgba(0, 0, 0, 0.5); */
+		background-color: rgb(27 27 27);
 
 		color: var(--color-fg);
 	}
@@ -142,7 +146,7 @@
 
 	:global(table tr td, table tr th) {
 		border: 1px solid rgba(var(--color-bg), 0.3);
-		padding: 0.25rem 0.5rem;
+		padding: 0.5rem 0.75rem;
 	}
 
 	:global(ul, ol) {

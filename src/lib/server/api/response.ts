@@ -1,6 +1,6 @@
-export type Response<T = unknown> = {
+export type PaginatedResponse<T = unknown> = {
 	data: T;
 	total: number;
 };
 
-export const EMPTY_RESPONSE: Response = { data: [], total: 0 };
+export const EMPTY_PAGINATED_RESPONSE: PaginatedResponse = { data: [], total: 0 };

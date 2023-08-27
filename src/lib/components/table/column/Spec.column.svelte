@@ -7,4 +7,4 @@
 
 <!-- TODO: API does not return class -->
 <!-- <Icon src={character.classIconUrl} label={character.classString} /> -->
-<Icon src={character.talentSpecIconUrl} label={String(character.talent_spec)} />
+<Icon src={character.talentSpecIconUrl} label={character.talentSpecString} />

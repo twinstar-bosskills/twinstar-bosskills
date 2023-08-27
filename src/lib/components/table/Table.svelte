@@ -127,6 +127,15 @@
 			</tr>
 		{/each}
 	</tfoot> -->
+	{#if $$slots.pagination}
+		<tfoot>
+			<tr>
+				<td class="pagination">
+					<slot name="pagination" />
+				</td>
+			</tr>
+		</tfoot>
+	{/if}
 </table>
 
 <style>
@@ -140,12 +149,17 @@
 	}
 	thead,
 	tbody,
+	tfoot,
 	tr {
 		display: contents;
 	}
 	tr td {
 		display: flex;
 		align-items: center;
+	}
+	.pagination {
+		grid-column-start: 1;
+		grid-column-end: calc(var(--columns) + 1);
 	}
 	.sticky-left {
 		position: sticky;
@@ -156,6 +170,9 @@
 		border-right: 1px solid var(--color-primary);
 		border-top: none;
 		border-bottom: none;
+	}
+	tr:last-of-type .sticky-left {
+		border-bottom: 1px solid var(--color-primary);
 	}
 	.sticky-top {
 		position: sticky;
