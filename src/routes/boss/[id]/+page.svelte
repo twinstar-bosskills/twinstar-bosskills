@@ -6,6 +6,7 @@
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
+	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
 	import Spec from '$lib/components/table/column/Spec.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { formatSecondsInterval } from '$lib/date';
@@ -102,6 +103,12 @@
 				accessorFn: (row) => row.char.boss_kills?.length ?? 0,
 				cell: (info) => formatSecondsInterval(info.getValue() as number),
 				header: () => 'Fight Length'
+			},
+			{
+				id: 'killedAt',
+				header: () => 'Killed',
+				accessorFn: (row) => row.char.boss_kills?.time,
+				cell: (info) => flexRender(KilledAt, { bosskill: info.row.original.char.boss_kills! })
 			},
 			{
 				id: 'detail',
