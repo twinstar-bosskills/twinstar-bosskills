@@ -79,9 +79,9 @@
 	</div>
 	<div class="by-boss">
 		<div>
-			<h3>Most kills, total: <TextColorSuccess>{current.kills}</TextColorSuccess></h3>
+			<h3>Most kills - total <TextColorSuccess>{current.kills}</TextColorSuccess></h3>
 			<h4 style="margin-left: 0.5rem; margin-top: -1rem;">
-				Last raid lockout <TextColorSuccess>{previous.kills}</TextColorSuccess>
+				Last raid lockout - total <TextColorSuccess>{previous.kills}</TextColorSuccess>
 			</h4>
 			<div class="tc">
 				<Table
@@ -93,11 +93,11 @@
 		</div>
 		<div>
 			<h3>
-				Most wipes, total <TextColorError>{current.wipes}</TextColorError>, wipe chance
+				Most wipes - total <TextColorError>{current.wipes}</TextColorError>, wipe chance
 				<TextColorError>{current.wipePercentage}%</TextColorError>
 			</h3>
 			<h4 style="margin-left: 0.5rem; margin-top: -1rem;">
-				Last raid lockout total: <TextColorError>{previous.wipes}</TextColorError>, wipe chance
+				Last raid lockout - total <TextColorError>{previous.wipes}</TextColorError>, wipe chance
 				<TextColorError>{previous.wipePercentage}%</TextColorError>
 			</h4>
 			<div class="tc">
