@@ -62,6 +62,7 @@ export type Character = {
 	raceIconUrl: string;
 	raceString: string;
 
+	talentSpecString: string;
 	talentSpecIconUrl: string;
 };
 
@@ -82,6 +83,7 @@ export const mutateCharacter = (character: Character): Character => {
 	character.raceString = raceToString(character.race);
 	character.raceIconUrl = getRaceIconUrl({ race: character.race, gender: character.gender });
 
+	character.talentSpecString = taletSpecToString(character.talent_spec);
 	character.talentSpecIconUrl = getTalentSpecIconUrl(character.talent_spec);
 	if (typeof character.boss_kills !== 'undefined') {
 		character.boss_kills = mutateBossKill(character.boss_kills);
@@ -280,9 +282,11 @@ export const TalentSpec = {
 	MAGE_ARCANE: 62,
 	MAGE_FIRE: 63,
 	MAGE_FROST: 64,
+
 	PALADIN_HOLY: 65,
 	PALADIN_PROT: 66,
 	PALADIN_RET: 70,
+
 	WARR_ARMS: 71,
 	WARR_FURY: 72,
 	WARR_PROT: 73,
@@ -295,6 +299,7 @@ export const TalentSpec = {
 	DK_BLOOD: 250,
 	DK_FROST: 251,
 	DK_UNHOLY: 252,
+
 	HUNTER_BM: 253,
 	HUNTER_MM: 254,
 	HUNTER_SURV: 255,
@@ -320,4 +325,44 @@ export const TalentSpec = {
 	MONK_MISTWEAVER: 270
 
 	// TODO: https://wow.tools/dbc/?dbc=chrspecialization&build=5.4.8.18273#page=1
+};
+const TALENT_SPEC_TO_STRING = {
+	[TalentSpec.MAGE_ARCANE]: 'Arcane',
+	[TalentSpec.MAGE_FIRE]: 'Fire',
+	[TalentSpec.MAGE_FROST]: 'Frost (Mage)',
+	[TalentSpec.PALADIN_HOLY]: 'Holy (Paladin)',
+	[TalentSpec.PALADIN_PROT]: 'Protection (Paladin)',
+	[TalentSpec.PALADIN_RET]: 'Retribution',
+	[TalentSpec.WARR_ARMS]: 'Arms',
+	[TalentSpec.WARR_FURY]: 'Fury',
+	[TalentSpec.WARR_PROT]: 'Protection (Warrior)',
+	[TalentSpec.DRUID_BALA]: 'Balance',
+	[TalentSpec.DRUID_CAT]: 'Feral',
+	[TalentSpec.DRUID_BEAR]: 'Guardian',
+	[TalentSpec.DRUID_RESTO]: 'Restoration (Druid)',
+	[TalentSpec.DK_BLOOD]: 'Blood',
+	[TalentSpec.DK_FROST]: 'Frost (Death Knight)',
+	[TalentSpec.DK_UNHOLY]: 'Unholy',
+	[TalentSpec.HUNTER_BM]: 'Beast Mastery',
+	[TalentSpec.HUNTER_MM]: 'Marksmanship',
+	[TalentSpec.HUNTER_SURV]: 'Survival',
+	[TalentSpec.PRIEST_DISC]: 'Discipline',
+	[TalentSpec.PRIEST_HOLY]: 'Holy (Priest)',
+	[TalentSpec.PRIEST_SHADOW]: 'Shadow',
+	[TalentSpec.ROGUE_ASSA]: 'Assasination',
+	[TalentSpec.ROGUE_COMBAT]: 'Combat',
+	[TalentSpec.ROGUE_SUB]: 'Subtlety',
+	[TalentSpec.SHAMAN_ELE]: 'Elemental',
+	[TalentSpec.SHAMAN_ENHA]: 'Enhancement',
+	[TalentSpec.SHAMAN_RESTO]: 'Restoration (Shaman)',
+	[TalentSpec.WARLOCK_AFFLI]: 'Affliction',
+	[TalentSpec.WARLOCK_DEMO]: 'Demonology',
+	[TalentSpec.WARLOCK_DESTO]: 'Destruction',
+	[TalentSpec.MONK_BREWMASTER]: 'Brewmaster',
+	[TalentSpec.MONK_BATTLEDANCER]: 'Battledancer',
+	[TalentSpec.MONK_MISTWEAVER]: 'Mistweaver'
+};
+
+export const taletSpecToString = (spec: number): string => {
+	return TALENT_SPEC_TO_STRING[spec] ?? 'Unknown spec';
 };

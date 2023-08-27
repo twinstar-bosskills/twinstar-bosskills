@@ -8,7 +8,11 @@ export interface Sorter<TColumn = string> {
 export enum FilterOperator {
 	EQUALS = 'equals',
 	ILIKE = 'ilike',
-	IN = 'in'
+	IN = 'in',
+	GT = 'gt',
+	GTE = 'gte',
+	LT = 'lt',
+	LTE = 'lte'
 }
 
 export interface Filter<TColumn = string> {

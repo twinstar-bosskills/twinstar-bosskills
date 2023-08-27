@@ -2,10 +2,11 @@ import { TWINSTAR_API_URL } from '$env/static/private';
 import { mutateBossKill, type BossKill, type BossKillDetail } from '$lib/model';
 import { withCache } from '../cache';
 import { queryString, type QueryArgs } from './filter';
-import { EMPTY_RESPONSE, type Response } from './response';
+import { listAll } from './pagination';
+import { EMPTY_PAGINATED_RESPONSE, type PaginatedResponse } from './response';
 
 export type BossKillQueryArgs = QueryArgs<keyof BossKill>;
-type BossKillsData = Response<BossKill[]>;
+type BossKillsData = PaginatedResponse<BossKill[]>;
 export const getBossKills = async (q: BossKillQueryArgs): Promise<BossKillsData> => {
 	const url = `${TWINSTAR_API_URL}/bosskills?${queryString(q)}`;
 	const fallback = async () => {
@@ -26,11 +27,13 @@ export const getBossKills = async (q: BossKillQueryArgs): Promise<BossKillsData>
 	if (q.page === 0) {
 		return fallback().catch((e) => {
 			console.error(e);
-			return EMPTY_RESPONSE as BossKillsData;
+			return EMPTY_PAGINATED_RESPONSE as BossKillsData;
 		});
 	}
 
-	return withCache({ deps: [`boss-kills`, q], fallback }) ?? (EMPTY_RESPONSE as BossKillsData);
+	return (
+		withCache({ deps: [`boss-kills`, q], fallback }) ?? (EMPTY_PAGINATED_RESPONSE as BossKillsData)
+	);
 };
 
 export const getLatestBossKills = async (
@@ -43,6 +46,35 @@ export const getLatestBossKills = async (
 			order: 'desc'
 		}
 	});
+};
+export const listAllLatestBossKills = async (
+	q: Omit<BossKillQueryArgs, 'sorter'> = {}
+): Promise<BossKill[]> => {
+	const fallback = async () => {
+		try {
+			return listAll(({ page, pageSize }) =>
+				getBossKills({
+					...q,
+					page,
+					pageSize,
+					sorter: {
+						column: 'time',
+						order: 'desc'
+					}
+				})
+			);
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+	};
+
+	return (
+		withCache({
+			deps: ['list-all-lastest-boss-kills', q],
+			fallback
+		}) ?? []
+	);
 };
 
 export const getBossKillDetail = async (id: string): Promise<BossKillDetail | null> => {

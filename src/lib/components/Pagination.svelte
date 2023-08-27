@@ -63,13 +63,30 @@
 
 <style>
 	.pagination {
-		overflow: auto;
+		display: flex;
+		justify-content: center;
+		flex-grow: 1;
 	}
+
 	.pagination ol {
 		display: flex;
-		padding: 0.25rem 0;
 	}
+
 	.pagination ol li :global(> *) {
 		padding: 0.5rem 0.75rem;
+	}
+
+	.pagination ol li:first-child :global(> *) {
+		padding-left: 0;
+	}
+
+	.pagination ol li:last-child :global(> *) {
+		padding-right: 0;
+	}
+
+	@media (max-width: 900px) {
+		.pagination {
+			justify-content: flex-start;
+		}
 	}
 </style>

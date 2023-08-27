@@ -28,6 +28,7 @@
 	import { scaleOrdinal } from 'd3-scale';
 	import { Html, LayerCake, ScaledSvg, flatten } from 'layercake';
 
+	import Link from '$lib/components/Link.svelte';
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import AxisX from '$lib/components/chart/AxisX.html.svelte';
 	import AxisY from '$lib/components/chart/AxisY.html.svelte';
@@ -217,9 +218,10 @@
 		<dl>
 			<dt>Boss</dt>
 			<dd>
-				<LinkExternal href={links.twinstarNPC(data.bosskill.entry)}>
+				<Link href={links.boss(data.bosskill.entry, { difficulty: data.bosskill.mode })}>
 					{data.boss.name}
-				</LinkExternal>
+				</Link>
+				- <LinkExternal href={links.twinstarNPC(data.bosskill.entry)}>Twinhead</LinkExternal>
 			</dd>
 
 			<dt>Raid</dt>
