@@ -101,7 +101,8 @@ export const load: PageServerLoad = async () => {
 			filters: [
 				{ column: 'time', operator: FilterOperator.GTE, value: thisRaidLockStart },
 				{ column: 'time', operator: FilterOperator.LTE, value: thisRaidLockEnd }
-			]
+			],
+			cache: false
 		}).then(toRaidLockData),
 		listAllLatestBossKills({
 			pageSize: 10_000,

@@ -24,7 +24,7 @@ export const getBossKills = async (q: BossKillQueryArgs): Promise<BossKillsData>
 	};
 
 	// do not cache
-	if (q.page === 0) {
+	if (q.cache === false || q.page === 0) {
 		return fallback().catch((e) => {
 			console.error(e);
 			return EMPTY_PAGINATED_RESPONSE as BossKillsData;
@@ -68,6 +68,13 @@ export const listAllLatestBossKills = async (
 			throw e;
 		}
 	};
+
+	if (q.cache === false) {
+		return fallback().catch((e) => {
+			console.error(e);
+			return [];
+		});
+	}
 
 	return (
 		withCache({

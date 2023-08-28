@@ -159,7 +159,7 @@ export const getItem = async (id: number): Promise<Item | null> => {
 			return {
 				id: item.item.ID,
 				name: item.itemSparse.Name,
-				iconUrl: await getIconUrl(id),
+				iconUrl: getItemIconUrl(id),
 				quality: item.itemSparse.Quality
 			};
 		} catch (e) {
@@ -171,20 +171,10 @@ export const getItem = async (id: number): Promise<Item | null> => {
 	return withCache({ deps: ['item', id], fallback }) ?? null;
 };
 
-export const getIconUrl = async (id: number): Promise<string | null> => {
-	/* TODO: blob does not work
-	try {
-		const res = await fetch(`https://twinstar-api.twinstar-wow.com/item/icon/${id}`);
-		const blob = await res.blob();
-		const url = URL.createObjectURL(blob);
-		return url;
-	} catch (e) {
-		console.error(e);
-	}
-    */
-
-	return `${TWINSTAR_API_URL}/item/icon/${id}`;
+export const getItemIconUrl = (id: number): string => {
+	return `/img/icon?type=item&id=${id}`;
 };
+export const getRemoteItemIconUrl = (id: number) => `${TWINSTAR_API_URL}/item/icon/${id}`;
 
 export const getItemTooltip = async (id: number): Promise<ItemTooltip | null> => {
 	const fallback = async () => {
