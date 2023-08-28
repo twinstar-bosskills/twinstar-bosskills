@@ -32,6 +32,7 @@ export type QueryArgs<TColumn = string> = {
 	pageSize?: number;
 	filters?: Filter<TColumn>[];
 	sorter?: Sorter<TColumn>;
+	cache?: boolean;
 };
 
 export const queryString = ({
