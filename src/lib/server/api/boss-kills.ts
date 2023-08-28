@@ -53,14 +53,10 @@ export const listAllLatestBossKills = async (
 	const fallback = async () => {
 		try {
 			return listAll(({ page, pageSize }) =>
-				getBossKills({
+				getLatestBossKills({
 					...q,
 					page,
-					pageSize,
-					sorter: {
-						column: 'time',
-						order: 'desc'
-					}
+					pageSize
 				})
 			);
 		} catch (e) {
@@ -92,9 +88,8 @@ export const getBossKillDetail = async (id: string): Promise<BossKillDetail | nu
 			return mutateBossKill(item);
 		} catch (e) {
 			console.error(e);
+			throw e;
 		}
-
-		return null;
 	};
 
 	return withCache({ deps: [`boss-kill-detail`, id], fallback }) ?? null;
