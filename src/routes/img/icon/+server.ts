@@ -51,7 +51,7 @@ export const GET: RequestHandler = async ({ url }) => {
 			return new Response(blob, {
 				headers: {
 					// 14 days
-					'Cache-Control': 'max-age=1209600'
+					'Cache-Control': 'max-age=1209600, s-maxage=1209600'
 				}
 			});
 		}

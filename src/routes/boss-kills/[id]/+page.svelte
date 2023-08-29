@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
-	import { isRaidDifficultyWithLoot, type Item } from '$lib/model';
+	import { isRaidDifficultyWithLoot, type Character, type Item } from '$lib/model';
 	import { formatAvgItemLvl, formatNumber } from '$lib/number';
 
 	import type { PageData } from './$types';
@@ -24,17 +24,9 @@
 
 	// Chart
 
-	import { format, precisionFixed } from 'd3-format';
-	import { scaleOrdinal } from 'd3-scale';
-	import { Html, LayerCake, ScaledSvg, flatten } from 'layercake';
-
 	import Link from '$lib/components/Link.svelte';
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
-	import AxisX from '$lib/components/chart/AxisX.html.svelte';
-	import AxisY from '$lib/components/chart/AxisY.html.svelte';
-	import GroupLabels from '$lib/components/chart/multiline/GroupLabels.html.svelte';
-	import MultiLine from '$lib/components/chart/multiline/MultiLine.svelte';
-	import SharedTooltip from '$lib/components/chart/multiline/SharedTooltip.percent-range.html.svelte';
+	import BossKillDetailsChart from '$lib/components/echart/BossKillDetailsChart.svelte';
 	import Table from '$lib/components/table/Table.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
@@ -45,67 +37,49 @@
 	import { characterDps, characterHps } from '$lib/metrics';
 	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
 
+	const charactersByGUID = data.bosskill.boss_kills_players?.reduce((acc, item) => {
+		acc[item.guid] = item;
+		return acc;
+	}, {} as Record<number, Character>);
 	const timeline = data.bosskill.boss_kills_maps;
-	const timelineLength = timeline.length;
-	const ticksGap = Math.ceil(timelineLength / 20);
+	const deaths = data.bosskill.boss_kills_deaths;
 
-	type TimelineItem = (typeof data.bosskill.boss_kills_maps)[0];
-	type SeriesKey = keyof TimelineItem;
-	type Series = {
-		key: SeriesKey;
-		label: string;
-		color: string;
-	}[];
-	const xKey: SeriesKey = 'time';
-	const yKey = 'value';
-	const zKey = 'metric';
-	const seriesNames: Series = [
-		{
-			key: 'encounterHeal',
-			label: 'Enemy Healing',
-			color: 'lightblue'
-		},
-		{
-			key: 'encounterDamage',
-			label: 'Enemy Damage',
-			color: 'red'
-		},
-		{
-			key: 'raidDamage',
-			label: 'Raid Damage',
-			color: 'gold'
-		},
-		{
-			key: 'raidHeal',
-			label: 'Raid Healing',
-			color: 'green'
-		}
-	];
-	const seriesColors = seriesNames.map((s) => s.color);
-	const dataLong = seriesNames.map(({ key, label }) => {
-		return {
-			[zKey]: label,
-			values: timeline.map((d) => {
-				return {
-					[yKey]: +d[key],
-					[xKey]: d[xKey],
-					[zKey]: key
-				};
-			})
-		};
-	});
-	type DataLong = typeof dataLong;
-	const formatTickX = (v: TimelineItem[typeof xKey], i: number) => {
-		// TODO: fix multiple ticks at the end
-		if (i === 0 || i % ticksGap === 0 || i === timelineLength - 1) {
-			return `${v}s`;
-		}
+	const seriesEncounterDamage: number[] = [];
+	const seriesEncounterHeal: number[] = [];
+	const seriesRaidDamage: number[] = [];
+	const seriesRaidHeal: number[] = [];
+	const seriesDeaths: any[] = [];
+	const seriesRessurects: any[] = [];
+	const xAxisData: number[] = [];
+	for (const item of timeline) {
+		xAxisData.push(item.time);
 
-		return '';
-	};
-	const formatTickY = (d: DataLong[0]['values'][0][typeof yKey]) => {
-		return format(`.${precisionFixed(d)}s`)(d);
-	};
+		seriesEncounterDamage.push(+item.encounterDamage);
+		seriesEncounterHeal.push(+item.encounterHeal);
+		seriesRaidDamage.push(+item.raidDamage);
+		seriesRaidHeal.push(+item.raidHeal);
+	}
+	xAxisData.sort((a, b) => a - b);
+
+	for (const item of deaths) {
+		const player = charactersByGUID[item.guid] ?? 'Unknown';
+		const index = Math.abs(item.time);
+		if (item.time < 0) {
+			if (typeof seriesRessurects[index] !== 'undefined') {
+				seriesRessurects[index].value++;
+				seriesRessurects[index].players.push(player);
+			} else {
+				seriesRessurects[index] = { value: 1, players: [player] };
+			}
+		} else {
+			if (typeof seriesDeaths[index] !== 'undefined') {
+				seriesDeaths[index].value++;
+				seriesDeaths[index].players.push(player);
+			} else {
+				seriesDeaths[index] = { value: 1, players: [player] };
+			}
+		}
+	}
 
 	// Table
 	type T = (typeof data.bosskill.boss_kills_players)[0];
@@ -299,48 +273,15 @@
 
 <h2>Fight timeline</h2>
 <div>
-	<style>
-		.chart-container {
-			width: 100%;
-			height: 250px;
-		}
-	</style>
-
-	<div class="chart-container">
-		<LayerCake
-			ssr={true}
-			percentRange={true}
-			padding={{ top: 7, right: 10, bottom: 20, left: 25 }}
-			x={xKey}
-			y={yKey}
-			z={zKey}
-			zScale={scaleOrdinal()}
-			zRange={seriesColors}
-			flatData={flatten(dataLong, 'values')}
-			yDomain={[0, null]}
-			data={dataLong}
-		>
-			<Html>
-				<AxisX
-					gridlines={false}
-					ticks={timeline.map((d) => d[xKey]).sort((a, b) => a - b)}
-					formatTick={formatTickX}
-					snapTicks={true}
-					tickMarks={true}
-				/>
-				<AxisY baseline={true} formatTick={formatTickY} />
-			</Html>
-
-			<ScaledSvg>
-				<MultiLine />
-			</ScaledSvg>
-
-			<Html>
-				<GroupLabels />
-				<SharedTooltip offset={0} dataset={timeline} />
-			</Html>
-		</LayerCake>
-	</div>
+	<BossKillDetailsChart
+		{xAxisData}
+		{seriesEncounterDamage}
+		{seriesEncounterHeal}
+		{seriesRaidDamage}
+		{seriesRaidHeal}
+		{seriesDeaths}
+		{seriesRessurects}
+	/>
 </div>
 
 <h2>Stats</h2>
