@@ -1,7 +1,13 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
 import { mutateCharacter, type Boss, type Character } from '$lib/model';
 import { withCache } from '../cache';
-import { getBossKillDetail, getLatestBossKills, type BossKillQueryArgs } from './boss-kills';
+import {
+	getBossKillDetail,
+	getLatestBossKills,
+	listAllLatestBossKills,
+	type BossKillQueryArgs,
+	type LatestBossKillQueryArgs
+} from './boss-kills';
 import { FilterOperator, queryString, type QueryArgs } from './filter';
 import { getRaids } from './raid';
 
@@ -126,4 +132,78 @@ export const getBossStatsV2 = async (id: number, qa: BossStatsQueryArgs): Promis
 	};
 
 	return withCache({ deps: [`boss-stats-v2`, id, q], fallback }) ?? EMPTY_STATS;
+};
+
+export const getBossKillsWipesTimes = async (id: number, mode: number | null) => {
+	const fallback = async () => {
+		const filters: LatestBossKillQueryArgs['filters'] = [
+			{
+				column: 'entry',
+				operator: FilterOperator.EQUALS,
+				value: id
+			}
+		];
+
+		if (mode !== null) {
+			filters.push({ column: 'mode', operator: FilterOperator.EQUALS, value: mode });
+		}
+		const bosskills = await listAllLatestBossKills({
+			filters
+		});
+
+		const killsCount = bosskills.length;
+		let wipesCount = 0;
+		let minWipes = Infinity;
+		let maxWipes = 0;
+		let totalDuration = 0;
+		let minFightDuration = Infinity;
+		let maxFightDuration = 0;
+		for (const bk of bosskills) {
+			wipesCount += bk.wipes;
+			if (bk.wipes <= minWipes) {
+				minWipes = bk.wipes;
+			}
+
+			if (bk.wipes >= maxWipes) {
+				maxWipes = bk.wipes;
+			}
+
+			totalDuration += bk.length;
+			if (bk.length <= minFightDuration) {
+				minFightDuration = bk.length;
+			}
+
+			if (bk.length >= maxFightDuration) {
+				maxFightDuration = bk.length;
+			}
+		}
+		const pullsCount = killsCount + wipesCount;
+		const avgFightDuration = killsCount > 0 ? Math.ceil(totalDuration / killsCount) : 0;
+		const avgWipes = killsCount > 0 ? Math.ceil(wipesCount / killsCount) : 0;
+		const wipeChance = pullsCount === 0 ? 0 : Math.ceil(10000 * (wipesCount / pullsCount)) / 100;
+		const killChance = pullsCount === 0 ? 0 : Math.ceil(10000 * (killsCount / pullsCount)) / 100;
+
+		return {
+			kills: {
+				chance: killChance,
+				total: killsCount
+			},
+			wipes: {
+				min: isFinite(minWipes) ? minWipes : 0,
+				avg: avgWipes,
+				total: wipesCount,
+				chance: wipeChance
+			},
+			fightDuration: {
+				min: isFinite(minFightDuration) ? minFightDuration : 0,
+				max: maxFightDuration,
+				avg: avgFightDuration,
+				total: totalDuration
+			}
+		};
+	};
+	return withCache({
+		deps: ['boss-kwt', id, mode],
+		fallback
+	});
 };

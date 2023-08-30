@@ -1,4 +1,4 @@
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '$lib/paginations';
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '$lib/pagination';
 import type { PaginatedResponse } from './response';
 
 type Options = { page?: number; pageSize?: number };

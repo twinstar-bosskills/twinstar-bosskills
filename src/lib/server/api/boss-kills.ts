@@ -36,8 +36,9 @@ export const getBossKills = async (q: BossKillQueryArgs): Promise<BossKillsData>
 	);
 };
 
+export type LatestBossKillQueryArgs = Omit<BossKillQueryArgs, 'sorter'>;
 export const getLatestBossKills = async (
-	q: Omit<BossKillQueryArgs, 'sorter'> = {}
+	q: LatestBossKillQueryArgs = {}
 ): Promise<BossKillsData> => {
 	return getBossKills({
 		...q,
@@ -48,7 +49,7 @@ export const getLatestBossKills = async (
 	});
 };
 export const listAllLatestBossKills = async (
-	q: Omit<BossKillQueryArgs, 'sorter'> = {}
+	q: LatestBossKillQueryArgs = {}
 ): Promise<BossKill[]> => {
 	const fallback = async () => {
 		try {

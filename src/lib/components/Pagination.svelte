@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getPage, getPageSize } from '$lib/paginations';
+	import { getPage, getPageSize } from '$lib/pagination';
 	import Link from './Link.svelte';
 
 	export let path: string;

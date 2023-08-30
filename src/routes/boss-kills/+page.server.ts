@@ -1,4 +1,4 @@
-import { getPageFromURL, getPageSizeFromURL } from '$lib/paginations';
+import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import * as api from '$lib/server/api';
 import type { PageServerLoad } from './$types';
 
