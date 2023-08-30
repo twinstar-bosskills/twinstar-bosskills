@@ -50,6 +50,7 @@
 
 		--color-success: lawngreen;
 		--color-error: orangered;
+		--color-warning: orange;
 
 		--color-q: #ffd100 !important;
 		--color-q0: #9d9d9d !important;

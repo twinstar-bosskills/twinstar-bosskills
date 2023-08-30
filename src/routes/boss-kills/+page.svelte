@@ -8,7 +8,7 @@
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
 	import { formatSecondsInterval } from '$lib/date';
 	import { links } from '$lib/links';
-	import { getPageFromURL, getPageSizeFromURL } from '$lib/paginations';
+	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
@@ -46,18 +46,6 @@
 			},
 			header: () => 'Guild'
 		},
-		// {
-		// 	id: 'dps',
-		// 	accessorFn: (row) => characterDps(row),
-		// 	cell: (info) => flexRender(CharacterDps, { character: info.row.original }),
-		// 	header: () => 'DPS'
-		// },
-		// {
-		// 	id: 'hps',
-		// 	accessorFn: (row) => characterHps(row),
-		// 	header: () => 'HPS',
-		// 	cell: (info) => flexRender(CharacterHps, { character: info.row.original })
-		// },
 		{
 			id: 'fightLength',
 			accessorFn: (row) => row.length ?? 0,
@@ -95,50 +83,4 @@
 			<Pagination path={links.BOSS_KILLS} page={page_} {pageSize} totalItems={data.latest.total} />
 		</svelte:fragment>
 	</Table>
-	<!-- <table>
-		<thead>
-			<tr>
-				<th>Boss</th>
-				<th>Raid</th>
-				<th>Difficulty</th>
-				<th>Guild</th>
-				<th>Fight Length</th>
-				<th>Killed</th>
-				<th>Details</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each data.latest.data as bosskill}
-				<tr>
-					<td>
-						<Link href={links.boss(bosskill.entry)}>
-							{bosskill.creature_name}
-						</Link>
-					</td>
-					<td>{bosskill.map}</td>
-					<td>{bosskill.difficulty}</td>
-					<td>{bosskill.guild == '' ? `Mixed group <${bosskill.realm}>` : bosskill.guild}</td>
-					<td>{formatSecondsInterval(bosskill.length)}</td>
-					<td><KilledAt {bosskill} /></td>
-
-					<td>
-						<Link href={links.bossKill(bosskill.id)}>Detail</Link>
-						<LinkExternal href={links.twinstarBossKill(bosskill.id)}>Twinhead</LinkExternal>
-					</td>
-				</tr>
-			{/each}
-		</tbody>
-		<tfoot>
-			<tr>
-				<td colspan="7">
-					<Pagination
-						path={links.BOSS_KILLS}
-						page={page_}
-						{pageSize}
-						totalItems={data.latest.total}
-					/>
-				</td>
-			</tr>
-		</tfoot>
-	</table> -->
 </div>

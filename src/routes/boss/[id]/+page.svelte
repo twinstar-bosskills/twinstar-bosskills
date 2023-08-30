@@ -2,6 +2,9 @@
 	import { page } from '$app/stores';
 	import Icon from '$lib/components/Icon.svelte';
 	import Link from '$lib/components/Link.svelte';
+	import TextColorError from '$lib/components/TextColorError.svelte';
+	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
+	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
 	import Table from '$lib/components/table/Table.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
@@ -12,6 +15,7 @@
 	import { formatSecondsInterval } from '$lib/date';
 	import { characterDps, characterHps } from '$lib/metrics';
 	import { Difficulty, TalentSpec, difficultyToString, isRaidDifficulty } from '$lib/model';
+	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
 	import { getTalentSpecIconUrl } from '$lib/talent';
 	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
@@ -23,7 +27,7 @@
 	const title = `Boss ${data.boss.name}`;
 
 	let searchParams = new URLSearchParams($page.url.searchParams);
-	const currentDifficulty = String(searchParams.get('difficulty') ?? Difficulty.DIFFICULTY_10_N);
+	const currentDifficulty = String(getDifficultyFromUrl($page.url) ?? Difficulty.DIFFICULTY_10_N);
 	const currentSpec = searchParams.get('spec');
 
 	const specs: { id: number; iconUrl: string; href: string; isActive: boolean }[] = [];
@@ -128,6 +132,26 @@
 	<title>{title}</title>
 </svelte:head>
 <h1>{title}</h1>
+<p>
+	{data.boss.name} ({difficultyToString(currentDifficulty)}) was killed
+	<TextColorSuccess>{data.kw.kills.total}</TextColorSuccess> times by raiders and wiped them <TextColorError
+		>{data.kw.wipes.total}</TextColorError
+	> times (<TextColorError>{data.kw.wipes.avg}</TextColorError>
+	times on average).
+</p>
+<p>
+	You have <TextColorSuccess>{data.kw.kills.chance}%</TextColorSuccess> chance to make a kill and <TextColorError
+		>{data.kw.wipes.chance}%</TextColorError
+	> chance to wipe.
+</p>
+<p>
+	<TextColorSuccess>Fastest</TextColorSuccess> kill took
+	<TextColorSuccess>{formatSecondsInterval(data.kw.fightDuration.min)}</TextColorSuccess>,
+	<TextColorWarning>average</TextColorWarning> kill took
+	<TextColorWarning>{formatSecondsInterval(data.kw.fightDuration.avg)}</TextColorWarning> and
+	<TextColorError>slowest</TextColorError> kill took
+	<TextColorError>{formatSecondsInterval(data.kw.fightDuration.max)}</TextColorError>
+</p>
 <h2>Top stats by spec</h2>
 <div>
 	<ul>

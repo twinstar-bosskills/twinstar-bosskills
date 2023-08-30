@@ -193,8 +193,8 @@ const DIFFICULTY_TO_STRING = {
 	[Difficulty.MAX_DIFFICULTY]: 'Max'
 };
 
-export const difficultyToString = (diff: number): string => {
-	return DIFFICULTY_TO_STRING[diff] ?? 'None';
+export const difficultyToString = (diff: string | number): string => {
+	return DIFFICULTY_TO_STRING[diff as number] ?? 'None';
 };
 export const isRaidDifficulty = (diff: number) => {
 	return isRaidDifficultyWithLoot(diff) || diff === Difficulty.DIFFICULTY_LFR;

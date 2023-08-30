@@ -1,5 +1,7 @@
 import { Difficulty, type Character } from '$lib/model';
+import { getDifficultyFromUrl } from '$lib/search-params';
 import * as api from '$lib/server/api';
+import { getBossKillsWipesTimes as getBossKillsAndWipes } from '$lib/server/api';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
@@ -12,6 +14,9 @@ export const load: PageServerLoad = async ({ url, params }) => {
 			message: 'Not found'
 		});
 	}
+
+	const mode = getDifficultyFromUrl(url);
+	const kw = await getBossKillsAndWipes(id, mode);
 
 	type Stats = {
 		char: Character;
@@ -111,6 +116,8 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		stats: [
 			{ type: STATS_TYPE_DMG, value: dmg },
 			{ type: STATS_TYPE_HEAL, value: heal }
-		]
+		],
+
+		kw
 	};
 };
