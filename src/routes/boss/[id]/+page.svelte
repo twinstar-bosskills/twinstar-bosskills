@@ -15,7 +15,13 @@
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { formatSecondsInterval } from '$lib/date';
 	import { characterDps, characterHps } from '$lib/metrics';
-	import { Difficulty, TalentSpec, difficultyToString, isRaidDifficulty } from '$lib/model';
+	import {
+		Difficulty,
+		TalentSpec,
+		difficultyToString,
+		isRaidDifficulty,
+		talentSpecToString
+	} from '$lib/model';
 	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
 	import { getTalentSpecIconUrl } from '$lib/talent';
@@ -176,7 +182,7 @@
 			<li class:active={isActive}>
 				<div class:active={isActive}>
 					<Link data-sveltekit-reload style="display: flex;" {href}>
-						<Icon src={iconUrl} label="Talent spec {id}" style="width: 24px; height: 24px;" />
+						<Icon src={iconUrl} label={talentSpecToString(id)} style="width: 24px; height: 24px;" />
 					</Link>
 				</div>
 			</li>

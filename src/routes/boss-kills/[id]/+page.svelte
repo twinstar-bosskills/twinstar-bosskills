@@ -274,6 +274,7 @@
 <h2>Fight timeline</h2>
 <div>
 	<BossKillDetailsChart
+		width={data.windowInnerWidth}
 		{xAxisData}
 		{seriesEncounterDamage}
 		{seriesEncounterHeal}

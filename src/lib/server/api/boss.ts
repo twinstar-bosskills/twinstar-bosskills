@@ -255,7 +255,7 @@ export const getBossAggregatedStats = async (
 
 					// items.push({
 					// 	...item,
-					// 	label: taletSpecToString(item.spec),
+					// 	label: talentSpecToString(item.spec),
 					// 	value
 					// });
 
@@ -264,17 +264,35 @@ export const getBossAggregatedStats = async (
 				}
 			}
 
-			const indexToSpecId: IndexToSpecId = {};
-			const specIds = Object.keys(aggregatedBySpec);
-			for (let i = 0; i < specIds.length; ++i) {
-				indexToSpecId[i] = Number(specIds[i]!);
+			// remember which value index maps to specId
+			const keys = [];
+			const values = [];
+			for (const [key, value] of Object.entries(aggregatedBySpec)) {
+				keys.push(Number(key));
+				values.push(value);
 			}
 
-			const prepared = prepareData(Object.values(aggregatedBySpec));
-			prepared.boxData.sort((a, b) => {
+			const prepared = prepareData(values);
+
+			// add index dimension
+			const boxDataWithIndex: [(typeof prepared.boxData)[0], number][] = [];
+			for (let i = 0; i < prepared.boxData.length; ++i) {
+				boxDataWithIndex.push([prepared.boxData[i]!, i]);
+			}
+			boxDataWithIndex.sort((a, b) => {
 				// median
-				return a[2] - b[2];
+				return a[0][2] - b[0][2];
 			});
+
+			// remove index dimension
+			prepared.boxData = boxDataWithIndex.map(([d]) => d);
+
+			const indexToSpecId: IndexToSpecId = {};
+			for (let i = 0; i < boxDataWithIndex.length; i++) {
+				const keyIndex = boxDataWithIndex[i]![1];
+				indexToSpecId[i] = keys[keyIndex]!;
+			}
+
 			return { indexToSpecId, prepared };
 		} catch (e) {
 			console.log(error);

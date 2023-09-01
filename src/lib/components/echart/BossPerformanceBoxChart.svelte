@@ -4,13 +4,12 @@
 	import { GridComponent, TooltipComponent } from 'echarts/components';
 	import * as echarts from 'echarts/core';
 	import { SVGRenderer } from 'echarts/renderers';
-	import { taletSpecToString } from '../../model';
+	import { talentSpecToString } from '../../model';
 
 	import type { BossAggregatedStats } from '$lib/server/api';
 	import Chart from './Chart.svelte';
 
 	export let width: number | undefined = undefined;
-
 	export let aggregated: BossAggregatedStats;
 	export let field = 'dps';
 
@@ -36,7 +35,7 @@
 				formatter: (v) => {
 					const spec = aggregated.indexToSpecId?.[Number(v)] ?? null;
 					if (spec) {
-						return taletSpecToString(spec);
+						return talentSpecToString(spec);
 					}
 					return v;
 				}
@@ -47,12 +46,13 @@
 			top: '1%',
 			left: '1%,'
 		},
-
 		series: [
 			{
 				name: `Type ${field}`,
 				type: 'boxplot',
 				data: aggregated.prepared.boxData
+				// this works, be we need class colors
+				// colorBy: 'data'
 			}
 		]
 	};

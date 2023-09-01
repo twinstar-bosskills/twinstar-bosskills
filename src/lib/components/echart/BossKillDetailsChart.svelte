@@ -6,16 +6,12 @@
 	// NOTE: if something breaks, just `import * as echarts from 'echarts';`
 	import type { EChartsOption } from 'echarts';
 	import { LineChart, ScatterChart } from 'echarts/charts';
-	import {
-		GridComponent,
-		LegendComponent,
-		TitleComponent,
-		TooltipComponent
-	} from 'echarts/components';
+	import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';
 	import * as echarts from 'echarts/core';
 	import { SVGRenderer } from 'echarts/renderers';
 	import Chart from './Chart.svelte';
 
+	export let width: number | undefined = undefined;
 	export let xAxisData: number[] = [];
 	export let seriesEncounterDamage: number[] = [];
 	export let seriesEncounterHeal: number[] = [];
@@ -25,7 +21,6 @@
 	export let seriesRessurects: any[] = [];
 
 	echarts.use([
-		TitleComponent,
 		ScatterChart,
 		TooltipComponent,
 		GridComponent,
@@ -36,10 +31,6 @@
 
 	const options: EChartsOption = {
 		backgroundColor: 'transparent',
-
-		// title: {
-		// 	text: 'Fight timeline'
-		// },
 		tooltip: {
 			trigger: 'axis'
 		},
@@ -48,10 +39,10 @@
 		},
 		animation: false,
 		grid: {
+			containLabel: true,
 			left: '1%',
-			right: '3%',
-			bottom: '2%',
-			containLabel: true
+			right: '1%',
+			bottom: '2%'
 		},
 		xAxis: {
 			type: 'category',
@@ -114,4 +105,4 @@
 	};
 </script>
 
-<Chart {echarts} {options} />
+<Chart {echarts} {options} {width} />

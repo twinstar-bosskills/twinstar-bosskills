@@ -9,6 +9,8 @@
 
 	echarts.use([GridComponent, TooltipComponent, BarChart, SVGRenderer]);
 
+	export let width: number | undefined = undefined;
+	export let height: number | undefined = undefined;
 	export let xAxisData: string[] = [];
 	export let series: number[] = [];
 	const options: EChartsOption = {
@@ -18,8 +20,9 @@
 		},
 		animation: false,
 		grid: {
-			left: '3%',
-			right: '3%',
+			containLabel: true,
+			left: '1%',
+			right: '1%',
 			bottom: '10%',
 			top: '5%'
 		},
@@ -48,4 +51,4 @@
 	};
 </script>
 
-<Chart {echarts} {options} />
+<Chart {echarts} {options} {width} {height} />

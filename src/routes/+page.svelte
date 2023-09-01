@@ -119,6 +119,7 @@
 			<BossKillsByTimeBarChart
 				xAxisData={byWeekDay.map((d) => d.key)}
 				series={byWeekDay.map((d) => d.value)}
+				height={Math.min(data.windowInnerHeight ?? 300, 600)}
 			/>
 		</div>
 	</div>
@@ -131,6 +132,7 @@
 				</div>
 			{/if}
 			<BossKillsByTimeBarChart
+				width={data.windowInnerWidth}
 				xAxisData={byHour.map((d) => d.key)}
 				series={byHour.map((d) => d.value)}
 			/>
