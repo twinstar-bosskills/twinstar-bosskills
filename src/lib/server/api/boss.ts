@@ -1,5 +1,6 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
-import { mutateCharacter, taletSpecToString, type Boss, type Character } from '$lib/model';
+import { prepareData, type PreparedData } from '$lib/components/echart/boxplot';
+import { mutateCharacter, type Boss, type Character } from '$lib/model';
 import { REALM_HELIOS } from '$lib/realm';
 import { error } from '@sveltejs/kit';
 import { withCache } from '../cache';
@@ -210,14 +211,15 @@ export const getBossKillsWipesTimes = async (id: number, mode: number | null) =>
 	});
 };
 
-export type BossAggregatedStats = { value: number; spec: number; label: string }[];
+type IndexToSpecId = Record<number, number>;
+export type BossAggregatedStats = { indexToSpecId: IndexToSpecId; prepared: PreparedData };
 export const getBossAggregatedStats = async (
 	id: number,
 	field: 'dps' | 'hps',
 	mode: number
 ): Promise<BossAggregatedStats> => {
 	const fallback = async () => {
-		const items: BossAggregatedStats = [];
+		// const items: { value: number; spec: number; label: string }[] = [];
 		try {
 			const r = await fetch(
 				`${TWINSTAR_API_URL}/bosskills/aggreggate?realm=${REALM_HELIOS}&entry=${id}&field=${field}&mode=${mode}`
@@ -227,6 +229,7 @@ export const getBossAggregatedStats = async (
 				throw new Error(`data is not an array`);
 			}
 
+			const aggregatedBySpec: Record<number, number[]> = {};
 			for (const item of data) {
 				const value = Number(item?.[field]);
 				if (isFinite(value)) {
@@ -250,19 +253,33 @@ export const getBossAggregatedStats = async (
 						continue;
 					}
 
-					items.push({
-						...item,
-						label: taletSpecToString(item.spec),
-						value
-					});
+					// items.push({
+					// 	...item,
+					// 	label: taletSpecToString(item.spec),
+					// 	value
+					// });
+
+					aggregatedBySpec[item.spec] ??= [];
+					aggregatedBySpec[item.spec]!.push(value);
 				}
 			}
+
+			const indexToSpecId: IndexToSpecId = {};
+			const specIds = Object.keys(aggregatedBySpec);
+			for (let i = 0; i < specIds.length; ++i) {
+				indexToSpecId[i] = Number(specIds[i]!);
+			}
+
+			const prepared = prepareData(Object.values(aggregatedBySpec));
+			prepared.boxData.sort((a, b) => {
+				// median
+				return a[2] - b[2];
+			});
+			return { indexToSpecId, prepared };
 		} catch (e) {
 			console.log(error);
 			throw e;
 		}
-
-		return items;
 	};
 
 	return (
@@ -270,6 +287,6 @@ export const getBossAggregatedStats = async (
 			deps: ['boss-aggregated', id, field, mode],
 			fallback,
 			sliding: false
-		}) ?? []
+		}) ?? { indexToSpecId: {}, prepared: { axisData: [], boxData: [], outliers: [] } }
 	);
 };

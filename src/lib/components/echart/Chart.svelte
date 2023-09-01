@@ -6,13 +6,15 @@
 	export type ChartOptions = {
 		echarts: ECharts;
 		theme?: EChartsTheme;
+		width?: number;
 		height?: number;
 		options: EChartsOptions;
 	};
 
 	const DEFAULT_OPTIONS: Partial<ChartOptions> = {
 		theme: 'dark',
-		height: 300
+		height: 300,
+		width: 1920
 	};
 
 	export function chartable(element: HTMLElement, echartOptions: ChartOptions) {
@@ -43,15 +45,15 @@
 		};
 	}
 	export function ssr(echartOptions: ChartOptions) {
-		const { theme, options, echarts } = {
+		const { theme, options, echarts, width, height } = {
 			...DEFAULT_OPTIONS,
 			...echartOptions
 		};
 		const chart = echarts.init(null, theme, {
 			renderer: 'svg',
 			ssr: true,
-			width: 1920,
-			height: 300
+			width,
+			height
 		});
 		chart.setOption(options);
 		return chart.renderToSVGString();
@@ -62,16 +64,17 @@
 	import { browser } from '$app/environment';
 
 	export let options: echarts.EChartsCoreOption;
+	export let { width } = DEFAULT_OPTIONS;
 	export let { height } = DEFAULT_OPTIONS;
 	export let { theme } = DEFAULT_OPTIONS;
 	export let echarts: ECharts;
 </script>
 
 {#if browser}
-	<div class="chart" use:chartable={{ echarts, theme, options, height }} />
+	<div class="chart" use:chartable={{ echarts, theme, options, height, width }} />
 {:else}
 	<div class="chart">
-		{@html ssr({ echarts, theme, options, height })}
+		{@html ssr({ echarts, theme, options, height, width })}
 	</div>
 	<style>
 		.chart > svg {

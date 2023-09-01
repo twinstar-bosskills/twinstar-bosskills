@@ -5,6 +5,7 @@
 	import TextColorError from '$lib/components/TextColorError.svelte';
 	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
 	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
+	import BossPerformanceBoxChart from '$lib/components/echart/BossPerformanceBoxChart.svelte';
 	import Table from '$lib/components/table/Table.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
@@ -21,7 +22,6 @@
 	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 	import BossKillDetailLink from './components/BossKillDetailLink.svelte';
-	import BossPerformanceBoxChart from '$lib/components/echart/BossPerformanceBoxChart.svelte';
 
 	export let data: PageData;
 
@@ -153,11 +153,7 @@
 	<TextColorError>slowest</TextColorError> kill took
 	<TextColorError>{formatSecondsInterval(data.kw.fightDuration.max)}</TextColorError>
 </p>
-<BossPerformanceBoxChart
-	id={data.boss.entry}
-	difficulty={currentDifficulty}
-	raw={data.aggregated.dps}
-/>
+
 <h2>Top stats by spec</h2>
 <div>
 	<ul>
@@ -202,6 +198,12 @@
 		</div>
 	{/each}
 </div>
+<h2>DPS Talent Specialization Distribution</h2>
+<BossPerformanceBoxChart
+	width={data.windowInnerWidth}
+	field="dps"
+	aggregated={data.aggregated.dps}
+/>
 
 <style>
 	ul li div {

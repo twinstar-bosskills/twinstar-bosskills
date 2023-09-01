@@ -4,8 +4,9 @@ import * as api from '$lib/server/api';
 import { getBossKillsWipesTimes } from '$lib/server/api';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
 
+import type { PageServerLoad } from './$types';
+const LIMIT = 200;
 export const load: PageServerLoad = async ({ url, params }) => {
 	const id = Number(params.id);
 	const boss = await api.getBoss(id);
@@ -16,7 +17,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	}
 
 	const mode = getDifficultyFromUrl(url) ?? DEFAULT_DIFFICULTY;
-	const [kw, dpsAggregated] = await Promise.all([
+	const [kw, dpsPrepared] = await Promise.all([
 		getBossKillsWipesTimes(id, mode),
 		api.getBossAggregatedStats(id, 'dps', mode)
 	]);
@@ -69,7 +70,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		api.getBossStatsV2(id, {
 			difficulty,
 			talentSpec,
-			pageSize: 200,
+			pageSize: LIMIT,
 			sorter: {
 				column: 'dmgDone',
 				order: 'desc'
@@ -78,7 +79,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		api.getBossStatsV2(id, {
 			difficulty,
 			talentSpec,
-			pageSize: 200,
+			pageSize: LIMIT,
 			sorter: {
 				column: 'healingDone',
 				order: 'desc'
@@ -115,14 +116,14 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	heal = heal.sort((a, b) => b.amount - a.amount);
 
 	return {
-		boss,
+		boss: { name: boss.name },
 		stats: [
-			{ type: STATS_TYPE_DMG, value: dmg },
-			{ type: STATS_TYPE_HEAL, value: heal }
+			{ type: STATS_TYPE_DMG, value: dmg.slice(0, LIMIT) },
+			{ type: STATS_TYPE_HEAL, value: heal.slice(0, LIMIT) }
 		],
 		kw,
 		aggregated: {
-			dps: dpsAggregated
+			dps: dpsPrepared
 		}
 	};
 };
