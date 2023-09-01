@@ -1,5 +1,7 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
-import { mutateCharacter, type Boss, type Character } from '$lib/model';
+import { mutateCharacter, taletSpecToString, type Boss, type Character } from '$lib/model';
+import { REALM_HELIOS } from '$lib/realm';
+import { error } from '@sveltejs/kit';
 import { withCache } from '../cache';
 import {
 	getBossKillDetail,
@@ -206,4 +208,68 @@ export const getBossKillsWipesTimes = async (id: number, mode: number | null) =>
 		deps: ['boss-kwt', id, mode],
 		fallback
 	});
+};
+
+export type BossAggregatedStats = { value: number; spec: number; label: string }[];
+export const getBossAggregatedStats = async (
+	id: number,
+	field: 'dps' | 'hps',
+	mode: number
+): Promise<BossAggregatedStats> => {
+	const fallback = async () => {
+		const items: BossAggregatedStats = [];
+		try {
+			const r = await fetch(
+				`${TWINSTAR_API_URL}/bosskills/aggreggate?realm=${REALM_HELIOS}&entry=${id}&field=${field}&mode=${mode}`
+			);
+			const data: { spec: number; dps?: string; hps?: string }[] = await r.json();
+			if (Array.isArray(data) === false) {
+				throw new Error(`data is not an array`);
+			}
+
+			for (const item of data) {
+				const value = Number(item?.[field]);
+				if (isFinite(value)) {
+					// do not care about 0 dps/hps/...
+					if (value <= 0) {
+						continue;
+					}
+
+					// safety borders, value this big is probably bug
+					if (field === 'dps' && value > 1_000_000) {
+						continue;
+					}
+
+					// safety borders, value this big is probably bug
+					if (field === 'hps' && value > 5_000_000) {
+						continue;
+					}
+
+					// Unknown spec
+					if (item.spec === 0) {
+						continue;
+					}
+
+					items.push({
+						...item,
+						label: taletSpecToString(item.spec),
+						value
+					});
+				}
+			}
+		} catch (e) {
+			console.log(error);
+			throw e;
+		}
+
+		return items;
+	};
+
+	return (
+		withCache({
+			deps: ['boss-aggregated', id, field, mode],
+			fallback,
+			sliding: false
+		}) ?? []
+	);
 };

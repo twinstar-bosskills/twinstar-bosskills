@@ -10,6 +10,14 @@
 	<!-- <body data-sveltekit-preload-data="hover"> -->
 
 	<body>
-		<div style="display: contents">%sveltekit.body%</div>
+		<div
+			style="
+				display: flex;
+				flex-direction: column;
+				min-height: calc(100vh - 2 * var(--body-padding));
+			"
+		>
+			%sveltekit.body%
+		</div>
 	</body>
 </html>

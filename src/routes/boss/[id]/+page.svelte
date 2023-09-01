@@ -21,6 +21,7 @@
 	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 	import BossKillDetailLink from './components/BossKillDetailLink.svelte';
+	import BossPerformanceBoxChart from '$lib/components/echart/BossPerformanceBoxChart.svelte';
 
 	export let data: PageData;
 
@@ -152,6 +153,11 @@
 	<TextColorError>slowest</TextColorError> kill took
 	<TextColorError>{formatSecondsInterval(data.kw.fightDuration.max)}</TextColorError>
 </p>
+<BossPerformanceBoxChart
+	id={data.boss.entry}
+	difficulty={currentDifficulty}
+	raw={data.aggregated.dps}
+/>
 <h2>Top stats by spec</h2>
 <div>
 	<ul>

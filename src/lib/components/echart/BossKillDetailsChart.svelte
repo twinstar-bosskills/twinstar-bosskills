@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-
 	// TODO: THIS IS OVER 1MB!!!
 	// https://www.reddit.com/r/sveltejs/comments/tuvcgg/sveltekit_and_apache_echarts_minimal_bundle/
 	// import * as echarts from 'echarts';
@@ -16,7 +14,7 @@
 	} from 'echarts/components';
 	import * as echarts from 'echarts/core';
 	import { SVGRenderer } from 'echarts/renderers';
-	import { onDestroy, onMount } from 'svelte';
+	import Chart from './Chart.svelte';
 
 	export let xAxisData: number[] = [];
 	export let seriesEncounterDamage: number[] = [];
@@ -36,7 +34,7 @@
 		SVGRenderer
 	]);
 
-	const option: EChartsOption = {
+	const options: EChartsOption = {
 		backgroundColor: 'transparent',
 
 		// title: {
@@ -50,7 +48,7 @@
 		},
 		animation: false,
 		grid: {
-			left: '3%',
+			left: '1%',
 			right: '3%',
 			bottom: '2%',
 			containLabel: true
@@ -114,51 +112,6 @@
 			}
 		]
 	};
-
-	let chart: echarts.ECharts | null = null;
-	let el: HTMLDivElement | null = null;
-	onMount(() => {
-		chart = echarts.init(el, 'dark', {
-			renderer: 'svg',
-			height: 300
-		});
-		chart.setOption(option);
-		window.addEventListener('resize', function () {
-			chart?.resize();
-		});
-	});
-
-	onDestroy(() => {
-		chart?.dispose();
-	});
-
-	// https://gist.github.com/pissang/4c32ee30e35c91336af72b129a1a4a73?permalink_comment_id=4080038#gistcomment-4080038
-	if (!browser) {
-		chart = echarts.init(null, 'dark', {
-			renderer: 'svg',
-			ssr: true,
-			width: 1920,
-			height: 300
-		});
-		chart.setOption(option);
-	}
 </script>
 
-<div class="chart">
-	{#if browser}
-		<div bind:this={el} style="min-width: 200px;" />
-	{:else}
-		{@html chart?.renderToSVGString()}
-		<style>
-			.chart > svg {
-				width: 100%;
-			}
-		</style>
-	{/if}
-</div>
-
-<style>
-	.chart {
-		max-width: 100vw;
-	}
-</style>
+<Chart {echarts} {options} />
