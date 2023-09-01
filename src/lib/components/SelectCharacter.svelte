@@ -27,12 +27,16 @@
 
 	@media (max-width: 320px) {
 		input {
-			/* max-width: 160px; */
 			margin-left: 0;
 		}
 		form {
 			display: flex;
 			flex-direction: column;
+		}
+	}
+	@media (max-width: 220px) {
+		input {
+			max-width: 140px;
 		}
 	}
 </style>

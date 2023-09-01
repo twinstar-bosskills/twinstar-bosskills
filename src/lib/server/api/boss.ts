@@ -1,5 +1,8 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
+import { prepareData, type PreparedData } from '$lib/components/echart/boxplot';
 import { mutateCharacter, type Boss, type Character } from '$lib/model';
+import { REALM_HELIOS } from '$lib/realm';
+import { error } from '@sveltejs/kit';
 import { withCache } from '../cache';
 import {
 	getBossKillDetail,
@@ -206,4 +209,102 @@ export const getBossKillsWipesTimes = async (id: number, mode: number | null) =>
 		deps: ['boss-kwt', id, mode],
 		fallback
 	});
+};
+
+type IndexToSpecId = Record<number, number>;
+export type BossAggregatedStats = { indexToSpecId: IndexToSpecId; prepared: PreparedData };
+export const getBossAggregatedStats = async (
+	id: number,
+	field: 'dps' | 'hps',
+	mode: number
+): Promise<BossAggregatedStats> => {
+	const fallback = async () => {
+		// const items: { value: number; spec: number; label: string }[] = [];
+		try {
+			const r = await fetch(
+				`${TWINSTAR_API_URL}/bosskills/aggreggate?realm=${REALM_HELIOS}&entry=${id}&field=${field}&mode=${mode}`
+			);
+			const data: { spec: number; dps?: string; hps?: string }[] = await r.json();
+			if (Array.isArray(data) === false) {
+				throw new Error(`data is not an array`);
+			}
+
+			const aggregatedBySpec: Record<number, number[]> = {};
+			for (const item of data) {
+				const value = Number(item?.[field]);
+				if (isFinite(value)) {
+					// do not care about 0 dps/hps/...
+					if (value <= 0) {
+						continue;
+					}
+
+					// safety borders, value this big is probably bug
+					if (field === 'dps' && value > 1_000_000) {
+						continue;
+					}
+
+					// safety borders, value this big is probably bug
+					if (field === 'hps' && value > 5_000_000) {
+						continue;
+					}
+
+					// Unknown spec
+					if (item.spec === 0) {
+						continue;
+					}
+
+					// items.push({
+					// 	...item,
+					// 	label: talentSpecToString(item.spec),
+					// 	value
+					// });
+
+					aggregatedBySpec[item.spec] ??= [];
+					aggregatedBySpec[item.spec]!.push(value);
+				}
+			}
+
+			// remember which value index maps to specId
+			const keys = [];
+			const values = [];
+			for (const [key, value] of Object.entries(aggregatedBySpec)) {
+				keys.push(Number(key));
+				values.push(value);
+			}
+
+			const prepared = prepareData(values);
+
+			// add index dimension
+			const boxDataWithIndex: [(typeof prepared.boxData)[0], number][] = [];
+			for (let i = 0; i < prepared.boxData.length; ++i) {
+				boxDataWithIndex.push([prepared.boxData[i]!, i]);
+			}
+			boxDataWithIndex.sort((a, b) => {
+				// median
+				return a[0][2] - b[0][2];
+			});
+
+			// remove index dimension
+			prepared.boxData = boxDataWithIndex.map(([d]) => d);
+
+			const indexToSpecId: IndexToSpecId = {};
+			for (let i = 0; i < boxDataWithIndex.length; i++) {
+				const keyIndex = boxDataWithIndex[i]![1];
+				indexToSpecId[i] = keys[keyIndex]!;
+			}
+
+			return { indexToSpecId, prepared };
+		} catch (e) {
+			console.log(error);
+			throw e;
+		}
+	};
+
+	return (
+		withCache({
+			deps: ['boss-aggregated', id, field, mode],
+			fallback,
+			sliding: false
+		}) ?? { indexToSpecId: {}, prepared: { axisData: [], boxData: [], outliers: [] } }
+	);
 };

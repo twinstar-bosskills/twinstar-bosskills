@@ -5,6 +5,7 @@
 	import TextColorError from '$lib/components/TextColorError.svelte';
 	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
 	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
+	import BossPerformanceBoxChart from '$lib/components/echart/BossPerformanceBoxChart.svelte';
 	import Table from '$lib/components/table/Table.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
@@ -14,7 +15,13 @@
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { formatSecondsInterval } from '$lib/date';
 	import { characterDps, characterHps } from '$lib/metrics';
-	import { Difficulty, TalentSpec, difficultyToString, isRaidDifficulty } from '$lib/model';
+	import {
+		Difficulty,
+		TalentSpec,
+		difficultyToString,
+		isRaidDifficulty,
+		talentSpecToString
+	} from '$lib/model';
 	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
 	import { getTalentSpecIconUrl } from '$lib/talent';
@@ -152,6 +159,7 @@
 	<TextColorError>slowest</TextColorError> kill took
 	<TextColorError>{formatSecondsInterval(data.kw.fightDuration.max)}</TextColorError>
 </p>
+
 <h2>Top stats by spec</h2>
 <div>
 	<ul>
@@ -174,7 +182,7 @@
 			<li class:active={isActive}>
 				<div class:active={isActive}>
 					<Link data-sveltekit-reload style="display: flex;" {href}>
-						<Icon src={iconUrl} label="Talent spec {id}" style="width: 24px; height: 24px;" />
+						<Icon src={iconUrl} label={talentSpecToString(id)} style="width: 24px; height: 24px;" />
 					</Link>
 				</div>
 			</li>
@@ -196,6 +204,12 @@
 		</div>
 	{/each}
 </div>
+<h2>DPS Talent Specialization Distribution</h2>
+<BossPerformanceBoxChart
+	width={data.windowInnerWidth}
+	field="dps"
+	aggregated={data.aggregated.dps}
+/>
 
 <style>
 	ul li div {

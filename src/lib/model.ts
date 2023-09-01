@@ -83,7 +83,7 @@ export const mutateCharacter = (character: Character): Character => {
 	character.raceString = raceToString(character.race);
 	character.raceIconUrl = getRaceIconUrl({ race: character.race, gender: character.gender });
 
-	character.talentSpecString = taletSpecToString(character.talent_spec);
+	character.talentSpecString = talentSpecToString(character.talent_spec);
 	character.talentSpecIconUrl = getTalentSpecIconUrl(character.talent_spec);
 	if (typeof character.boss_kills !== 'undefined') {
 		character.boss_kills = mutateBossKill(character.boss_kills);
@@ -363,6 +363,6 @@ const TALENT_SPEC_TO_STRING = {
 	[TalentSpec.MONK_MISTWEAVER]: 'Mistweaver'
 };
 
-export const taletSpecToString = (spec: number): string => {
+export const talentSpecToString = (spec: number): string => {
 	return TALENT_SPEC_TO_STRING[spec] ?? 'Unknown spec';
 };

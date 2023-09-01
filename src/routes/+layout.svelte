@@ -43,6 +43,7 @@
 
 <style>
 	:global(:root) {
+		--body-padding: 0.5rem;
 		--color-fg: whitesmoke;
 		--color-bg: 0, 0, 0;
 		--color-primary: goldenrod;
@@ -102,7 +103,7 @@
 	:global(body) {
 		font-size: 14px;
 		max-width: 1920px;
-		padding: 0.5rem;
+		padding: var(--body-padding);
 		margin: 0px auto;
 
 		font-family: 'Helvetica', 'Arial', sans-serif;
@@ -173,6 +174,10 @@
 		border-bottom: 2px solid var(--color-primary);
 	}
 
+	main {
+		flex-grow: 1;
+	}
+
 	.select-character {
 		padding: 0.25rem 0;
 		display: flex;
@@ -199,16 +204,25 @@
 	}
 
 	footer {
-		/* TODO: move this to bottom, but not with position: fixed */
 		padding: 0.5rem;
 		text-align: center;
 		font-size: 75%;
-		color: gray;
 	}
 
 	@media (max-width: 480px) {
 		.top {
 			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 220px) {
+		nav ul {
+			flex-direction: column;
+		}
+		nav {
+			justify-content: center;
+		}
+		.select-character {
+			justify-content: center;
 		}
 	}
 </style>

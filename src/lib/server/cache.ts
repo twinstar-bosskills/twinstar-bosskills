@@ -30,12 +30,17 @@ type Args<T> = {
 	 * Default: 60 * 60 = 1 hour
 	 */
 	expire?: number;
+	/**
+	 * Refresh timers on cache hit
+	 */
+	sliding?: boolean;
 };
 
 export const withCache = async <T = unknown>({
 	deps,
 	fallback,
-	expire = 60 * 60
+	expire = 60 * 60,
+	sliding = true
 }: Args<T>): Promise<T> => {
 	const key = await sha256(JSON.stringify(deps));
 	if (typeof CACHE[key] === 'undefined') {
@@ -49,7 +54,9 @@ export const withCache = async <T = unknown>({
 	} else {
 		// console.log(`cache-hit, key: ${key}`, CACHE[key]);
 		// refresh timer on cache hit
-		setupTimer(key, expire);
+		if (sliding) {
+			setupTimer(key, expire);
+		}
 	}
 
 	return CACHE[key] as T;
