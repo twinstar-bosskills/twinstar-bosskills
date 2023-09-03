@@ -166,13 +166,13 @@
 		background: rgba(var(--color-bg), 0.8);
 		left: var(--left, 0);
 		z-index: 1;
-		border-left: 1px solid var(--color-primary);
-		border-right: 1px solid var(--color-primary);
+		border-left: 1px solid rgba(var(--color-primary), 1);
+		border-right: 1px solid rgba(var(--color-primary), 1);
 		border-top: none;
 		border-bottom: none;
 	}
 	tr:last-of-type .sticky-left {
-		border-bottom: 1px solid var(--color-primary);
+		border-bottom: 1px solid rgba(var(--color-primary), 1);
 	}
 	.sticky-top {
 		position: sticky;
@@ -182,7 +182,7 @@
 	}
 	.sticky-left.sticky-top {
 		z-index: 3;
-		border: 1px solid var(--color-primary);
+		border: 1px solid rgba(var(--color-primary), 1);
 	}
 	@media (max-width: 320px) {
 		.sticky-top,

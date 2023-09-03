@@ -2,7 +2,6 @@ import { TWINSTAR_API_URL } from '$env/static/private';
 import { prepareData, type PreparedData } from '$lib/components/echart/boxplot';
 import { mutateCharacter, type Boss, type Character } from '$lib/model';
 import { REALM_HELIOS } from '$lib/realm';
-import { error } from '@sveltejs/kit';
 import { withCache } from '../cache';
 import {
 	getBossKillDetail,
@@ -220,11 +219,11 @@ export const getBossAggregatedStats = async (
 ): Promise<BossAggregatedStats> => {
 	const fallback = async () => {
 		// const items: { value: number; spec: number; label: string }[] = [];
+		type Item = { spec: number; talent_spec: number; dps?: string; hps?: string };
+		const url = `${TWINSTAR_API_URL}/bosskills/aggreggate?realm=${REALM_HELIOS}&entry=${id}&field=${field}&mode=${mode}`;
 		try {
-			const r = await fetch(
-				`${TWINSTAR_API_URL}/bosskills/aggreggate?realm=${REALM_HELIOS}&entry=${id}&field=${field}&mode=${mode}`
-			);
-			const data: { spec: number; dps?: string; hps?: string }[] = await r.json();
+			const r = await fetch(url);
+			const data: Item[] = await r.json();
 			if (Array.isArray(data) === false) {
 				throw new Error(`data is not an array`);
 			}
@@ -248,19 +247,14 @@ export const getBossAggregatedStats = async (
 						continue;
 					}
 
+					const spec = item.spec ?? item.talent_spec ?? 0;
 					// Unknown spec
-					if (item.spec === 0) {
+					if (spec === 0) {
 						continue;
 					}
 
-					// items.push({
-					// 	...item,
-					// 	label: talentSpecToString(item.spec),
-					// 	value
-					// });
-
-					aggregatedBySpec[item.spec] ??= [];
-					aggregatedBySpec[item.spec]!.push(value);
+					aggregatedBySpec[spec] ??= [];
+					aggregatedBySpec[spec]!.push(value);
 				}
 			}
 
@@ -284,8 +278,16 @@ export const getBossAggregatedStats = async (
 				return a[0][2] - b[0][2];
 			});
 
-			// remove index dimension
-			prepared.boxData = boxDataWithIndex.map(([d]) => d);
+			// remove index dimension and round numbers
+			prepared.boxData = boxDataWithIndex.map(([d]) => {
+				d[0] = Math.round(100 * d[0]) / 100;
+				d[1] = Math.round(100 * d[1]) / 100;
+				d[2] = Math.round(100 * d[2]) / 100;
+				d[3] = Math.round(100 * d[3]) / 100;
+				d[4] = Math.round(100 * d[4]) / 100;
+
+				return d;
+			});
 
 			const indexToSpecId: IndexToSpecId = {};
 			for (let i = 0; i < boxDataWithIndex.length; i++) {
@@ -295,7 +297,7 @@ export const getBossAggregatedStats = async (
 
 			return { indexToSpecId, prepared };
 		} catch (e) {
-			console.log(error);
+			console.log(e, url);
 			throw e;
 		}
 	};

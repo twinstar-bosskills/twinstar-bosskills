@@ -366,3 +366,62 @@ const TALENT_SPEC_TO_STRING = {
 export const talentSpecToString = (spec: number): string => {
 	return TALENT_SPEC_TO_STRING[spec] ?? 'Unknown spec';
 };
+
+export const TALENT_SPEC_TO_CLASS = {
+	[TalentSpec.MAGE_ARCANE]: Class.MAGE,
+	[TalentSpec.MAGE_FIRE]: Class.MAGE,
+	[TalentSpec.MAGE_FROST]: Class.MAGE,
+
+	[TalentSpec.PALADIN_HOLY]: Class.PALADIN,
+	[TalentSpec.PALADIN_PROT]: Class.PALADIN,
+	[TalentSpec.PALADIN_RET]: Class.PALADIN,
+
+	[TalentSpec.WARR_ARMS]: Class.WARRIOR,
+	[TalentSpec.WARR_FURY]: Class.WARRIOR,
+	[TalentSpec.WARR_PROT]: Class.WARRIOR,
+
+	[TalentSpec.DRUID_BALA]: Class.DRUID,
+	[TalentSpec.DRUID_CAT]: Class.DRUID,
+	[TalentSpec.DRUID_BEAR]: Class.DRUID,
+	[TalentSpec.DRUID_RESTO]: Class.DRUID,
+
+	[TalentSpec.DK_BLOOD]: Class.DK,
+	[TalentSpec.DK_FROST]: Class.DK,
+	[TalentSpec.DK_UNHOLY]: Class.DK,
+
+	[TalentSpec.HUNTER_BM]: Class.HUNTER,
+	[TalentSpec.HUNTER_MM]: Class.HUNTER,
+	[TalentSpec.HUNTER_SURV]: Class.HUNTER,
+
+	[TalentSpec.PRIEST_DISC]: Class.PRIEST,
+	[TalentSpec.PRIEST_HOLY]: Class.PRIEST,
+	[TalentSpec.PRIEST_SHADOW]: Class.PRIEST,
+
+	[TalentSpec.ROGUE_ASSA]: Class.ROGUE,
+	[TalentSpec.ROGUE_COMBAT]: Class.ROGUE,
+	[TalentSpec.ROGUE_SUB]: Class.ROGUE,
+
+	[TalentSpec.SHAMAN_ELE]: Class.SHAMAN,
+	[TalentSpec.SHAMAN_ENHA]: Class.SHAMAN,
+	[TalentSpec.SHAMAN_RESTO]: Class.SHAMAN,
+
+	[TalentSpec.WARLOCK_AFFLI]: Class.WARLOCK,
+	[TalentSpec.WARLOCK_DEMO]: Class.WARLOCK,
+	[TalentSpec.WARLOCK_DESTO]: Class.WARLOCK,
+
+	[TalentSpec.MONK_BREWMASTER]: Class.MONK,
+	[TalentSpec.MONK_BATTLEDANCER]: Class.MONK,
+	[TalentSpec.MONK_MISTWEAVER]: Class.MONK
+};
+
+export const talentSpecToClass = (spec: number): number | null => {
+	return TALENT_SPEC_TO_CLASS[spec] ?? null;
+};
+
+export const talentSpecToClassString = (spec: number): string => {
+	const cls = talentSpecToClass(spec);
+	if (cls === null) {
+		return 'Unknown spec';
+	}
+	return classToString(cls);
+};

@@ -204,11 +204,19 @@
 		</div>
 	{/each}
 </div>
-<h2>DPS Talent Specialization Distribution</h2>
+
+<h2>DPS Talent Spec Distribution</h2>
 <BossPerformanceBoxChart
 	width={data.windowInnerWidth}
 	field="dps"
 	aggregated={data.aggregated.dps}
+/>
+
+<h2>HPS Talent Spec Distribution</h2>
+<BossPerformanceBoxChart
+	width={data.windowInnerWidth}
+	field="hps"
+	aggregated={data.aggregated.hps}
 />
 
 <style>
@@ -216,7 +224,7 @@
 		padding: 0.25rem;
 	}
 	ul li div.active {
-		border: 4px solid var(--color-primary);
+		border: 4px solid rgba(var(--color-primary), 1);
 	}
 	ul {
 		display: flex;
