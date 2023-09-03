@@ -45,17 +45,33 @@
 				if (spec) {
 					const cls = talentSpecToClass(spec);
 					const specString = talentSpecToString(spec);
-					return `<div style="color: var(--color-class-${cls});
-					  background-color: rgba(var(--color-bg), 0.75);
-					  padding: 0px 6px;">${spec} - ${specString}</div>
-				<ul>
-					<li> ${p.marker} ${field.toUpperCase()}</li>
-					<li>Min: ${min}</li>
-					<li>Q1: ${q1}</li>
-					<li style="font-weight: bold;">Median: ${med}</li>
-					<li>Q3: ${q3}</li>
-					<li>Max: ${max}</li>
-				</ul>`;
+					return `
+					<div style="
+					  display: flex;
+					  align-items: center;
+					  font-weight: bold;
+					  border-radius: 3px;
+					  padding: 3px 6px;
+					  padding-left: 0;
+					">
+					    <div style="
+						  width: 1rem;
+						  height: 1rem;
+						  background: var(--color-class-${cls});
+						  border-radius: 50%;
+						  border: 1px solid rgba(var(--color-bg), 0.5);
+						  margin-right: 6px;
+						"></div>
+					  	${specString}
+					</div>
+					<ul>
+						<li>${p.marker} ${field.toUpperCase()}</li>
+						<li>Min: ${min}</li>
+						<li>Q1: ${q1}</li>
+						<li style="font-weight: bold;">Median: ${med}</li>
+						<li>Q3: ${q3}</li>
+						<li>Max: ${max}</li>
+					</ul>`;
 				}
 				return 'N/A';
 			}
