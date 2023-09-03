@@ -17,9 +17,10 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	}
 
 	const mode = getDifficultyFromUrl(url) ?? DEFAULT_DIFFICULTY;
-	const [kw, dpsPrepared] = await Promise.all([
+	const [kw, dpsPrepared, hpsPrepared] = await Promise.all([
 		getBossKillsWipesTimes(id, mode),
-		api.getBossAggregatedStats(id, 'dps', mode)
+		api.getBossAggregatedStats(id, 'dps', mode),
+		api.getBossAggregatedStats(id, 'hps', mode)
 	]);
 
 	type Stats = {
@@ -123,7 +124,8 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		],
 		kw,
 		aggregated: {
-			dps: dpsPrepared
+			dps: dpsPrepared,
+			hps: hpsPrepared
 		}
 	};
 };

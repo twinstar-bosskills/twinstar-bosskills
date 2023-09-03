@@ -4,9 +4,10 @@
 	import { GridComponent, TooltipComponent } from 'echarts/components';
 	import * as echarts from 'echarts/core';
 	import { SVGRenderer } from 'echarts/renderers';
-	import { talentSpecToString } from '../../model';
+	import { talentSpecToClass, talentSpecToString } from '../../model';
 
 	import type { BossAggregatedStats } from '$lib/server/api';
+	import { getTalentSpecIconUrl } from '$lib/talent';
 	import Chart from './Chart.svelte';
 
 	export let width: number | undefined = undefined;
@@ -15,15 +16,53 @@
 
 	echarts.use([TooltipComponent, GridComponent, BoxplotChart, SVGRenderer]);
 
-	const options: EChartsOption = {
+	// TextCommonOption
+	const rich: Record<number | string, any> = {};
+	for (const [i, spec] of Object.entries(aggregated.indexToSpecId)) {
+		rich[i] = {
+			width: 24,
+			height: 24,
+			align: 'right',
+			backgroundColor: {
+				image: getTalentSpecIconUrl(spec)
+			}
+		};
+	}
+
+	let options: EChartsOption = {
 		backgroundColor: 'transparent',
 		animation: false,
 		tooltip: {
 			trigger: 'axis',
-			confine: true
+			confine: true,
+			formatter(params: any) {
+				const p = params[0] ?? null;
+				if (p === null) {
+					return 'Unknown';
+				}
+				const [index, min, q1, med, q3, max] = p.data.value;
+				const spec = aggregated.indexToSpecId[index];
+				if (spec) {
+					const cls = talentSpecToClass(spec);
+					const specString = talentSpecToString(spec);
+					return `<div style="color: var(--color-class-${cls});
+					  background-color: rgba(var(--color-bg), 0.75);
+					  padding: 0px 6px;">${spec} - ${specString}</div>
+				<ul>
+					<li> ${p.marker} ${field.toUpperCase()}</li>
+					<li>Min: ${min}</li>
+					<li>Q1: ${q1}</li>
+					<li style="font-weight: bold;">Median: ${med}</li>
+					<li>Q3: ${q3}</li>
+					<li>Max: ${max}</li>
+				</ul>`;
+				}
+				return 'N/A';
+			}
 		},
 		xAxis: {
-			name: 'dps',
+			id: field,
+			name: field.toUpperCase(),
 			nameLocation: 'middle',
 			nameGap: 30,
 			scale: true
@@ -31,11 +70,23 @@
 		yAxis: {
 			id: 'spec',
 			type: 'category',
+			// data: aggregated.prepared.axisData,
 			axisLabel: {
+				rich,
+				color: (i) => {
+					const spec = aggregated.indexToSpecId?.[Number(i)] ?? null;
+					let cls = null;
+					if (spec) {
+						cls = talentSpecToClass(spec);
+						return `var(--color-class-${cls})`;
+					}
+					return `var(--color-fg)`;
+				},
+				fontSize: '0.75rem',
 				formatter: (v) => {
 					const spec = aggregated.indexToSpecId?.[Number(v)] ?? null;
 					if (spec) {
-						return talentSpecToString(spec);
+						return talentSpecToString(spec) + ' {' + v + '|}';
 					}
 					return v;
 				}
@@ -48,11 +99,18 @@
 		},
 		series: [
 			{
-				name: `Type ${field}`,
+				id: field,
 				type: 'boxplot',
-				data: aggregated.prepared.boxData
-				// this works, be we need class colors
-				// colorBy: 'data'
+				data: aggregated.prepared.boxData.map((v, i) => {
+					return {
+						value: v,
+						itemStyle: {
+							borderColor: `rgba(var(--color-primary), 1)`,
+							color: `rgba(var(--color-primary), 0.25)`
+							// color: `transparent`
+						}
+					};
+				})
 			}
 		]
 	};
