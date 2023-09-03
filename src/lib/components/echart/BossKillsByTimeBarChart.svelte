@@ -44,7 +44,7 @@
 				name: 'Number of bosskills',
 				type: 'bar',
 
-				color: 'var(--color-primary)',
+				color: 'rgba(var(--color-primary), 1)',
 				data: series
 			}
 		]
