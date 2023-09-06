@@ -112,10 +112,6 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		}
 	}
 
-	// just to be sure, sometimes api can sort badly
-	dmg = dmg.sort((a, b) => b.amount - a.amount);
-	heal = heal.sort((a, b) => b.amount - a.amount);
-
 	return {
 		boss: { name: boss.name },
 		stats: [

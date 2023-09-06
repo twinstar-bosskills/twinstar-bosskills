@@ -1,3 +1,10 @@
+<script lang="ts" context="module">
+	export const cellComponent = (component: unknown, props: Record<string, unknown>) => ({
+		component,
+		props
+	});
+</script>
+
 <script lang="ts">
 	import arrowDown from '$lib/assets/icons/arrow-down.svg?raw';
 	import arrowUp from '$lib/assets/icons/arrow-up.svg?raw';
@@ -96,6 +103,10 @@
 		{#each $table.getRowModel().rows as row, i}
 			<tr>
 				{#each row.getVisibleCells() as cell, j}
+					{@const result =
+						typeof cell.column.columnDef.cell === 'function'
+							? cell.column.columnDef.cell(cell.getContext())
+							: cell.column.columnDef.cell}
 					<td
 						class:sticky-left={j === 0}
 						style={[
@@ -105,7 +116,14 @@
 							.filter(Boolean)
 							.join(';')}
 					>
-						<svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
+						{#if result.component && result.props}
+							<svelte:component this={result.component} {...result.props} />
+						{:else if typeof result === 'string' || typeof result === 'number'}
+							{result}
+						{:else}
+							<!-- flexRender is REALLY slow -->
+							<svelte:component this={flexRender(cell.column.columnDef.cell, cell.getContext())} />
+						{/if}
 					</td>
 				{/each}
 			</tr>

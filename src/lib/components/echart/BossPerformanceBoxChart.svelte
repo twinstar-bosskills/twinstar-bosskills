@@ -35,43 +35,58 @@
 		tooltip: {
 			trigger: 'axis',
 			confine: true,
+			padding: 1,
 			formatter(params: any) {
 				const p = params[0] ?? null;
 				if (p === null) {
 					return 'Unknown';
 				}
-				const [index, min, q1, med, q3, max] = p.data.value;
+				let [index, min, q1, med, q3, max] = p.data.value;
+				min = typeof min === 'number' ? min.toLocaleString() : min;
+				q1 = typeof q1 === 'number' ? q1.toLocaleString() : q1;
+				med = typeof med === 'number' ? med.toLocaleString() : med;
+				q3 = typeof q3 === 'number' ? q3.toLocaleString() : q3;
+				max = typeof max === 'number' ? max.toLocaleString() : max;
+
 				const spec = aggregated.indexToSpecId[index];
 				if (spec) {
 					const cls = talentSpecToClass(spec);
 					const specString = talentSpecToString(spec);
 					return `
 					<div style="
-					  display: flex;
-					  align-items: center;
-					  font-weight: bold;
-					  border-radius: 3px;
-					  padding: 3px 6px;
-					  padding-left: 0;
+						background: rgba(var(--color-bg), 0.9);
+						padding: 0.5rem;
+						color: var(--color-fg);
 					">
-					    <div style="
-						  width: 1rem;
-						  height: 1rem;
-						  background: var(--color-class-${cls});
-						  border-radius: 50%;
-						  border: 1px solid rgba(var(--color-bg), 0.5);
-						  margin-right: 6px;
-						"></div>
-					  	${specString}
+						<div>${field.toUpperCase()}</div>
+						<div style="
+						display: flex;
+						align-items: center;
+						font-weight: bold;
+						border-radius: 3px;
+						padding: 3px 6px;
+						padding-left: 0;
+						">
+							<div style="
+							width: 1rem;
+							height: 1rem;
+							background: var(--color-class-${cls});
+							border-radius: 50%;
+							border: 1px solid rgba(var(--color-bg), 0.5);
+							margin-right: 6px;
+							"></div>
+							${specString}
+						</div>
+						<ul>
+							<li>${p.marker} ${field.toUpperCase()}</li>
+							<li>Min: ${min}</li>
+							<li>Q1: ${q1}</li>
+							<li style="font-weight: bold;">Median: ${med}</li>
+							<li>Q3: ${q3}</li>
+							<li>Max: ${max}</li>
+						</ul>
 					</div>
-					<ul>
-						<li>${p.marker} ${field.toUpperCase()}</li>
-						<li>Min: ${min}</li>
-						<li>Q1: ${q1}</li>
-						<li style="font-weight: bold;">Median: ${med}</li>
-						<li>Q3: ${q3}</li>
-						<li>Max: ${max}</li>
-					</ul>`;
+					`;
 				}
 				return 'N/A';
 			}

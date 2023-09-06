@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Pagination from '$lib/components/Pagination.svelte';
-	import Table from '$lib/components/table/Table.svelte';
+	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import Boss from '$lib/components/table/column/Boss.column.svelte';
 	import FightDetails from '$lib/components/table/column/FightDetails.column.svelte';
 	import Guild from '$lib/components/table/column/Guild.column.svelte';
@@ -9,7 +9,7 @@
 	import { formatSecondsInterval } from '$lib/date';
 	import { links } from '$lib/links';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
-	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
+	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
 	let pageSize = getPageSizeFromURL($page.url);
@@ -23,7 +23,7 @@
 			id: 'boss',
 			accessorFn: (row) => row.creature_name ?? row.entry,
 			header: () => 'Boss',
-			cell: (info) => flexRender(Boss, { bosskill: info.row.original })
+			cell: (info) => cellComponent(Boss, { bosskill: info.row.original })
 		},
 		{
 			id: 'raid',
@@ -40,7 +40,7 @@
 			accessorFn: (row) => row.guild,
 			cell: ({ row }) => {
 				const { original } = row;
-				return flexRender(Guild, {
+				return cellComponent(Guild, {
 					bosskill: original
 				});
 			},
@@ -57,12 +57,12 @@
 			id: 'killedAt',
 			header: () => 'Killed',
 			accessorFn: (row) => row.time,
-			cell: (info) => flexRender(KilledAt, { bosskill: info.row.original })
+			cell: (info) => cellComponent(KilledAt, { bosskill: info.row.original })
 		},
 		{
 			id: 'fightDetails',
 			header: () => 'Fight Details',
-			cell: (info) => flexRender(FightDetails, { bosskill: info.row.original }),
+			cell: (info) => cellComponent(FightDetails, { bosskill: info.row.original }),
 			enableSorting: false
 		}
 	];

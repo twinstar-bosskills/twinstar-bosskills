@@ -1,10 +1,10 @@
 <script lang="ts">
 	import TextColorError from '$lib/components/TextColorError.svelte';
 	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
-	import Table from '$lib/components/table/Table.svelte';
+	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import Boss from '$lib/components/table/column/Boss.column.svelte';
 	import { formatTzLocalized } from '$lib/date';
-	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
+	import type { ColumnDef } from '@tanstack/svelte-table';
 
 	import BossKillsByTimeBarChart from '$lib/components/echart/BossKillsByTimeBarChart.svelte';
 	import type { PageData } from './$types';
@@ -45,7 +45,7 @@
 			header: () => 'Boss',
 			cell: (info) => {
 				const bk = info.row.original;
-				return flexRender(Boss, {
+				return cellComponent(Boss, {
 					bosskill: {
 						entry: bk.bossId,
 						mode: bk.mode,

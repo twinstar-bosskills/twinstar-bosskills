@@ -22,12 +22,10 @@
 		showTooltipById[key] = false;
 	}
 
-	// Chart
-
 	import Link from '$lib/components/Link.svelte';
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import BossKillDetailsChart from '$lib/components/echart/BossKillDetailsChart.svelte';
-	import Table from '$lib/components/table/Table.svelte';
+	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
@@ -35,7 +33,7 @@
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
-	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
+	import type { ColumnDef } from '@tanstack/svelte-table';
 
 	const charactersByGUID = data.bosskill.boss_kills_players?.reduce((acc, item) => {
 		acc[item.guid] = item;
@@ -88,7 +86,7 @@
 			id: 'name',
 			accessorFn: (row) => row.name,
 			header: () => 'Name',
-			cell: (info) => flexRender(CharacterName, { character: info.row.original })
+			cell: (info) => cellComponent(CharacterName, { character: info.row.original })
 		},
 
 		{
@@ -96,7 +94,7 @@
 			accessorFn: (row) => row.class,
 			cell: ({ row }) => {
 				const { original } = row;
-				return flexRender(Class, {
+				return cellComponent(Class, {
 					character: original
 				});
 			},
@@ -105,7 +103,7 @@
 		{
 			id: 'dps',
 			accessorFn: (row) => characterDps(row, fightLength),
-			cell: (info) => flexRender(CharacterDps, { character: info.row.original, fightLength }),
+			cell: (info) => cellComponent(CharacterDps, { character: info.row.original, fightLength }),
 			header: () => 'DPS'
 		},
 		{
@@ -131,7 +129,7 @@
 			accessorFn: (row) => characterHps(row, fightLength),
 			header: () => 'HPS',
 			cell: (info) =>
-				flexRender(CharacterHPS, {
+				cellComponent(CharacterHPS, {
 					character: info.row.original,
 					fightLength
 				})
@@ -185,8 +183,10 @@
 <svelte:head>
 	<title>{title}</title>
 </svelte:head>
-<h1>{title}</h1>
-<LinkExternal href={links.twinstarBossKill(data.bosskill.id)}>Twinhead</LinkExternal>
+<div class="title">
+	<h1>{title}</h1>
+	<LinkExternal href={links.twinstarBossKill(data.bosskill.id)}>Twinhead</LinkExternal>
+</div>
 <div class="grid">
 	<div class="grid-boss">
 		<dl>
@@ -357,5 +357,16 @@
 		background-color: rgba(var(--color-bg), 0.75);
 		border: 2px solid rgba(var(--quality), 0.75);
 		z-index: 1;
+	}
+	.title {
+		margin: 1rem 0;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		column-gap: 1rem;
+		row-gap: 0.5rem;
+	}
+	.title h1 {
+		margin: 0;
 	}
 </style>
