@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Table from '$lib/components/table/Table.svelte';
+	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import Boss from '$lib/components/table/column/Boss.column.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
@@ -12,7 +12,7 @@
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
 	import { formatAvgItemLvl } from '$lib/number';
-	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
+	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -28,7 +28,7 @@
 				return data.bossById[entry]?.name ?? entry;
 			},
 			header: () => 'Boss',
-			cell: (info) => flexRender(Boss, { bosskill: info.row.original.boss_kills })
+			cell: (info) => cellComponent(Boss, { bosskill: info.row.original.boss_kills })
 		},
 		{
 			id: 'difficulty',
@@ -40,23 +40,25 @@
 			accessorFn: (row) => row.talent_spec,
 			cell: ({ row }) => {
 				const { original } = row;
-				return flexRender(Spec, {
+				return cellComponent(Spec, {
 					character: original
 				});
 			},
+
 			header: () => 'Spec'
 		},
 		{
 			id: 'dps',
 			accessorFn: (row) => characterDps(row),
-			cell: (info) => flexRender(CharacterDps, { character: info.row.original }),
+			cell: (info) => cellComponent(CharacterDps, { character: info.row.original }),
+
 			header: () => 'DPS'
 		},
 		{
 			id: 'hps',
 			accessorFn: (row) => characterHps(row),
 			header: () => 'HPS',
-			cell: (info) => flexRender(CharacterHps, { character: info.row.original })
+			cell: (info) => cellComponent(CharacterHps, { character: info.row.original })
 		},
 		{
 			id: 'fightLength',
@@ -74,12 +76,12 @@
 			id: 'killedAt',
 			header: () => 'Killed',
 			accessorFn: (row) => row.boss_kills?.time,
-			cell: (info) => flexRender(KilledAt, { bosskill: info.row.original.boss_kills! })
+			cell: (info) => cellComponent(KilledAt, { bosskill: info.row.original.boss_kills! })
 		},
 		{
 			id: 'fightDetails',
 			header: () => 'Fight Details',
-			cell: (info) => flexRender(FightDetails, { bosskill: info.row.original.boss_kills! }),
+			cell: (info) => cellComponent(FightDetails, { bosskill: info.row.original.boss_kills! }),
 			enableSorting: false
 		}
 	];
@@ -109,11 +111,10 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		justify-content: space-between;
 		column-gap: 1rem;
+		row-gap: 0.5rem;
 	}
-
-	h1 {
+	.title h1 {
 		margin: 0;
 	}
 </style>

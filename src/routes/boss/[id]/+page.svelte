@@ -6,7 +6,7 @@
 	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
 	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
 	import BossPerformanceBoxChart from '$lib/components/echart/BossPerformanceBoxChart.svelte';
-	import Table from '$lib/components/table/Table.svelte';
+	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
@@ -25,7 +25,7 @@
 	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
 	import { getTalentSpecIconUrl } from '$lib/talent';
-	import { flexRender, type ColumnDef } from '@tanstack/svelte-table';
+	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 	import BossKillDetailLink from './components/BossKillDetailLink.svelte';
 
@@ -80,15 +80,31 @@
 				id: 'character',
 				accessorFn: (row) => row.char,
 				header: () => 'Character',
-				cell: (info) => flexRender(CharacterName, { character: info.row.original.char })
+				cell: (info) => ({
+					component: CharacterName,
+					props: {
+						character: info.row.original.char
+					}
+				})
 			},
-			{ id: 'rank', accessorFn: (_, i) => i + 1, header: () => 'Rank' },
+			{
+				id: 'rank',
+				cell: (info) => {
+					const rows = info.table.getSortedRowModel().rows;
+					const index = rows.findIndex((r) => r.id === info.row.id) ?? null;
+					if (index !== null) {
+						return index + 1;
+					}
+					return 'N/A';
+				},
+				header: () => 'Rank'
+			},
 			{
 				id: 'spec',
 				accessorFn: (row) => row.char.talent_spec,
 				cell: ({ row }) => {
 					const { original } = row;
-					return flexRender(Spec, {
+					return cellComponent(Spec, {
 						character: original.char
 					});
 				},
@@ -103,10 +119,12 @@
 			{
 				id: 'amountPerSecond',
 				accessorFn: (row) => (isDmg ? characterDps(row.char) : characterHps(row.char)),
-				cell: (info) =>
-					isDmg
-						? flexRender(CharacterDps, { character: info.row.original.char })
-						: flexRender(CharacterHps, { character: info.row.original.char }),
+				cell: (info) => {
+					return isDmg
+						? cellComponent(CharacterDps, { character: info.row.original.char })
+						: cellComponent(CharacterHps, { character: info.row.original.char });
+				},
+
 				header: () => (isDmg ? 'DPS' : 'HPS')
 			},
 			{
@@ -119,13 +137,13 @@
 				id: 'killedAt',
 				header: () => 'Killed',
 				accessorFn: (row) => row.char.boss_kills?.time,
-				cell: (info) => flexRender(KilledAt, { bosskill: info.row.original.char.boss_kills! })
+				cell: (info) => cellComponent(KilledAt, { bosskill: info.row.original.char.boss_kills! })
 			},
 			{
 				id: 'detail',
 				cell: (info) => {
 					const bossKillId = info.row.original.char.boss_kills?.id;
-					return flexRender(BossKillDetailLink, { id: bossKillId });
+					return cellComponent(BossKillDetailLink, { id: bossKillId });
 				},
 				header: () => 'Details',
 				enableSorting: false
@@ -198,7 +216,7 @@
 				<Table
 					data={stat.value}
 					columns={columnByStatsType[stat.type]}
-					sorting={[{ id: 'amount', desc: true }]}
+					sorting={[{ id: 'amountPerSecond', desc: true }]}
 				/>
 			{/if}
 		</div>
