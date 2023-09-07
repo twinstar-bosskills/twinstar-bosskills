@@ -6,5 +6,5 @@
 </script>
 
 <Icon src={character.classIconUrl} label={character.classString} />
-<Icon src={character.talentSpecIconUrl} label={String(character.talent_spec)} />
-<Icon src={character.raceIconUrl} label={String(character.raceString)} />
+<Icon src={character.talentSpecIconUrl} label={character.talentSpecString} />
+<Icon src={character.raceIconUrl} label={character.raceString} />
