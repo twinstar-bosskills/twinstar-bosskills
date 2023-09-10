@@ -67,13 +67,13 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		talentSpec = isFinite(v) ? v : talentSpec;
 	}
 
-	const [byDamageDone, byHealingDone] = await Promise.all([
+	const [byDPS, byHPS] = await Promise.all([
 		api.getBossStatsV2(id, {
 			difficulty,
 			talentSpec,
 			pageSize: LIMIT,
 			sorter: {
-				column: 'dmgDone',
+				column: 'dps',
 				order: 'desc'
 			}
 		}),
@@ -82,13 +82,13 @@ export const load: PageServerLoad = async ({ url, params }) => {
 			talentSpec,
 			pageSize: LIMIT,
 			sorter: {
-				column: 'healingDone',
+				column: 'hps',
 				order: 'desc'
 			}
 		})
 	]);
 
-	for (const bySpec of Object.values(byDamageDone.bySpec)) {
+	for (const bySpec of Object.values(byDPS.bySpec)) {
 		for (const char of bySpec) {
 			const amount = Number(char.dmgDone);
 			if (isFinite(amount)) {
@@ -100,7 +100,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		}
 	}
 
-	for (const bySpec of Object.values(byHealingDone.bySpec)) {
+	for (const bySpec of Object.values(byHPS.bySpec)) {
 		for (const char of bySpec) {
 			const amount = Number(char.healingDone);
 			if (isFinite(amount)) {

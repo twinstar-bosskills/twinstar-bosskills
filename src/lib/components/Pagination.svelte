@@ -3,6 +3,7 @@
 	import Link from './Link.svelte';
 
 	export let path: string;
+	export let searchParams: URLSearchParams | undefined = undefined;
 	export let page: number = 0;
 	export let pageSize: number = 100;
 
@@ -37,26 +38,31 @@
 			}
 		}
 	}
+	const makeHref = (page: number) => {
+		const params = new URLSearchParams(searchParams ?? '');
+		params.set('page', String(page));
+		return `${path}?${params}`;
+	};
 </script>
 
 <div class="pagination">
 	<ol>
 		<li>
-			<Link data-sveltekit-reload href="{path}?page=0">{'|<'} First</Link>
+			<Link data-sveltekit-reload href={makeHref(0)}>{'|<'} First</Link>
 		</li>
 		<li style="margin-right: 0.5rem">
-			<Link data-sveltekit-reload href="{path}?page={prevPage}">{'<<'} Prev</Link>
+			<Link data-sveltekit-reload href={makeHref(prevPage)}>{'<<'} Prev</Link>
 		</li>
 		{#each options as option}
 			<li>
-				<Link data-sveltekit-reload href="{path}?page={option.page}">{option.page + 1}</Link>
+				<Link data-sveltekit-reload href={makeHref(option.page)}>{option.page + 1}</Link>
 			</li>
 		{/each}
 		<li style="margin-left: 0.5rem">
-			<Link data-sveltekit-reload href="{path}?page={nextPage}">Next {'>>'}</Link>
+			<Link data-sveltekit-reload href={makeHref(nextPage)}>Next {'>>'}</Link>
 		</li>
 		<li>
-			<Link data-sveltekit-reload href="{path}?page={lastPage}">Last {'>|'}</Link>
+			<Link data-sveltekit-reload href={makeHref(lastPage)}>Last {'>|'}</Link>
 		</li>
 	</ol>
 </div>

@@ -291,7 +291,7 @@
 	<Table
 		data={data.bosskill.boss_kills_players}
 		columns={columnsUnknown}
-		sorting={[{ id: 'dmgDone', desc: true }]}
+		sorting={[{ id: 'dps', desc: true }]}
 	/>
 </div>
 
