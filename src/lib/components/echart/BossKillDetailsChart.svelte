@@ -9,6 +9,7 @@
 	import { LineChart, ScatterChart } from 'echarts/charts';
 	import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';
 	import * as echarts from 'echarts/core';
+	import { LabelLayout } from 'echarts/features';
 	import { SVGRenderer } from 'echarts/renderers';
 	import Chart from './Chart.svelte';
 
@@ -28,6 +29,7 @@
 		GridComponent,
 		LegendComponent,
 		LineChart,
+		LabelLayout,
 		SVGRenderer
 	]);
 
@@ -106,7 +108,8 @@
 		grid: {
 			containLabel: true,
 			left: '1%',
-			right: '4%',
+			// right: '4%',
+			right: '0%',
 			bottom: '2%'
 		},
 		xAxis: {
@@ -127,13 +130,14 @@
 				type: 'value',
 				name: 'Deaths',
 				position: 'right',
-				offset: 40,
-				axisLine: {
-					show: true,
-					lineStyle: {
-						color: 'pink'
-					}
-				},
+				// offset: 40,
+				show: false,
+				// axisLine: {
+				// 	show: true,
+				// 	lineStyle: {
+				// 		color: 'white'
+				// 	}
+				// },
 				min: 0,
 				max: 1,
 				minInterval: 1
@@ -142,12 +146,13 @@
 				type: 'value',
 				name: 'Ress',
 				position: 'right',
-				axisLine: {
-					show: true,
-					lineStyle: {
-						color: 'white'
-					}
-				},
+				show: false,
+				// axisLine: {
+				// 	show: true,
+				// 	lineStyle: {
+				// 		color: 'pink'
+				// 	}
+				// },
 				min: 0,
 				max: 1,
 				minInterval: 1
@@ -187,10 +192,10 @@
 				type: 'scatter',
 				yAxisIndex: 1,
 
-				symbol: 'image:///icons/tombstone-pink.png',
+				symbol: 'image:///icons/tombstone-white.png',
 				symbolOffset: [-1.3, 40],
 				symbolSize: 20,
-				color: 'pink',
+				color: 'white',
 				data: seriesDeaths,
 				labelLayout: {
 					rotate: 60,
@@ -199,7 +204,7 @@
 				},
 				label: {
 					show: true,
-					color: 'pink',
+					color: 'white',
 					position: 'insideBottomLeft',
 					formatter: (params) => {
 						if (params.data) {
@@ -218,7 +223,7 @@
 				// symbol: 'image:///icons/tombstone-pink.png',
 				symbolOffset: [0, 40],
 				// symbolSize: 20,
-				color: 'white',
+				color: 'pink',
 				data: seriesRessurects,
 				labelLayout: {
 					rotate: 60,
@@ -227,7 +232,7 @@
 				},
 				label: {
 					show: true,
-					color: 'white',
+					color: 'pink',
 					position: 'insideBottomLeft',
 					formatter: (params) => {
 						if (params.data) {
