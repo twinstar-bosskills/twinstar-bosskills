@@ -114,7 +114,7 @@
 				id: 'amount',
 				accessorFn: (row) => row.amount,
 				cell: formatCell,
-				header: () => (isDmg ? 'DPS Done' : 'Healing Done')
+				header: () => (isDmg ? 'Dmg Done' : 'Healing Done')
 			},
 			{
 				id: 'amountPerSecond',
