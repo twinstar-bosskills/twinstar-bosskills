@@ -114,7 +114,7 @@
 				id: 'amount',
 				accessorFn: (row) => row.amount,
 				cell: formatCell,
-				header: () => (isDmg ? 'Damage Done' : 'Healing Done')
+				header: () => (isDmg ? 'DPS Done' : 'Healing Done')
 			},
 			{
 				id: 'amountPerSecond',
@@ -212,7 +212,7 @@
 		<div>
 			{#if stat.value.length > 0}
 				{@const isDmg = stat.type === STATS_TYPE_DMG}
-				<h3>{isDmg ? 'Top Damage Done' : 'Top Healing Done'}</h3>
+				<h3>{isDmg ? 'Top DPS' : 'Top HPS'}</h3>
 				<Table
 					data={stat.value}
 					columns={columnByStatsType[stat.type]}
@@ -223,14 +223,14 @@
 	{/each}
 </div>
 
-<h2>DPS Talent Spec Distribution</h2>
+<h2>DPS by Talent Spec</h2>
 <BossPerformanceBoxChart
 	width={data.windowInnerWidth}
 	field="dps"
 	aggregated={data.aggregated.dps}
 />
 
-<h2>HPS Talent Spec Distribution</h2>
+<h2>HPS by Talent Spec</h2>
 <BossPerformanceBoxChart
 	width={data.windowInnerWidth}
 	field="hps"

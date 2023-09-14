@@ -321,7 +321,7 @@ export const TalentSpec = {
 	WARLOCK_DESTO: 267,
 
 	MONK_BREWMASTER: 268,
-	MONK_BATTLEDANCER: 269,
+	MONK_WINDWALKER: 269,
 	MONK_MISTWEAVER: 270
 
 	// TODO: https://wow.tools/dbc/?dbc=chrspecialization&build=5.4.8.18273#page=1
@@ -359,7 +359,7 @@ const TALENT_SPEC_TO_STRING = {
 	[TalentSpec.WARLOCK_DEMO]: 'Demonology',
 	[TalentSpec.WARLOCK_DESTO]: 'Destruction',
 	[TalentSpec.MONK_BREWMASTER]: 'Brewmaster',
-	[TalentSpec.MONK_BATTLEDANCER]: 'Battledancer',
+	[TalentSpec.MONK_WINDWALKER]: 'Windwalker',
 	[TalentSpec.MONK_MISTWEAVER]: 'Mistweaver'
 };
 
@@ -410,7 +410,7 @@ export const TALENT_SPEC_TO_CLASS = {
 	[TalentSpec.WARLOCK_DESTO]: Class.WARLOCK,
 
 	[TalentSpec.MONK_BREWMASTER]: Class.MONK,
-	[TalentSpec.MONK_BATTLEDANCER]: Class.MONK,
+	[TalentSpec.MONK_WINDWALKER]: Class.MONK,
 	[TalentSpec.MONK_MISTWEAVER]: Class.MONK
 };
 

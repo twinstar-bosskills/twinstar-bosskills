@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Pagination from '$lib/components/Pagination.svelte';
+	import FilterForm from '$lib/components/form/FilterForm.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import Boss from '$lib/components/table/column/Boss.column.svelte';
 	import FightDetails from '$lib/components/table/column/FightDetails.column.svelte';
@@ -73,6 +74,9 @@
 	<title>Latest Bosskills</title>
 </svelte:head>
 <h1>Latest Bosskills</h1>
+<div style="margin-bottom: 1rem;">
+	<FilterForm data={data.form.data} values={data.form.values} />
+</div>
 <div>
 	<Table
 		data={data.latest.data}
@@ -80,7 +84,13 @@
 		sorting={[{ id: 'killedAt', desc: true }]}
 	>
 		<svelte:fragment slot="pagination">
-			<Pagination path={links.BOSS_KILLS} page={page_} {pageSize} totalItems={data.latest.total} />
+			<Pagination
+				path={links.BOSS_KILLS}
+				searchParams={$page.url.searchParams}
+				page={page_}
+				{pageSize}
+				totalItems={data.latest.total}
+			/>
 		</svelte:fragment>
 	</Table>
 </div>

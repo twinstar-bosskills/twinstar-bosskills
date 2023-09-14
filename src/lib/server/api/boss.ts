@@ -96,7 +96,7 @@ export const getBossStats = async (id: number): Promise<BossStats> => {
 };
 
 type BossStatsQueryArgs = Pick<
-	QueryArgs<'dmgDone' | 'healingDone'>,
+	QueryArgs<'dmgDone' | 'healingDone' | 'dps' | 'hps'>,
 	'sorter' | 'difficulty' | 'pageSize' | 'talentSpec'
 >;
 export const getBossStatsV2 = async (id: number, qa: BossStatsQueryArgs): Promise<BossStats> => {
