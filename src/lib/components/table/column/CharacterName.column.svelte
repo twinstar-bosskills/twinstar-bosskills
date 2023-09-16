@@ -4,6 +4,10 @@
 	import type { Character } from '$lib/model';
 
 	export let character: Character;
+	export let rank: number | undefined = undefined;
 </script>
 
-<Link href={links.character(character.name)}>{character.name}</Link>
+<div>
+	<Link href={links.character(character.name)}>{character.name}</Link>
+	{typeof rank === 'number' ? ` #${rank}` : ''}
+</div>

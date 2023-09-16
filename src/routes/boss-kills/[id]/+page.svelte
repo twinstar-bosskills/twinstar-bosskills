@@ -215,9 +215,11 @@
 			<dt>Realm</dt>
 			<dd>{data.bosskill.realm}</dd>
 
-			<dt>Killed at</dt>
-
+			<dt>Killed</dt>
 			<dd>{formatLocalized(data.bosskill.time)}</dd>
+
+			<dt>Avg iLvl</dt>
+			<dd>{formatAvgItemLvl(data.bosskillAvgItemLvl)}</dd>
 
 			<dt>Wipes</dt>
 			<dd>{data.bosskill.wipes}</dd>

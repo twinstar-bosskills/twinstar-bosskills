@@ -22,6 +22,7 @@
 		isRaidDifficulty,
 		talentSpecToString
 	} from '$lib/model';
+	import { formatAvgItemLvl } from '$lib/number';
 	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
 	import { getTalentSpecIconUrl } from '$lib/talent';
@@ -80,24 +81,22 @@
 				id: 'character',
 				accessorFn: (row) => row.char,
 				header: () => 'Character',
-				cell: (info) => ({
-					component: CharacterName,
-					props: {
-						character: info.row.original.char
-					}
-				})
-			},
-			{
-				id: 'rank',
 				cell: (info) => {
 					const rows = info.table.getSortedRowModel().rows;
 					const index = rows.findIndex((r) => r.id === info.row.id) ?? null;
+					let rank = undefined;
 					if (index !== null) {
-						return index + 1;
+						rank = index + 1;
 					}
-					return 'N/A';
-				},
-				header: () => 'Rank'
+
+					return {
+						component: CharacterName,
+						props: {
+							character: info.row.original.char,
+							rank
+						}
+					};
+				}
 			},
 			{
 				id: 'spec',
@@ -138,6 +137,12 @@
 				header: () => 'Killed',
 				accessorFn: (row) => row.char.boss_kills?.time,
 				cell: (info) => cellComponent(KilledAt, { bosskill: info.row.original.char.boss_kills! })
+			},
+			{
+				id: 'avgItemLvl',
+				accessorFn: (row) => row.char.avg_item_lvl,
+				cell: (info) => formatAvgItemLvl(info.getValue() as any),
+				header: () => 'Avg iLvl'
 			},
 			{
 				id: 'detail',
