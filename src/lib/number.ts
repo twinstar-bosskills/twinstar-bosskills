@@ -16,7 +16,11 @@ export const formatValuePerSecond = (
 	}
 	return def;
 };
-export const formatAvgItemLvl = (value: string | number) => {
+export const formatAvgItemLvl = (value: string | number | null | undefined) => {
+	if (value === null || typeof value === undefined) {
+		return 'N/A';
+	}
+
 	const v = Number(value);
 	if (isNaN(v) === false && isFinite(v)) {
 		return formatNumber(Math.round(v));

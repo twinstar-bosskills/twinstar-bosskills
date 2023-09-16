@@ -45,8 +45,17 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	await Promise.all(queue);
 
+	let avgItemLvl = null;
+	const playersCount = bosskill.boss_kills_players?.length ?? 0;
+	if (playersCount > 0) {
+		avgItemLvl =
+			bosskill.boss_kills_players.reduce((acc, p) => acc + p.avg_item_lvl, 0) / playersCount;
+		avgItemLvl = Math.round(avgItemLvl * 100) / 100;
+	}
+
 	return {
 		bosskill,
+		bosskillAvgItemLvl: avgItemLvl,
 		boss,
 		loot,
 		items,

@@ -53,7 +53,6 @@
 			cell: (info) => formatSecondsInterval(info.getValue() as number),
 			header: () => 'Fight Length'
 		},
-
 		{
 			id: 'killedAt',
 			header: () => 'Killed',
