@@ -1,5 +1,5 @@
 const CACHE: Record<string, unknown> = {};
-const TIMERS: Record<string, number> = {};
+const TIMERS: Record<string, number | NodeJS.Timeout> = {};
 /**
  * @see https://jameshfisher.com/2017/10/30/web-cryptography-api-hello-world/
  */
