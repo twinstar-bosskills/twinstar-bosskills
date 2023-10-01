@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "697b8120-f2d7-4d7a-bb50-e5f9f06bd852",
+  "id": "17aafff3-1582-493f-a972-c287bb58a1ee",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "boss_kill": {
@@ -99,8 +99,43 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
+      "indexes": {
+        "boss_kill_remote_id_unique": {
+          "name": "boss_kill_remote_id_unique",
+          "columns": [
+            "remote_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "boss_kill_boss_id_boss_id_fk": {
+          "name": "boss_kill_boss_id_boss_id_fk",
+          "tableFrom": "boss_kill",
+          "tableTo": "boss",
+          "columnsFrom": [
+            "boss_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "boss_kill_raid_id_raid_id_fk": {
+          "name": "boss_kill_raid_id_raid_id_fk",
+          "tableFrom": "boss_kill",
+          "tableTo": "raid",
+          "columnsFrom": [
+            "raid_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -114,8 +149,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "entry": {
-          "name": "entry",
+        "remote_id": {
+          "name": "remote_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -130,10 +165,10 @@
         }
       },
       "indexes": {
-        "boss_entry_unique": {
-          "name": "boss_entry_unique",
+        "boss_remote_id_unique": {
+          "name": "boss_remote_id_unique",
           "columns": [
-            "entry"
+            "remote_id"
           ],
           "isUnique": true
         }

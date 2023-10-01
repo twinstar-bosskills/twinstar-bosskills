@@ -11,12 +11,14 @@ CREATE TABLE `boss_kill` (
 	`wipes` integer,
 	`deaths` integer,
 	`ressUsed` integer,
-	`instance_id` integer
+	`instance_id` integer,
+	FOREIGN KEY (`boss_id`) REFERENCES `boss`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`raid_id`) REFERENCES `raid`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `boss` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`entry` integer,
+	`remote_id` integer,
 	`name` text
 );
 --> statement-breakpoint
@@ -25,5 +27,6 @@ CREATE TABLE `raid` (
 	`name` text
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `boss_entry_unique` ON `boss` (`entry`);--> statement-breakpoint
+CREATE UNIQUE INDEX `boss_kill_remote_id_unique` ON `boss_kill` (`remote_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `boss_remote_id_unique` ON `boss` (`remote_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `raid_name_unique` ON `raid` (`name`);
