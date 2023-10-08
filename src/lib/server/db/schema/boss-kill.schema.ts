@@ -8,11 +8,11 @@ export const bosskillTable = sqliteTable('boss_kill', {
 	bossId: integer('boss_id').references(() => bossTable.id),
 	raidId: integer('raid_id').references(() => raidTable.id),
 	realmId: integer('realm_id').references(() => realmTable.id),
-	mode: integer('mode'),
-	guild: text('guild'),
-	time: text('time'),
-	length: integer('length'),
-	wipes: integer('wipes'),
-	deaths: integer('deaths'),
-	ressUsed: integer('ress_used')
+	mode: integer('mode').notNull(),
+	guild: text('guild').notNull(),
+	time: text('time').notNull(),
+	length: integer('length').notNull(),
+	wipes: integer('wipes').notNull(),
+	deaths: integer('deaths').notNull(),
+	ressUsed: integer('ress_used').notNull()
 });

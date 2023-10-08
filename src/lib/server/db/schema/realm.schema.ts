@@ -4,7 +4,7 @@ import { bosskillTable } from './boss-kill.schema';
 export const realmTable = sqliteTable('realm', {
 	id: integer('id').primaryKey(),
 	// remoteId: integer('remote_id').unique(),
-	name: text('name').unique()
+	name: text('name').notNull().unique()
 });
 
 export const raidRelations = relations(realmTable, ({ many }) => ({

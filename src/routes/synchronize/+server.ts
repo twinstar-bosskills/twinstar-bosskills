@@ -1,7 +1,11 @@
+import { raidLock } from '$lib/date';
 import { synchronize } from '$lib/server/bin/synchronize-with-api';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url }) => {
+	const now = new Date();
+	const { start: startAt } = raidLock(now);
+
 	const encoder = new TextEncoder();
 	const stream = new ReadableStream({
 		async start(controller) {
@@ -9,7 +13,8 @@ export const GET: RequestHandler = async ({ url }) => {
 				await synchronize({
 					onLog: (line: string) => {
 						controller.enqueue(encoder.encode(line + '\n'));
-					}
+					},
+					startAt
 				});
 			} catch (e: any) {
 				controller.enqueue(encoder.encode(`error: ${e.message}` + '\n'));
