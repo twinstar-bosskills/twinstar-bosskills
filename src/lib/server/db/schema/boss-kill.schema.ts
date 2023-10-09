@@ -4,10 +4,16 @@ import { raidTable } from './raid.schema';
 import { realmTable } from './realm.schema';
 export const bosskillTable = sqliteTable('boss_kill', {
 	id: integer('id').primaryKey(),
-	remoteId: text('remote_id').unique(),
-	bossId: integer('boss_id').references(() => bossTable.id),
-	raidId: integer('raid_id').references(() => raidTable.id),
-	realmId: integer('realm_id').references(() => realmTable.id),
+	remoteId: text('remote_id').notNull().unique(),
+	bossId: integer('boss_id')
+		.notNull()
+		.references(() => bossTable.id),
+	raidId: integer('raid_id')
+		.notNull()
+		.references(() => raidTable.id),
+	realmId: integer('realm_id')
+		.notNull()
+		.references(() => realmTable.id),
 	mode: integer('mode').notNull(),
 	guild: text('guild').notNull(),
 	time: text('time').notNull(),

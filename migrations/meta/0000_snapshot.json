@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "cb4872a0-d9f8-4f11-ab51-2a78d88f91e1",
+  "id": "28be187b-bf73-44cc-be61-666c0bd389e4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "boss_kill_death": {
@@ -18,14 +18,14 @@
           "name": "boss_kill_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "player_id": {
           "name": "player_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "remote_id": {
@@ -104,7 +104,7 @@
           "name": "boss_kill_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "item_id": {
@@ -155,18 +155,11 @@
           "name": "boss_kill_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "player_id": {
           "name": "player_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "remote_id": {
-          "name": "remote_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -292,15 +285,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "boss_kill_player_remote_id_unique": {
-          "name": "boss_kill_player_remote_id_unique",
-          "columns": [
-            "remote_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "boss_kill_player_boss_kill_id_boss_kill_id_fk": {
           "name": "boss_kill_player_boss_kill_id_boss_kill_id_fk",
@@ -418,28 +403,28 @@
           "name": "remote_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "boss_id": {
           "name": "boss_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "raid_id": {
           "name": "raid_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "realm_id": {
           "name": "realm_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "mode": {

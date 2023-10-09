@@ -1,7 +1,7 @@
 CREATE TABLE `boss_kill_death` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`boss_kill_id` integer,
-	`player_id` integer,
+	`boss_kill_id` integer NOT NULL,
+	`player_id` integer NOT NULL,
 	`remote_id` integer NOT NULL,
 	`time` integer NOT NULL,
 	`is_ress` integer NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE `boss_kill_death` (
 --> statement-breakpoint
 CREATE TABLE `boss_kill_loot` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`boss_kill_id` integer,
+	`boss_kill_id` integer NOT NULL,
 	`item_id` integer NOT NULL,
 	`count` integer NOT NULL,
 	FOREIGN KEY (`boss_kill_id`) REFERENCES `boss_kill`(`id`) ON UPDATE no action ON DELETE no action
@@ -19,9 +19,8 @@ CREATE TABLE `boss_kill_loot` (
 --> statement-breakpoint
 CREATE TABLE `boss_kill_player` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`boss_kill_id` integer,
-	`player_id` integer,
-	`remote_id` integer NOT NULL,
+	`boss_kill_id` integer NOT NULL,
+	`player_id` integer NOT NULL,
 	`talent_spec` integer NOT NULL,
 	`avg_item_lvl` integer NOT NULL,
 	`dmg_done` integer NOT NULL,
@@ -56,10 +55,10 @@ CREATE TABLE `boss_kill_timeline` (
 --> statement-breakpoint
 CREATE TABLE `boss_kill` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`remote_id` text,
-	`boss_id` integer,
-	`raid_id` integer,
-	`realm_id` integer,
+	`remote_id` text NOT NULL,
+	`boss_id` integer NOT NULL,
+	`raid_id` integer NOT NULL,
+	`realm_id` integer NOT NULL,
 	`mode` integer NOT NULL,
 	`guild` text NOT NULL,
 	`time` text NOT NULL,
@@ -95,7 +94,6 @@ CREATE TABLE `realm` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `boss_kill_death_remote_id_unique` ON `boss_kill_death` (`remote_id`);--> statement-breakpoint
-CREATE UNIQUE INDEX `boss_kill_player_remote_id_unique` ON `boss_kill_player` (`remote_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `boss_kill_remote_id_unique` ON `boss_kill` (`remote_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `boss_remote_id_unique` ON `boss` (`remote_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `player_remote_id_unique` ON `player` (`remote_id`);--> statement-breakpoint

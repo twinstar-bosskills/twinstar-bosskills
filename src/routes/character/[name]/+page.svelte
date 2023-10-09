@@ -50,15 +50,28 @@
 		{
 			id: 'dps',
 			accessorFn: (row) => characterDps(row),
-			cell: (info) => cellComponent(CharacterDps, { character: info.row.original }),
-
+			cell: (info) => {
+				const boskillId = info.row.original.boss_kills?.id ?? null;
+				let performance = null;
+				if (boskillId !== null) {
+					performance = data.performance.byRemoteId[boskillId];
+				}
+				return cellComponent(CharacterDps, { character: info.row.original, performance });
+			},
 			header: () => 'DPS'
 		},
 		{
 			id: 'hps',
 			accessorFn: (row) => characterHps(row),
 			header: () => 'HPS',
-			cell: (info) => cellComponent(CharacterHps, { character: info.row.original })
+			cell: (info) => {
+				const boskillId = info.row.original.boss_kills?.id ?? null;
+				let performance = null;
+				if (boskillId !== null) {
+					performance = data.performance.byRemoteId[boskillId];
+				}
+				return cellComponent(CharacterHps, { character: info.row.original, performance });
+			}
 		},
 		{
 			id: 'fightLength',

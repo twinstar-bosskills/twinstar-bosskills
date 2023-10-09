@@ -1,6 +1,7 @@
 import type { Boss } from '$lib/model';
 import * as api from '$lib/server/api';
 import { getBoss } from '$lib/server/api';
+import { getCharacterPerformance } from '$lib/server/db/character';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -13,6 +14,11 @@ export const load: PageServerLoad = async ({ params }) => {
 	});
 
 	if (characterBossKills.length === 0) {
+		throw error(404, { message: `Character ${name} was not found` });
+	}
+
+	const guid = characterBossKills[0]?.guid ?? null;
+	if (guid === null) {
 		throw error(404, { message: `Character ${name} was not found` });
 	}
 
@@ -47,9 +53,12 @@ export const load: PageServerLoad = async ({ params }) => {
 		})
 	);
 
+	const performance = await getCharacterPerformance(guid);
+
 	return {
 		bossById,
 		bosskills: characterBossKills,
-		name
+		name,
+		performance
 	};
 };

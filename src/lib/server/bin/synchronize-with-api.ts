@@ -7,7 +7,7 @@ import type {
 	Character,
 	Raid
 } from '$lib/model';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { getBossKillDetail, listAllLatestBossKills, type LatestBossKillQueryArgs } from '../api';
 import { FilterOperator } from '../api/filter';
 import { getRaids } from '../api/raid';
@@ -25,8 +25,9 @@ import { realmTable } from '../db/schema/realm.schema';
 type Args = {
 	onLog: (line: string) => void;
 	startAt?: Date;
+	bosskillIds?: number[];
 };
-export const synchronize = async ({ onLog, startAt }: Args) => {
+export const synchronize = async ({ onLog, startAt, bosskillIds }: Args) => {
 	// TODO: better log
 	// TODO: better transactions
 
@@ -47,6 +48,9 @@ export const synchronize = async ({ onLog, startAt }: Args) => {
 
 			if (startAt) {
 				query.filters?.push({ column: 'time', operator: FilterOperator.GTE, value: startAt });
+			}
+			if (Array.isArray(bosskillIds) && bosskillIds.length > 0) {
+				query.filters?.push({ column: 'id', operator: FilterOperator.IN, value: bosskillIds });
 			}
 			const bosskills = await listAllLatestBossKills(query);
 
@@ -70,44 +74,41 @@ export const synchronize = async ({ onLog, startAt }: Args) => {
 					raidId: raidEnt.id,
 					bk
 				});
+				const bosskillId = bkEnt.id;
 
 				const detail = await getBossKillDetail(bk.id);
 				if (detail) {
 					onLog(`${xOfY} Processing bosskill detail ${detail.id}`);
 
-					// TODO: better delate all and then batch insert
 					if (Array.isArray(detail.boss_kills_players)) {
 						onLog(`${xOfY} Processing bosskill detail ${detail.id} - players`);
+						await deleteBossKillPlayers({ bosskillId });
+						const players = [];
 						for (const player of detail.boss_kills_players) {
 							const playerEnt = await getOrCreatePlayer(player.guid, player.name);
 							playerIdByGUID[player.guid] = playerEnt.id;
-
-							onLog(`${xOfY} Processing bosskill detail ${detail.id} players - ${player.name}`);
-							await getOrCreateBossKillPlayer({
-								playerId: playerEnt.id,
-								bosskillId: bkEnt.id,
-								player
-							});
+							players.push({ ...player, playerId: playerEnt.id });
 						}
+						await createBossKillPlayers({
+							bosskillId,
+							players
+						});
 					}
 
-					// TODO: better delate all and then batch insert
 					if (Array.isArray(detail.boss_kills_loot)) {
 						onLog(`${xOfY} Processing bosskill detail ${detail.id} - loot`);
-						for (const loot of detail.boss_kills_loot) {
-							onLog(
-								`${xOfY} Processing bosskill detail ${detail.id} loot - ${loot.itemId} (${loot.count}x)`
-							);
-							await getOrCreateBossKillLoot({
-								bosskillId: bkEnt.id,
-								loot
-							});
-						}
+						await deleteBossKillLoot({ bosskillId });
+						await createBossKillLoot({
+							bosskillId,
+							items: detail.boss_kills_loot
+						});
 					}
 
-					// TODO: better delate all and then batch insert
 					if (Array.isArray(detail.boss_kills_deaths)) {
 						onLog(`${xOfY} Processing bosskill detail ${detail.id} - deaths`);
+						await deleteBossKillDeaths({ bosskillId });
+
+						const deaths: BossKillDeathsArgs['deaths'] = [];
 						for (const death of detail.boss_kills_deaths) {
 							const playerId = playerIdByGUID[death.guid] ?? null;
 							if (playerId === null) {
@@ -115,29 +116,18 @@ export const synchronize = async ({ onLog, startAt }: Args) => {
 								// TODO: error?
 								continue;
 							}
-
-							onLog(`${xOfY} Processing bosskill detail ${detail.id} death - ${death.guid}`);
-							await getOrCreateBossKillDeath({
-								bosskillId: bkEnt.id,
-								playerId,
-								death
-							});
+							deaths.push({ ...death, playerId });
 						}
+						await createBossKillDeaths({ bosskillId, deaths });
 					}
 
-					// TODO: better delate all and then batch insert
 					if (Array.isArray(detail.boss_kills_maps)) {
 						onLog(`${xOfY} Processing bosskill detail ${detail.id} - timeline`);
-						for (const timeline of detail.boss_kills_maps) {
-							onLog(
-								`${xOfY} Processing bosskill detail ${detail.id} timeline time - ${timeline.time}`
-							);
-
-							await getOrCreateBossKillTimeline({
-								bosskillId: bkEnt.id,
-								timeline
-							});
-						}
+						await deleteBossKillTimeline({ bosskillId });
+						await createBossKillTimeline({
+							bosskillId,
+							timeline: detail.boss_kills_maps
+						});
 					}
 				} else {
 					onLog(`${xOfY} No bosskill detail found by ${bk.id}`);
@@ -293,27 +283,32 @@ const getOrCreateBosskill = async ({ bossId, realmId, raidId, bk }: CreateBosski
 
 	return ent;
 };
-
-type BossKillPlayerArgs = {
-	playerId: number;
+type DeleteByBosskillId = {
 	bosskillId: number;
-	player: Character;
 };
-const getOrCreateBossKillPlayer = async ({ playerId, bosskillId, player }: BossKillPlayerArgs) => {
-	const result = await db
-		.select()
-		.from(bosskillPlayerTable)
-		.where(eq(bosskillPlayerTable.remoteId, player.id))
-		.execute();
-	let ent = result[0] ?? null;
-	if (ent === null) {
-		const result = await db.transaction((tx) => {
-			return tx
-				.insert(bosskillPlayerTable)
-				.values({
+const deleteBossKillPlayers = async ({ bosskillId }: DeleteByBosskillId) => {
+	await db.transaction((tx) => {
+		return tx
+			.delete(bosskillPlayerTable)
+			.where(eq(bosskillPlayerTable.bosskillId, bosskillId))
+			.execute();
+	});
+};
+type BossKillPlayerArgs = {
+	bosskillId: number;
+	players: (Character & { playerId: number })[];
+};
+const createBossKillPlayers = async ({ bosskillId, players }: BossKillPlayerArgs) => {
+	if (players.length === 0) {
+		return;
+	}
+	await db.transaction((tx) => {
+		return tx
+			.insert(bosskillPlayerTable)
+			.values(
+				players.map((player) => ({
 					bosskillId,
-					playerId,
-					remoteId: player.id,
+					playerId: player.playerId,
 
 					talentSpec: player.talent_spec,
 					avgItemLvl: player.avg_item_lvl,
@@ -333,129 +328,108 @@ const getOrCreateBossKillPlayer = async ({ playerId, bosskillId, player }: BossK
 					class: player.class,
 					gender: player.gender,
 					level: player.level
-				})
-				.onConflictDoNothing()
-				.returning();
-		});
-		ent = result[0] ?? null;
-	}
-
-	if (ent === null) {
-		throw new Error(`Player bosskill entity not found nor created`);
-	}
-	return ent;
+				}))
+			)
+			.onConflictDoNothing()
+			.execute();
+	});
 };
 
+const deleteBossKillLoot = async ({ bosskillId }: DeleteByBosskillId) => {
+	await db.transaction((tx) => {
+		return tx
+			.delete(bosskillLootTable)
+			.where(eq(bosskillLootTable.bosskillId, bosskillId))
+			.execute();
+	});
+};
 type BossKillLootArgs = {
 	bosskillId: number;
-	loot: BosskillLoot;
+	items: BosskillLoot[];
 };
-const getOrCreateBossKillLoot = async ({ bosskillId, loot }: BossKillLootArgs) => {
-	const result = await db
-		.select()
-		.from(bosskillLootTable)
-		.where(
-			and(
-				eq(bosskillLootTable.bosskillId, bosskillId),
-				eq(bosskillLootTable.itemId, Number(loot.itemId))
-			)
-		)
-		.execute();
-	let ent = result[0] ?? null;
-	if (ent === null) {
-		const result = await db.transaction((tx) => {
-			return tx
-				.insert(bosskillLootTable)
-				.values({
+const createBossKillLoot = async ({ bosskillId, items }: BossKillLootArgs) => {
+	if (items.length === 0) {
+		return;
+	}
+	await db.transaction((tx) => {
+		return tx
+			.insert(bosskillLootTable)
+			.values(
+				items.map((loot) => ({
 					bosskillId,
 					itemId: Number(loot.itemId),
 					count: loot.count
-				})
-				.onConflictDoNothing()
-				.returning();
-		});
-		ent = result[0] ?? null;
-	}
-
-	if (ent === null) {
-		throw new Error(`Loot bosskill entity not found nor created`);
-	}
-	return ent;
+				}))
+			)
+			.onConflictDoNothing()
+			.returning();
+	});
 };
 
-type BossKillDeathArgs = {
+const deleteBossKillDeaths = async ({ bosskillId }: DeleteByBosskillId) => {
+	await db.transaction((tx) => {
+		return tx
+			.delete(bosskillDeathTable)
+			.where(eq(bosskillDeathTable.bosskillId, bosskillId))
+			.execute();
+	});
+};
+type BossKillDeathsArgs = {
 	bosskillId: number;
-	playerId: number;
-	death: BosskillDeath;
+	deaths: (BosskillDeath & { playerId: number })[];
 };
-const getOrCreateBossKillDeath = async ({ bosskillId, playerId, death }: BossKillDeathArgs) => {
-	const result = await db
-		.select()
-		.from(bosskillDeathTable)
-		.where(eq(bosskillDeathTable.remoteId, death.id))
-		.execute();
-	let ent = result[0] ?? null;
-	if (ent === null) {
-		const result = await db.transaction((tx) => {
-			return tx
-				.insert(bosskillDeathTable)
-				.values({
+const createBossKillDeaths = async ({ bosskillId, deaths }: BossKillDeathsArgs) => {
+	if (deaths.length === 0) {
+		return;
+	}
+	await db.transaction((tx) => {
+		return tx
+			.insert(bosskillDeathTable)
+			.values(
+				deaths.map((death) => ({
 					bosskillId,
 					remoteId: death.id,
-					playerId,
+					playerId: death.playerId,
 					time: death.time,
 					isRess: death.time < 0 ? 1 : 0
-				})
-				.onConflictDoNothing()
-				.returning();
-		});
-		ent = result[0] ?? null;
-	}
-
-	if (ent === null) {
-		throw new Error(`Death bosskill entity not found nor created`);
-	}
-	return ent;
+				}))
+			)
+			.onConflictDoNothing()
+			.execute();
+	});
 };
 
+const deleteBossKillTimeline = async ({ bosskillId }: DeleteByBosskillId) => {
+	await db.transaction((tx) => {
+		return tx
+			.delete(bosskillTimelineTable)
+			.where(eq(bosskillTimelineTable.bosskillId, bosskillId))
+			.execute();
+	});
+};
 type BossKillTimelineArgs = {
 	bosskillId: number;
-	timeline: BosskillTimeline;
+	timeline: BosskillTimeline[];
 };
-const getOrCreateBossKillTimeline = async ({ bosskillId, timeline }: BossKillTimelineArgs) => {
-	const result = await db
-		.select()
-		.from(bosskillTimelineTable)
-		.where(
-			and(
-				eq(bosskillTimelineTable.bosskillId, bosskillId),
-				eq(bosskillTimelineTable.time, timeline.time)
-			)
-		)
-		.execute();
-	let ent = result[0] ?? null;
-	if (ent === null) {
-		const result = await db.transaction((tx) => {
-			return tx
-				.insert(bosskillTimelineTable)
-				.values({
-					// @ts-ignore - probably broken TS inference
+const createBossKillTimeline = async ({ bosskillId, timeline }: BossKillTimelineArgs) => {
+	if (timeline.length === 0) {
+		return;
+	}
+	await db.transaction((tx) => {
+		return tx
+			.insert(bosskillTimelineTable)
+			.values(
+				timeline.map((item) => ({
 					bosskillId,
 
-					encounterDamage: timeline.encounterDamage,
-					encounterHeal: timeline.encounterHeal,
-					raidDamage: timeline.raidDamage,
-					raidHeal: timeline.raidHeal,
-					time: timeline.time
-				})
-				.onConflictDoNothing()
-				.returning();
-		});
-		ent = result[0] ?? null;
-	}
-
-	if (ent === null) {
-		throw new Error(`Timeline bosskill entity not found nor created`);
-	}
-	return ent;
+					encounterDamage: Number(item.encounterDamage),
+					encounterHeal: Number(item.encounterHeal),
+					raidDamage: Number(item.raidDamage),
+					raidHeal: Number(item.raidHeal),
+					time: item.time
+				}))
+			)
+			.onConflictDoNothing()
+			.execute();
+	});
 };

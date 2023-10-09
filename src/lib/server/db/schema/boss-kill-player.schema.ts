@@ -3,9 +3,12 @@ import { bosskillTable } from './boss-kill.schema';
 import { playerTable } from './player.schema';
 export const bosskillPlayerTable = sqliteTable('boss_kill_player', {
 	id: integer('id').primaryKey(),
-	bosskillId: integer('boss_kill_id').references(() => bosskillTable.id),
-	playerId: integer('player_id').references(() => playerTable.id),
-	remoteId: integer('remote_id').notNull().unique(),
+	bosskillId: integer('boss_kill_id')
+		.notNull()
+		.references(() => bosskillTable.id),
+	playerId: integer('player_id')
+		.notNull()
+		.references(() => playerTable.id),
 
 	talentSpec: integer('talent_spec').notNull(),
 	avgItemLvl: integer('avg_item_lvl').notNull(),
