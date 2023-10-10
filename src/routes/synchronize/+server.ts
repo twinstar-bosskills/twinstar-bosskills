@@ -1,19 +1,29 @@
 import { raidLock } from '$lib/date';
 import { synchronize } from '$lib/server/bin/synchronize-with-api';
+import { format } from 'date-fns';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url }) => {
-	const now = new Date();
+	let startAt: Date | undefined = undefined;
+	let offset = 0;
+	if (url.searchParams.has('raidLockOffset')) {
+		offset = Math.abs(Number(url.searchParams.get('raidLockOffset')));
+		offset = isFinite(offset) ? offset : 0;
 
-	let offset = Math.abs(Number(url.searchParams.get('raidLockOffset') ?? 0));
-	offset = isFinite(offset) ? offset : 0;
-
-	const { start: startAt } = raidLock(now, offset);
+		const now = new Date();
+		const { start } = raidLock(now, offset);
+		startAt = start;
+	}
 	let bosskillIds = url.searchParams.getAll('bosskillIds').map(Number);
 
 	const encoder = new TextEncoder();
 	const stream = new ReadableStream({
 		async start(controller) {
+			controller.enqueue(`raidLockOffset: ${offset}` + '\n');
+			controller.enqueue(
+				`startAt: ${startAt ? format(startAt, 'yyyy-MM-dd HH:mm:ss') : 'N/A'}` + '\n'
+			);
+			controller.enqueue(`bosskillIds: ${bosskillIds.join(',')}` + '\n');
 			try {
 				await synchronize({
 					onLog: (line: string) => {

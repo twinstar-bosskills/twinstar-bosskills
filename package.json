@@ -14,7 +14,9 @@
 		"migrations:continue": "echo 'does not work with node:20' && node --loader esbuild-register/loader -r esbuild-register --no-warnings ./src/lib/server/bin/migrate.ts",
 		"synchronize-with-api-node": "node --loader esbuild-register/loader -r esbuild-register --no-warnings ./src/lib/server/bin/synchronize-with-api.ts",
 		"synchronize-with-api": "curl http://localhost:5173/synchronize",
-		"synchronize-with-api:previous": "curl http://localhost:5173/synchronize?raidLockOffset=1"
+		"synchronize-with-api:current": "curl http://localhost:5173/synchronize?raidLockOffset=0",
+		"synchronize-with-api:previous": "curl http://localhost:5173/synchronize?raidLockOffset=1",
+		"synchronize-with-api:offset": "curl http://localhost:5173/synchronize?raidLockOffset=$OFFSET"
 	},
 	"devDependencies": {
 		"@libsql/client": "^0.3.5",
