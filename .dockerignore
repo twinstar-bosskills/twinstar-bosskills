@@ -1,0 +1,13 @@
+fly.toml
+Dockerfile
+.dockerignore
+node_modules
+.git
+build
+
+local.db
+local.db.backup
+
+.svelte-kit/output
+.svelte-kit/generated
+.svelte-kit/adapter-node

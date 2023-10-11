@@ -45,9 +45,4 @@ export const GET: RequestHandler = async ({ url }) => {
 			'content-type': 'text/event-stream'
 		}
 	});
-
-	// return json({
-	// 	ok: true,
-	// 	log
-	// });
 };
