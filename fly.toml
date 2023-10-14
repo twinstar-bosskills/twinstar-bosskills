@@ -16,6 +16,7 @@ processes = []
 
 [env]
   PORT = "4173"
+  DATABASE_URL = "file:/data/local.db"
 
 [[services]]
   internal_port = 4173
