@@ -38,9 +38,10 @@ export const getCharacterPerformance = async (guid: number) => {
 					and(
 						// lt(bosskillTable.time, previousRaidLock.end.toISOString()),
 						lt(bosskillTable.time, current.boss_kill.time),
-						eq(bosskillPlayerTable.playerId, current.boss_kill_player.playerId),
 						eq(bosskillTable.bossId, current.boss_kill.bossId),
-						eq(bosskillTable.mode, current.boss_kill.mode)
+						eq(bosskillTable.mode, current.boss_kill.mode),
+						eq(bosskillPlayerTable.playerId, current.boss_kill_player.playerId),
+						eq(bosskillPlayerTable.talentSpec, current.boss_kill_player.talentSpec)
 					)
 				)
 				.groupBy(bosskillTable.mode, bosskillTable.bossId)
