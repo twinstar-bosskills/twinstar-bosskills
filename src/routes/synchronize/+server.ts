@@ -5,22 +5,24 @@ import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url }) => {
 	let startAt: Date | undefined = undefined;
-	let offset = 0;
+	let raidLockOffset = 0;
 	if (url.searchParams.has('raidLockOffset')) {
-		offset = Math.abs(Number(url.searchParams.get('raidLockOffset')));
-		offset = isFinite(offset) ? offset : 0;
+		raidLockOffset = Math.abs(Number(url.searchParams.get('raidLockOffset')));
+		raidLockOffset = isFinite(raidLockOffset) ? raidLockOffset : 0;
 
 		const now = new Date();
-		const { start } = raidLock(now, offset);
+		const { start } = raidLock(now, raidLockOffset);
 		startAt = start;
 	}
 	let bosskillIds = url.searchParams.getAll('bosskillIds').map(Number);
 	let bossIds = url.searchParams.getAll('bossIds').map(Number);
+	let offset = url.searchParams.has('offset') ? Number(url.searchParams.get('offset')) : undefined;
+	let limit = url.searchParams.has('limit') ? Number(url.searchParams.get('limit')) : undefined;
 
 	const encoder = new TextEncoder();
 	const stream = new ReadableStream({
 		async start(controller) {
-			controller.enqueue(`raidLockOffset: ${offset}` + '\n');
+			controller.enqueue(`raidLockOffset: ${raidLockOffset}` + '\n');
 			controller.enqueue(
 				`startAt: ${startAt ? format(startAt, 'yyyy-MM-dd HH:mm:ss') : 'N/A'}` + '\n'
 			);
@@ -32,7 +34,9 @@ export const GET: RequestHandler = async ({ url }) => {
 					},
 					startAt,
 					bosskillIds,
-					bossIds
+					bossIds,
+					offset,
+					limit
 				});
 			} catch (e: any) {
 				controller.enqueue(encoder.encode(`error: ${e.message}` + '\n'));

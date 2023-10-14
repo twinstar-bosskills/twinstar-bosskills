@@ -8,7 +8,12 @@ import type {
 	Raid
 } from '$lib/model';
 import { eq } from 'drizzle-orm';
-import { getBossKillDetail, listAllLatestBossKills, type LatestBossKillQueryArgs } from '../api';
+import {
+	getBossKillDetail,
+	getLatestBossKills,
+	listAllLatestBossKills,
+	type LatestBossKillQueryArgs
+} from '../api';
 import { FilterOperator } from '../api/filter';
 import { getRaids } from '../api/raid';
 import { db } from '../db/index';
@@ -27,14 +32,24 @@ type Args = {
 	startAt?: Date;
 	bosskillIds?: number[];
 	bossIds?: number[];
+	limit?: number;
+	offset?: number;
 };
-export const synchronize = async ({ onLog, startAt, bosskillIds, bossIds }: Args) => {
+export const synchronize = async ({
+	onLog,
+	startAt,
+	bosskillIds,
+	bossIds,
+	limit,
+	offset
+}: Args) => {
 	// TODO: better log
 	// TODO: better transactions
 
 	onLog('start');
 	const playerIdByGUID: Record<number, number> = {};
 	const raids = await getRaids();
+	let isLimited = false;
 	for (const raid of raids) {
 		onLog(`Processing raid: ${raid.map}`);
 		const raidEnt = await getOrCreateRaid(raid);
@@ -61,7 +76,20 @@ export const synchronize = async ({ onLog, startAt, bosskillIds, bossIds }: Args
 				}
 				query.filters?.push({ column: 'entry', operator: FilterOperator.IN, value: bossIds });
 			}
-			const bosskills = await listAllLatestBossKills(query);
+			if (typeof offset !== 'undefined') {
+				query.page = Math.abs(offset);
+				isLimited = true;
+			}
+			if (typeof limit !== 'undefined') {
+				query.pageSize = Math.abs(limit);
+				isLimited = true;
+			}
+			let bosskills = [];
+			if (isLimited) {
+				bosskills = (await getLatestBossKills(query)).data;
+			} else {
+				bosskills = await listAllLatestBossKills(query);
+			}
 
 			const bkLength = bosskills.length;
 			let timeSum = 0;
