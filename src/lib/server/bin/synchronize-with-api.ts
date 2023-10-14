@@ -32,16 +32,16 @@ type Args = {
 	startAt?: Date;
 	bosskillIds?: number[];
 	bossIds?: number[];
-	limit?: number;
-	offset?: number;
+	pageSize?: number;
+	page?: number;
 };
 export const synchronize = async ({
 	onLog,
 	startAt,
 	bosskillIds,
 	bossIds,
-	limit,
-	offset
+	pageSize,
+	page
 }: Args) => {
 	// TODO: better log
 	// TODO: better transactions
@@ -76,12 +76,12 @@ export const synchronize = async ({
 				}
 				query.filters?.push({ column: 'entry', operator: FilterOperator.IN, value: bossIds });
 			}
-			if (typeof offset !== 'undefined') {
-				query.page = Math.abs(offset);
+			if (typeof page !== 'undefined') {
+				query.page = Math.abs(page);
 				isLimited = true;
 			}
-			if (typeof limit !== 'undefined') {
-				query.pageSize = Math.abs(limit);
+			if (typeof pageSize !== 'undefined') {
+				query.pageSize = Math.abs(pageSize);
 				isLimited = true;
 			}
 			let bosskills = [];

@@ -16,8 +16,10 @@ export const GET: RequestHandler = async ({ url }) => {
 	}
 	let bosskillIds = url.searchParams.getAll('bosskillIds').map(Number);
 	let bossIds = url.searchParams.getAll('bossIds').map(Number);
-	let offset = url.searchParams.has('offset') ? Number(url.searchParams.get('offset')) : undefined;
-	let limit = url.searchParams.has('limit') ? Number(url.searchParams.get('limit')) : undefined;
+	let page = url.searchParams.has('page') ? Number(url.searchParams.get('page')) : undefined;
+	let pageSize = url.searchParams.has('pageSize')
+		? Number(url.searchParams.get('pageSize'))
+		: undefined;
 
 	const encoder = new TextEncoder();
 	const stream = new ReadableStream({
@@ -35,8 +37,8 @@ export const GET: RequestHandler = async ({ url }) => {
 					startAt,
 					bosskillIds,
 					bossIds,
-					offset,
-					limit
+					page,
+					pageSize
 				});
 			} catch (e: any) {
 				controller.enqueue(encoder.encode(`error: ${e.message}` + '\n'));
