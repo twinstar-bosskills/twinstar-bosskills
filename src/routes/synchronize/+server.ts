@@ -15,6 +15,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		startAt = start;
 	}
 	let bosskillIds = url.searchParams.getAll('bosskillIds').map(Number);
+	let bossIds = url.searchParams.getAll('bossIds').map(Number);
 
 	const encoder = new TextEncoder();
 	const stream = new ReadableStream({
@@ -30,7 +31,8 @@ export const GET: RequestHandler = async ({ url }) => {
 						controller.enqueue(encoder.encode(line + '\n'));
 					},
 					startAt,
-					bosskillIds
+					bosskillIds,
+					bossIds
 				});
 			} catch (e: any) {
 				controller.enqueue(encoder.encode(`error: ${e.message}` + '\n'));

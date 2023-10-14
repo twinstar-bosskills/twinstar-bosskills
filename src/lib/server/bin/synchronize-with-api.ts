@@ -26,8 +26,9 @@ type Args = {
 	onLog: (line: string) => void;
 	startAt?: Date;
 	bosskillIds?: number[];
+	bossIds?: number[];
 };
-export const synchronize = async ({ onLog, startAt, bosskillIds }: Args) => {
+export const synchronize = async ({ onLog, startAt, bosskillIds, bossIds }: Args) => {
 	// TODO: better log
 	// TODO: better transactions
 
@@ -43,6 +44,7 @@ export const synchronize = async ({ onLog, startAt, bosskillIds }: Args) => {
 			const bossEnt = await getOrCreateBoss(boss);
 
 			const query: LatestBossKillQueryArgs = {
+				cache: false,
 				filters: [{ column: 'entry', operator: FilterOperator.EQUALS, value: boss.entry }]
 			};
 
@@ -51,6 +53,13 @@ export const synchronize = async ({ onLog, startAt, bosskillIds }: Args) => {
 			}
 			if (Array.isArray(bosskillIds) && bosskillIds.length > 0) {
 				query.filters?.push({ column: 'id', operator: FilterOperator.IN, value: bosskillIds });
+			}
+			if (Array.isArray(bossIds) && bossIds.length > 0) {
+				if (bossIds.includes(boss.entry) === false) {
+					onLog(`Skipping boss ${boss.name}-${boss.entry}`);
+					continue;
+				}
+				query.filters?.push({ column: 'entry', operator: FilterOperator.IN, value: bossIds });
 			}
 			const bosskills = await listAllLatestBossKills(query);
 
