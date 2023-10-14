@@ -143,79 +143,65 @@ export const synchronize = async ({ onLog, startAt, bosskillIds }: Args) => {
 };
 
 const getOrCreateRealm = async (realmName: string) => {
-	const realmSelect = await db
-		.select()
-		.from(realmTable)
-		.where(eq(realmTable.name, realmName))
-		.execute();
-	let realmEnt = realmSelect[0] ?? null;
-	if (realmEnt === null) {
-		const [nextRealmEnt] = await db.transaction((tx) => {
+	const result = await db.select().from(realmTable).where(eq(realmTable.name, realmName)).execute();
+	let ent = result[0] ?? null;
+	if (ent === null) {
+		const result = await db.transaction((tx) => {
 			return tx
 				.insert(realmTable)
 				.values([{ name: realmName }])
 				.onConflictDoNothing()
 				.returning();
 		});
-		if (nextRealmEnt) {
-			realmEnt = nextRealmEnt;
-		}
+		ent = result[0] ?? null;
 	}
-	if (realmEnt === null) {
+	if (ent === null) {
 		throw new Error(`Realm entity not found nor created`);
 	}
-	return realmEnt;
+	return ent;
 };
 
 const getOrCreateRaid = async (raid: Raid) => {
-	const raidSelect = await db
-		.select()
-		.from(raidTable)
-		.where(eq(raidTable.name, raid.map))
-		.execute();
-	let raidEnt = raidSelect[0] ?? null;
-	if (raidEnt === null) {
-		const [nextRaidEnt] = await db.transaction((tx) => {
+	const result = await db.select().from(raidTable).where(eq(raidTable.name, raid.map)).execute();
+	let ent = result[0] ?? null;
+	if (ent === null) {
+		const result = await db.transaction((tx) => {
 			return tx
 				.insert(raidTable)
 				.values([{ name: raid.map }])
 				.onConflictDoNothing()
 				.returning();
 		});
-		if (nextRaidEnt) {
-			raidEnt = nextRaidEnt;
-		}
+		ent = result[0] ?? null;
 	}
-	if (raidEnt === null) {
+	if (ent === null) {
 		throw new Error(`Raid entity not found nor created`);
 	}
-	return raidEnt;
+	return ent;
 };
 
 const getOrCreateBoss = async (boss: Boss) => {
-	const bossSelect = await db
+	const result = await db
 		.select()
 		.from(bossTable)
 		.where(eq(bossTable.remoteId, boss.entry))
 		.execute();
-	let bossEnt = bossSelect[0] ?? null;
-	if (bossEnt === null) {
-		const [nextBossEnt] = await db.transaction((tx) => {
+	let ent = result[0] ?? null;
+	if (ent === null) {
+		const result = await db.transaction((tx) => {
 			return tx
 				.insert(bossTable)
 				.values({ remoteId: boss.entry, name: boss.name })
 				.onConflictDoNothing()
 				.returning();
 		});
-		if (nextBossEnt) {
-			bossEnt = nextBossEnt;
-		}
+		ent = result[0] ?? null;
 	}
 
-	if (bossEnt === null) {
+	if (ent === null) {
 		throw new Error(`Boss entity not found nor created`);
 	}
-	return bossEnt;
+	return ent;
 };
 
 const getOrCreatePlayer = async (guid: number, name: string) => {
