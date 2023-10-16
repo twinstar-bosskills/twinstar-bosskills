@@ -1,9 +1,11 @@
 import { raidLock } from '$lib/date';
 import { synchronize } from '$lib/server/bin/synchronize-with-api';
+import { safeGC } from '$lib/server/gc';
 import { format } from 'date-fns';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url }) => {
+	safeGC();
 	let startAt: Date | undefined = undefined;
 	let raidLockOffset = 0;
 	if (url.searchParams.has('raidLockOffset')) {

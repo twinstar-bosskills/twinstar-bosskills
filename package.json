@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"start": "node build/index.js",
+		"start": "node --expose-gc build/index.js",
 		"start:bun": "echo 'check RAM usage' && bun run build/index.js",
 		"dev": "vite dev",
 		"build": "vite build",

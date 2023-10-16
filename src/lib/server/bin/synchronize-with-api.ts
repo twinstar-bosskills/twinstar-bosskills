@@ -26,6 +26,7 @@ import { bossTable } from '../db/schema/boss.schema';
 import { playerTable } from '../db/schema/player.schema';
 import { raidTable } from '../db/schema/raid.schema';
 import { realmTable } from '../db/schema/realm.schema';
+import { safeGC } from '../gc';
 
 type Args = {
 	onLog: (line: string) => void;
@@ -51,10 +52,12 @@ export const synchronize = async ({
 	const raids = await getRaids();
 	let isLimited = false;
 	for (const raid of raids) {
+		safeGC();
 		onLog(`Processing raid: ${raid.map}`);
 		const raidEnt = await getOrCreateRaid(raid);
 
 		for (const boss of raid.bosses) {
+			safeGC();
 			onLog(`Processing boss: ${boss.name}`);
 			const bossEnt = await getOrCreateBoss(boss);
 
