@@ -240,6 +240,7 @@
 		{#if isRaidDifficultyWithLoot(data.bosskill.mode)}
 			<div class="loot" role="table">
 				{#each data.items as item, i}
+					{@const chance = data.lootChance[item.id] ?? null}
 					<div
 						tabindex="0"
 						role="row"
@@ -252,6 +253,11 @@
 					>
 						<img src={item.iconUrl} alt="Icon of {item.name}" width="36px" height="36px" />
 						{item.name}
+						{#if chance != null}
+							<div style="margin-left: 0.25rem; color: var(--color-warning)">
+								({chance.count.toLocaleString()} of {chance.total.toLocaleString()} ~ {chance.chance.toLocaleString()}%)
+							</div>
+						{/if}
 					</div>
 
 					{@const tooltip = data.tooltips[item.id]}
