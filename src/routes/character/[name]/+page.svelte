@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import Boss from '$lib/components/table/column/Boss.column.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
@@ -9,16 +10,21 @@
 	import { formatSecondsInterval } from '$lib/date';
 
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
+	import Pagination from '$lib/components/Pagination.svelte';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
 	import { formatAvgItemLvl } from '$lib/number';
+	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
+
+	let pageSize = getPageSizeFromURL($page.url, 20);
+	let page_ = getPageFromURL($page.url);
 
 	export let data: PageData;
 
 	type T = (typeof bosskills)[0];
-	const bosskills = data.bosskills.filter((v) => !!v.boss_kills);
+	const bosskills = data.bosskills.data.filter((v) => !!v.boss_kills);
 
 	const columns: ColumnDef<T>[] = [
 		{
@@ -115,7 +121,17 @@
 </div>
 
 <div class="table">
-	<Table data={bosskills} columns={columnsUnknown} sorting={[{ id: 'killedAt', desc: true }]} />
+	<Table data={bosskills} columns={columnsUnknown} sorting={[{ id: 'killedAt', desc: true }]}>
+		<svelte:fragment slot="pagination">
+			<Pagination
+				path={links.character(data.name)}
+				searchParams={$page.url.searchParams}
+				page={page_}
+				{pageSize}
+				totalItems={data.bosskills.total}
+			/>
+		</svelte:fragment>
+	</Table>
 </div>
 
 <style>

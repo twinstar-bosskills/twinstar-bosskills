@@ -1,15 +1,28 @@
 import { raidLock } from '$lib/date';
 import { Difficulty } from '$lib/model';
-import { and, desc, eq, inArray, lt, lte } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, lt, lte } from 'drizzle-orm';
 import { db } from '.';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
 
-export const getCharacterPerformance = async (guid: number) => {
+type CharacterPerformanceArgs = {
+	guid: number;
+	startDate?: Date;
+	endDate?: Date;
+};
+export const getCharacterPerformance = async ({
+	guid,
+	startDate,
+	endDate
+}: CharacterPerformanceArgs) => {
 	const values: Record<string, { dps: number; hps: number }> = {};
 	const now = new Date();
 	const currentRaidLock = raidLock(now);
+
+	const start = startDate;
+	const end = endDate ?? currentRaidLock.end;
+
 	try {
 		const currentQb = db
 			.select()
@@ -19,8 +32,8 @@ export const getCharacterPerformance = async (guid: number) => {
 			.where(
 				and(
 					eq(bosskillPlayerTable.guid, guid),
-					// gte(bosskillTable.time, currentRaidLock.start.toISOString()),
-					lte(bosskillTable.time, currentRaidLock.end.toISOString()),
+					start ? gte(bosskillTable.time, start.toISOString()) : undefined,
+					lte(bosskillTable.time, end.toISOString()),
 					inArray(bosskillTable.mode, [Difficulty.DIFFICULTY_10_N, Difficulty.DIFFICULTY_10_HC])
 				)
 			)
