@@ -1,5 +1,5 @@
 import { raidLock } from '$lib/date';
-import { synchronize } from '$lib/server/bin/synchronize-with-api';
+import { synchronize } from '$lib/server/db/synchronize';
 import { safeGC } from '$lib/server/gc';
 import { format } from 'date-fns';
 import type { RequestHandler } from './$types';

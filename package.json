@@ -13,7 +13,8 @@
 		"lint": "prettier --plugin-search-dir . --check .",
 		"format": "prettier --plugin-search-dir . --write .",
 		"migrations:generate": "drizzle-kit generate:sqlite",
-		"migrations:continue": "tsx --no-warnings ./src/lib/server/bin/migrate.ts",
+		"migrations:continue": "TEST=true vite-node ./src/lib/server/bin/migrate.ts",
+		"cli:synchronize-with-api": "TEST=true vite-node ./src/lib/server/bin/synchronize-with-api.ts",
 		"synchronize-with-api": "curl http://localhost:5173/synchronize",
 		"synchronize-with-api:current": "curl http://localhost:5173/synchronize?raidLockOffset=0",
 		"synchronize-with-api:previous": "curl http://localhost:5173/synchronize?raidLockOffset=1",
@@ -25,6 +26,7 @@
 		"@sveltejs/kit": "^1.25.2",
 		"@tanstack/svelte-table": "^8.9.6",
 		"@vercel/analytics": "^1.0.2",
+		"commander": "^11.1.0",
 		"date-fns": "^2.30.0",
 		"date-fns-tz": "^2.0.0",
 		"dotenv": "^16.3.1",
@@ -38,9 +40,9 @@
 		"svelte-adapter-bun": "^0.5.0",
 		"svelte-check": "^3.5.0",
 		"tslib": "^2.6.2",
-		"tsx": "^3.13.0",
 		"typescript": "^5.1.6",
-		"vite": "^4.4.9"
+		"vite": "^4.4.9",
+		"vite-node": "^0.34.6"
 	},
 	"type": "module",
 	"dependencies": {
