@@ -1,5 +1,6 @@
 import { getRemoteClassIconUrl } from '$lib/class';
 import { getRemoteRaceIconUrl } from '$lib/race';
+import { getRemotRaidIconUrl } from '$lib/raid';
 import { getRemoteItemIconUrl } from '$lib/server/api';
 import { withCache } from '$lib/server/cache';
 import { getRemoteTalentSpecIconUrl } from '$lib/talent';
@@ -28,7 +29,7 @@ const getBlob = async (url: string): Promise<Blob | null> => {
 export const GET: RequestHandler = async ({ url }) => {
 	const type = url.searchParams.get('type') ?? '';
 	let id: string | number = url.searchParams.get('id') ?? '';
-	if (type !== 'race') {
+	if (type !== 'race' && type !== 'raid') {
 		id = Number(id);
 		if (isFinite(id) === false || isNaN(id)) {
 			throw error(400, 'id must be finite integer');
@@ -44,6 +45,8 @@ export const GET: RequestHandler = async ({ url }) => {
 		iconUrl = getRemoteClassIconUrl(id as number);
 	} else if (type === 'race') {
 		iconUrl = getRemoteRaceIconUrl(id as string);
+	} else if (type === 'raid') {
+		iconUrl = getRemotRaidIconUrl(decodeURIComponent(id as string));
 	}
 	if (iconUrl !== null) {
 		const blob = await getBlob(iconUrl);

@@ -15,11 +15,11 @@ processes = []
 [build]
 
 [env]
-  PORT = "4173"
+  PORT = "3000"
   DATABASE_URL = "file:/data/local.db"
 
 [[services]]
-  internal_port = 4173
+  internal_port = 3000
   processes = ["app"]
   protocol = "tcp"
   [services.concurrency]

@@ -236,6 +236,13 @@ const getOrCreateBoss = async (boss: Boss) => {
 				.returning();
 		});
 		ent = result[0] ?? null;
+	} else {
+		if (ent.name !== boss.name) {
+			const entId = ent.id;
+			await db.transaction((tx) => {
+				return tx.update(bossTable).set({ name: boss.name }).where(eq(bossTable.id, entId));
+			});
+		}
 	}
 
 	if (ent === null) {
