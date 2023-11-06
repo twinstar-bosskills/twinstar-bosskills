@@ -20,6 +20,7 @@ export type BossKill = {
 	// extras
 	difficulty: string;
 };
+
 export const mutateBossKill = <T extends BossKillDetail | BossKill>(item: T): T => {
 	item.difficulty = difficultyToString(item.mode);
 
@@ -90,6 +91,36 @@ export const mutateCharacter = (character: Character): Character => {
 	}
 	return character;
 };
+
+export type CharacterShort = {
+	id: string;
+	name: string;
+	level: number;
+	race: number;
+	class: number;
+	gender: number;
+	guildName: string;
+	faction: number;
+	realm: string;
+
+	//computed
+	classString: string;
+	classIconUrl: string;
+
+	raceIconUrl: string;
+	raceString: string;
+};
+
+export const mutateCharacterShort = (character: CharacterShort): CharacterShort => {
+	character.classString = classToString(character.class);
+	character.classIconUrl = getClassIconUrl(character.class);
+
+	character.raceString = raceToString(character.race);
+	character.raceIconUrl = getRaceIconUrl({ race: character.race, gender: character.gender });
+
+	return character;
+};
+
 export type BossKillDetail = {
 	id: string;
 	map: string;
