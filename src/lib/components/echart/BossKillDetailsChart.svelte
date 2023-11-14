@@ -11,6 +11,7 @@
 	import * as echarts from 'echarts/core';
 	import { LabelLayout } from 'echarts/features';
 	import { SVGRenderer } from 'echarts/renderers';
+	import type { CallbackDataParams } from 'echarts/types/dist/shared';
 	import Chart from './Chart.svelte';
 
 	type TDeathOrRess = { value: number; players: Character[] };
@@ -33,10 +34,24 @@
 		SVGRenderer
 	]);
 
-	const deathOrRessToLabel = (data: TDeathOrRess) => {
+	const renderPlayerTooltipParam = (data: TDeathOrRess) => {
 		let l = data.players.map((p) => p.name).join(',');
 		// l += ` has died`;
 		return l;
+	};
+
+	const renderTooltipParam = (item: CallbackDataParams | null) => {
+		if (item === null || typeof item.data === 'undefined') {
+			return '';
+		}
+
+		let value = 'N/A';
+		if (item.seriesId === 'ressurects' || item.seriesId === 'deaths') {
+			value = renderPlayerTooltipParam(item.data as any as TDeathOrRess);
+		} else {
+			value = item.data?.toLocaleString() ?? 'N/A';
+		}
+		return `<li>${item.marker} ${item.seriesName}: ${value}</li>`;
 	};
 
 	const options: EChartsOption = {
@@ -48,56 +63,28 @@
 
 			formatter(params: TooltipComponentFormatterCallbackParams) {
 				if (Array.isArray(params)) {
-					const enemyHealing = params[0] ?? null;
-					const enemyDamage = params[1] ?? null;
-					const raidDamage = params[2] ?? null;
-					const raidHealing = params[3] ?? null;
-					const deaths = params[4] ?? null;
-					const ressurects = params[5] ?? null;
+					const enemyHealing = params.find((p) => p.seriesId === 'enemyHealing') ?? null;
+					const enemyDamage = params.find((p) => p.seriesId === 'enemyDamage') ?? null;
+					const raidDamage = params.find((p) => p.seriesId === 'raidDamage') ?? null;
+					const raidHealing = params.find((p) => p.seriesId === 'raidHealing') ?? null;
+					const deaths = params.find((p) => p.seriesId === 'deaths') ?? null;
+					const ressurects = params.find((p) => p.seriesId === 'ressurects') ?? null;
 
-					if (
-						enemyHealing === null ||
-						enemyDamage === null ||
-						raidDamage === null ||
-						raidHealing === null
-					) {
-						return 'N/A';
-					}
-
-					// console.log({ enemyHealing, enemyDamage, raidDamage, raidHealing, deaths, ressurects });
-					let deathsHTML = '';
-					if (deaths) {
-						const data = deaths.data as any as TDeathOrRess;
-						if (data) {
-							deathsHTML += `<li>${deaths.marker} Died: `;
-							deathsHTML += deathOrRessToLabel(data);
-							deathsHTML += `</li>`;
-						}
-					}
-
-					let ressHTML = '';
-					if (ressurects) {
-						const data = ressurects.data as any as TDeathOrRess;
-						if (data) {
-							ressHTML += `<li>${ressurects.marker} Ressurected: `;
-							ressHTML += deathOrRessToLabel(data);
-							ressHTML += `</li>`;
-						}
-					}
 					return `<div style="
 						background: rgba(var(--color-bg), 0.9);
 						padding: 0.5rem;
 						color: var(--color-fg);">
 					<ul>
-						<li>${enemyHealing.marker} Enemy healing: ${enemyHealing.data?.toLocaleString() ?? 'N/A'}</li>
-						<li>${enemyDamage.marker} Enemy damage: ${enemyDamage.data?.toLocaleString() ?? 'N/A'}</li>
-						<li>${raidHealing.marker} Raid healing: ${raidHealing.data?.toLocaleString() ?? 'N/A'}</li>
-						<li>${raidDamage.marker} Raid damage: ${raidDamage.data?.toLocaleString() ?? 'N/A'}</li>
-						${deathsHTML}
-						${ressHTML}
+						${renderTooltipParam(enemyHealing)}
+						${renderTooltipParam(enemyDamage)}
+						${renderTooltipParam(raidHealing)}
+						${renderTooltipParam(raidDamage)}
+						${renderTooltipParam(deaths)}
+						${renderTooltipParam(ressurects)}
 					</ul>
 					</div>`;
 				}
+
 				return 'N/A';
 			}
 		},
@@ -160,6 +147,7 @@
 		],
 		series: [
 			{
+				id: 'enemyHealing',
 				name: 'Enemy Healing',
 				type: 'line',
 
@@ -167,6 +155,7 @@
 				data: seriesEncounterHeal
 			},
 			{
+				id: 'enemyDamage',
 				name: 'Enemy Damage',
 				type: 'line',
 
@@ -174,6 +163,7 @@
 				data: seriesEncounterDamage
 			},
 			{
+				id: 'raidDamage',
 				name: 'Raid Damage',
 				type: 'line',
 
@@ -181,6 +171,7 @@
 				data: seriesRaidDamage
 			},
 			{
+				id: 'raidHealing',
 				name: 'Raid Healing',
 				type: 'line',
 
@@ -188,6 +179,7 @@
 				data: seriesRaidHeal
 			},
 			{
+				id: 'deaths',
 				name: 'Deaths',
 				type: 'scatter',
 				yAxisIndex: 1,
@@ -208,7 +200,7 @@
 					position: 'insideBottomLeft',
 					formatter: (params) => {
 						if (params.data) {
-							return deathOrRessToLabel(params.data as any as TDeathOrRess);
+							return renderPlayerTooltipParam(params.data as any as TDeathOrRess);
 						}
 
 						return '';
@@ -216,6 +208,7 @@
 				}
 			},
 			{
+				id: 'ressurects',
 				name: 'Ressurects',
 				type: 'scatter',
 				yAxisIndex: 2,
@@ -236,7 +229,7 @@
 					position: 'insideBottomLeft',
 					formatter: (params) => {
 						if (params.data) {
-							return deathOrRessToLabel(params.data as any as TDeathOrRess);
+							return renderPlayerTooltipParam(params.data as any as TDeathOrRess);
 						}
 
 						return '';

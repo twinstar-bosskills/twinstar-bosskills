@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Link from '$lib/components/Link.svelte';
+	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
 	import { links } from '$lib/links';
+	import { getRaidIconUrl } from '$lib/raid';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -13,15 +15,31 @@
 <ul class="raids">
 	{#each data.raids as raid}
 		<li class="raid">
-			<h2>{raid.map}</h2>
-			<div class="bosses">
-				<ol>
-					{#each raid.bosses as boss, i}
-						<li style="list-style-type: decimal;">
-							<Link href={links.boss(boss.entry)}>{boss.name}</Link>
-						</li>
-					{/each}
-				</ol>
+			<div class="bg" style="--background-image: url({getRaidIconUrl(raid.map)})">
+				<div class="kills-count" title="Number of killed bosses during current raid lock">
+					<TextColorSuccess>
+						{data.bosskillsByRaid[raid.map] ?? 0}
+					</TextColorSuccess>
+					kills
+				</div>
+			</div>
+			<div class="content">
+				<h2>{raid.map}</h2>
+				<div class="bosses">
+					<ol>
+						{#each raid.bosses as boss}
+							<li style="list-style-type: decimal;">
+								<Link href={links.boss(boss.entry)}>{boss.name}</Link>
+								<span title="Number of kills during current raid lock">
+									<TextColorSuccess>
+										{data.bosskillsByBoss[boss.entry] ?? 0}
+									</TextColorSuccess>
+									kills
+								</span>
+							</li>
+						{/each}
+					</ol>
+				</div>
 			</div>
 		</li>
 	{/each}
@@ -31,16 +49,43 @@
 	.raids {
 		display: flex;
 		flex-wrap: wrap;
+		gap: 1rem;
 	}
 	.raid {
-		margin-left: 1rem;
 		margin-top: 0.5rem;
+		border: 2px solid var(--color-secondary);
 	}
 	.raid h2 {
 		margin: 0;
 	}
+	.bg {
+		position: relative;
+		width: 360px;
+		height: 180px;
+		background-size: cover;
+		background-image: var(--background-image);
+	}
+	.bg .kills-count {
+		position: absolute;
+		bottom: 0.5rem;
+		right: 1rem;
+		padding: 0.5rem 1rem;
+		background-color: rgba(var(--color-bg), 0.5);
+	}
+	.content {
+		padding: 1rem;
+	}
 	.bosses {
 		margin-left: 1rem;
 		margin-top: 0.5rem;
+	}
+	@media (max-width: 380px) {
+		.bg {
+			width: auto;
+			height: 120px;
+		}
+		.raid {
+			flex-grow: 1;
+		}
 	}
 </style>

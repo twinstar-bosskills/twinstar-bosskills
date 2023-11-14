@@ -66,6 +66,34 @@ export type Character = {
 	talentSpecIconUrl: string;
 };
 
+export type BosskillLoot = {
+	id: number;
+	itemId: string;
+	count: number;
+
+	// randomPropertyId: number;
+	// randomSuffixId: string;
+};
+export type BosskillDeath = {
+	id: number;
+	guid: number;
+	/**
+	 * Negative value = ress
+	 */
+	time: number;
+};
+export type BosskillTimeline = {
+	/**
+	 * bosskill id reference
+	 */
+	// id: number;
+	time: number;
+	encounterDamage: string;
+	encounterHeal: string;
+	raidDamage: string;
+	raidHeal: string;
+};
+
 export const mutateCharacter = (character: Character): Character => {
 	character.dmgDone = Number(character.dmgDone);
 	character.healingDone = Number(character.healingDone);
@@ -103,30 +131,10 @@ export type BossKillDetail = {
 	wipes: number;
 	deaths: number;
 	ressUsed: number;
-	boss_kills_deaths: {
-		id: number;
-		guid: number;
-		/**
-		 * Negative value = ress
-		 */
-		time: number;
-	}[];
-	boss_kills_maps: {
-		id: number;
-		time: number;
-		encounterDamage: string;
-		encounterHeal: string;
-		raidDamage: string;
-		raidHeal: string;
-	}[];
+	boss_kills_deaths: BosskillDeath[];
+	boss_kills_maps: BosskillTimeline[];
 	boss_kills_players: Character[];
-	boss_kills_loot: {
-		id: number;
-		itemId: string;
-		count: number;
-		randomPropertyId: number;
-		randomSuffixId: string;
-	}[];
+	boss_kills_loot: BosskillLoot[];
 
 	// extras
 	difficulty: string;
