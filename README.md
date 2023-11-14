@@ -1,4 +1,4 @@
-# Twinstart Bosskills
+# Twinstar Bosskills
 
 ## Developing
 
@@ -20,6 +20,14 @@ npm run build
 ```
 
 You can preview the production build with `npm run preview`.
+
+## Deploy
+
+1. create and fill `.env` file
+2. `npm run migrations:continue`
+3. `npm run build`
+4. `npm run start`
+5. (optional) `systemctl restart bosskills`
 
 ## Caveats
 
