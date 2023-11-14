@@ -1,7 +1,8 @@
-import { browser, dev } from '$app/environment';
-import { inject } from '@vercel/analytics';
+import { browser } from '$app/environment';
 
-inject({ mode: dev ? 'development' : 'production' });
+// import { inject } from '@vercel/analytics';
+// inject({ mode: dev ? 'development' : 'production' });
+
 if (browser) {
 	const recordDimensions = () => {
 		const w = screen?.availWidth ?? window.innerWidth;

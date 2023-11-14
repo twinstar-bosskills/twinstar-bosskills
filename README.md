@@ -1,18 +1,4 @@
-# create-svelte
-
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+# Twinstart Bosskills
 
 ## Developing
 
@@ -35,4 +21,18 @@ npm run build
 
 You can preview the production build with `npm run preview`.
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+## Caveats
+
+### @libsql
+
+`@libsql/client` is included as `dependency` in order to force Node.js resolution algorithm (thanks @khromov)
+
+> @khromov: esm/cjs problems sounds very package-specific. I don't think it's the norm and if you're having problems with bundling you can install a package as a non-dev dependency and it will use the Node.js resolution algorithm.
+
+### $env/static/private
+
+Some scripts run with `vite-node` might fail with
+
+> Error: Cannot import $env/static/private into client-side code
+
+Setting env variable `TEST` to `true` (eg. `TEST=true`) will skip this import check

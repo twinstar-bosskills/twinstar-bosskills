@@ -1,6 +1,7 @@
 import type { Item, ItemTooltip } from '$lib/model';
 import * as api from '$lib/server/api';
 import { getBoss } from '$lib/server/api';
+import { getLootChance, type LootChance } from '$lib/server/db/loot';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -24,6 +25,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	const loot = bosskill.boss_kills_loot;
 	const queue = [];
 	const items: Item[] = [];
+	const lootChance: Record<Item['id'], LootChance | null> = {};
 	const tooltips: Record<Item['id'], ItemTooltip> = {};
 	for (const lootItem of loot) {
 		const itemId = Number(lootItem.itemId);
@@ -39,6 +41,11 @@ export const load: PageServerLoad = async ({ params }) => {
 				if (tooltip) {
 					tooltips[itemId] = tooltip;
 				}
+			})
+		);
+		queue.push(
+			getLootChance({ itemId, bossRemoteId: boss.entry, mode: bosskill.mode }).then((v) => {
+				lootChance[itemId] = v;
 			})
 		);
 	}
@@ -59,6 +66,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		boss,
 		loot,
 		items,
-		tooltips
+		tooltips,
+		lootChance
 	};
 };

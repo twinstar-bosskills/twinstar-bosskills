@@ -1,0 +1,37 @@
+# fly.toml app configuration file generated for twinstar-bosskills on 2023-10-10T21:20:48+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "twinstar-bosskills"
+kill_signal = "SIGINT"
+kill_timeout = 5
+[[mounts]]
+  source = "twinstar_bosskills_data"
+  destination = "/data"
+primary_region = "ams"
+processes = []
+
+[build]
+
+[env]
+  PORT = "3000"
+  DATABASE_URL = "file:/data/local.db"
+
+[[services]]
+  internal_port = 3000
+  processes = ["app"]
+  protocol = "tcp"
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+    type = "connections"
+
+  [[services.ports]]
+    force_https = true
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443

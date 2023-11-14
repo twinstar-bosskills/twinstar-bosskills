@@ -1,5 +1,5 @@
 const CACHE: Record<string, unknown> = {};
-const TIMERS: Record<string, number> = {};
+const TIMERS: Record<string, number | NodeJS.Timeout> = {};
 /**
  * @see https://jameshfisher.com/2017/10/30/web-cryptography-api-hello-world/
  */
@@ -27,7 +27,7 @@ type Args<T> = {
 	fallback: () => Promise<T>;
 	/**
 	 * In seconds
-	 * Default: 60 * 60 = 1 hour
+	 * Default: 5 * 60 = 5 min
 	 */
 	expire?: number;
 	/**
@@ -39,7 +39,7 @@ type Args<T> = {
 export const withCache = async <T = unknown>({
 	deps,
 	fallback,
-	expire = 60 * 60,
+	expire = 5 * 60,
 	sliding = true
 }: Args<T>): Promise<T> => {
 	const key = await sha256(JSON.stringify(deps));

@@ -8,5 +8,8 @@ export default defineConfig({
 	},
 	ssr: {
 		noExternal: ['echarts', 'zrender']
+	},
+	preview: {
+		host: true
 	}
 });
