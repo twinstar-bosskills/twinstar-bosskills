@@ -1,9 +1,13 @@
 import 'dotenv/config';
 
-import { createClient } from '@libsql/client';
-import { drizzle } from 'drizzle-orm/libsql';
+import { createClient, type Client } from '@libsql/client';
+import { drizzle as libsqlDrizzle } from 'drizzle-orm/libsql';
+import { drizzle as mysqlDrizzle } from 'drizzle-orm/mysql2';
+import mysql from 'mysql2/promise';
 
-const makeClient = async () => {
+export const isMysql = () => process.env.DATABASE_DRIVER === 'mysql';
+export const isSqlite = () => isMysql() === false;
+const makeLibsqlClient = async () => {
 	const instance = createClient({
 		url: process.env.DATABASE_URL!,
 		authToken: process.env.DATABASE_AUTH_TOKEN
@@ -16,22 +20,26 @@ const makeClient = async () => {
 	return instance;
 };
 
-let globalDb: ReturnType<typeof drizzle> | null = null;
+const makeMysqlClient = async () => {
+	const poolConnection = mysql.createPool({
+		host: process.env.MARIADB_HOST!,
+		user: process.env.MARIADB_USER!,
+		password: process.env.MARIADB_PASSWORD!,
+		database: process.env.MARIADB_DATABASE!
+	});
+
+	return poolConnection;
+};
+
+let globalDb: ReturnType<typeof libsqlDrizzle | typeof mysqlDrizzle> | null = null;
 export const createConnection = async () => {
 	if (globalDb) {
 		return globalDb;
 	}
 
-	const client = await makeClient();
-	const database = drizzle(client);
+	const client = await (isMysql() ? makeMysqlClient() : makeLibsqlClient());
+	const database = isMysql() ? mysqlDrizzle(client as mysql.Pool) : libsqlDrizzle(client as Client);
 	globalDb = database;
 
 	return globalDb;
 };
-
-// import Database from 'better-sqlite3';
-// import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-// import { drizzle } from 'drizzle-orm/better-sqlite3';
-
-// const sqlite = new Database(process.env.DATABASE_FILE!);
-// export const db: BetterSQLite3Database = drizzle(sqlite);
