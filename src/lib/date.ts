@@ -4,6 +4,7 @@ import {
 	formatDistance,
 	formatDuration,
 	intervalToDuration,
+	isWednesday,
 	parseISO,
 	previousWednesday,
 	setHours,
@@ -16,7 +17,7 @@ import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
 const raidLockStart = (date: Date) => {
 	// Wednesday, probably at 6:00AM
-	const wed = previousWednesday(date);
+	const wed = isWednesday(date) ? date : previousWednesday(date);
 	const wed6h = setHours(wed, 6);
 	const wed6h0m = setMinutes(wed6h, 0);
 	const wed6h0m0s = setSeconds(wed6h0m, 0);

@@ -17,7 +17,7 @@ import {
 import { FilterOperator } from '../api/filter';
 import { getRaids } from '../api/raid';
 import { safeGC } from '../gc';
-import { db } from './index';
+import { createConnection } from './index';
 import { bosskillDeathTable } from './schema/boss-kill-death.schema';
 import { bosskillLootTable } from './schema/boss-kill-loot.schema';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
@@ -183,6 +183,7 @@ export const synchronize = async ({
 };
 
 const getOrCreateRealm = async (realmName: string) => {
+	const db = await createConnection();
 	const result = await db.select().from(realmTable).where(eq(realmTable.name, realmName)).execute();
 	let ent = result[0] ?? null;
 	if (ent === null) {
@@ -202,6 +203,7 @@ const getOrCreateRealm = async (realmName: string) => {
 };
 
 const getOrCreateRaid = async (raid: Raid) => {
+	const db = await createConnection();
 	const result = await db.select().from(raidTable).where(eq(raidTable.name, raid.map)).execute();
 	let ent = result[0] ?? null;
 	if (ent === null) {
@@ -221,6 +223,7 @@ const getOrCreateRaid = async (raid: Raid) => {
 };
 
 const getOrCreateBoss = async (boss: Boss) => {
+	const db = await createConnection();
 	const result = await db
 		.select()
 		.from(bossTable)
@@ -252,6 +255,7 @@ const getOrCreateBoss = async (boss: Boss) => {
 };
 
 const getOrCreatePlayer = async (guid: number, name: string) => {
+	const db = await createConnection();
 	const result = await db
 		.select()
 		.from(playerTable)
@@ -282,6 +286,7 @@ type CreateBosskillArgs = {
 	bk: BossKill;
 };
 const getOrCreateBosskill = async ({ bossId, realmId, raidId, bk }: CreateBosskillArgs) => {
+	const db = await createConnection();
 	const result = await db
 		.select()
 		.from(bosskillTable)
@@ -320,6 +325,7 @@ type DeleteByBosskillId = {
 	bosskillId: number;
 };
 const deleteBossKillPlayers = async ({ bosskillId }: DeleteByBosskillId) => {
+	const db = await createConnection();
 	await db.transaction((tx) => {
 		return tx
 			.delete(bosskillPlayerTable)
@@ -335,6 +341,7 @@ const createBossKillPlayers = async ({ bosskillId, players }: BossKillPlayerArgs
 	if (players.length === 0) {
 		return;
 	}
+	const db = await createConnection();
 	await db.transaction((tx) => {
 		return tx
 			.insert(bosskillPlayerTable)
@@ -369,6 +376,7 @@ const createBossKillPlayers = async ({ bosskillId, players }: BossKillPlayerArgs
 };
 
 const deleteBossKillLoot = async ({ bosskillId }: DeleteByBosskillId) => {
+	const db = await createConnection();
 	await db.transaction((tx) => {
 		return tx
 			.delete(bosskillLootTable)
@@ -384,6 +392,7 @@ const createBossKillLoot = async ({ bosskillId, items }: BossKillLootArgs) => {
 	if (items.length === 0) {
 		return;
 	}
+	const db = await createConnection();
 	await db.transaction((tx) => {
 		return tx
 			.insert(bosskillLootTable)
@@ -400,6 +409,7 @@ const createBossKillLoot = async ({ bosskillId, items }: BossKillLootArgs) => {
 };
 
 const deleteBossKillDeaths = async ({ bosskillId }: DeleteByBosskillId) => {
+	const db = await createConnection();
 	await db.transaction((tx) => {
 		return tx
 			.delete(bosskillDeathTable)
@@ -415,6 +425,7 @@ const createBossKillDeaths = async ({ bosskillId, deaths }: BossKillDeathsArgs) 
 	if (deaths.length === 0) {
 		return;
 	}
+	const db = await createConnection();
 	await db.transaction((tx) => {
 		return tx
 			.insert(bosskillDeathTable)
@@ -433,6 +444,7 @@ const createBossKillDeaths = async ({ bosskillId, deaths }: BossKillDeathsArgs) 
 };
 
 const deleteBossKillTimeline = async ({ bosskillId }: DeleteByBosskillId) => {
+	const db = await createConnection();
 	await db.transaction((tx) => {
 		return tx
 			.delete(bosskillTimelineTable)
@@ -448,6 +460,7 @@ const createBossKillTimeline = async ({ bosskillId, timeline }: BossKillTimeline
 	if (timeline.length === 0) {
 		return;
 	}
+	const db = await createConnection();
 	await db.transaction((tx) => {
 		return tx
 			.insert(bosskillTimelineTable)
