@@ -2,4 +2,7 @@ version: '3.4'
 services:
   mariadb:
     image: mariadb:11.1
-    # TODO: data volume
+    volumes:
+      - db-data:/var/lib/mysql
+volumes:
+  mariadb-data:
