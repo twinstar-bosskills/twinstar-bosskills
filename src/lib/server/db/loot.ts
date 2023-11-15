@@ -1,5 +1,5 @@
 import { and, eq, sql } from 'drizzle-orm';
-import { db } from '.';
+import { createConnection } from '.';
 import { bosskillLootTable } from './schema/boss-kill-loot.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
@@ -20,6 +20,7 @@ export const getLootChance = async ({
 	bossRemoteId
 }: GetLootChanceArgs): Promise<LootChance | null> => {
 	try {
+		const db = await createConnection();
 		const current = await db
 			.select({ count: sql<number>`count(*)` })
 			.from(bosskillTable)

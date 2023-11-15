@@ -1,7 +1,7 @@
 import { raidLock } from '$lib/date';
 import { Difficulty } from '$lib/model';
 import { and, desc, eq, gte, inArray, lt, lte } from 'drizzle-orm';
-import { db } from '.';
+import { createConnection } from '.';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
@@ -24,6 +24,7 @@ export const getCharacterPerformance = async ({
 	const end = endDate ?? currentRaidLock.end;
 
 	try {
+		const db = await createConnection();
 		const currentQb = db
 			.select()
 			.from(bosskillPlayerTable)
