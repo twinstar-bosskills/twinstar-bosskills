@@ -12,12 +12,13 @@ export const getCharacterBossKills = async (q: CharacterQueryArgs): Promise<Char
 	const fallback = async () => {
 		try {
 			const r = await fetch(url);
-			const data: Character[] = await r.json();
-			if (Array.isArray(data) === false) {
-				throw new Error(`expected array, got: ${typeof data}`);
+			const items: PaginatedResponse<Character[]> = await r.json();
+			if (Array.isArray(items?.data) === false) {
+				throw new Error(`expected array, got: ${typeof items?.data}`);
 			}
 
-			for (const item of data) {
+			const data = items.data;
+			for (const item of items.data) {
 				mutateCharacter(item);
 			}
 
