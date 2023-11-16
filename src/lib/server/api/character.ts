@@ -2,6 +2,8 @@ import { TWINSTAR_API_URL } from '$env/static/private';
 import { mutateCharacter, type Character } from '$lib/model';
 import { withCache } from '../cache';
 import { queryString, type QueryArgs } from './filter';
+import { listAll } from './pagination';
+import type { PaginatedResponse } from './response';
 
 // /bosskills/player?map=<mapa>&mode=<obtiznost>&page=<stranka>&pageSize=<velikost>&(guid=<guid> or name=<name>)
 type CharacterQueryArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'>;
@@ -28,18 +30,51 @@ export const getCharacterBossKills = async (q: CharacterQueryArgs): Promise<Char
 
 	return withCache<Character[]>({ deps: [`character`, q], fallback }) ?? [];
 };
+
+type CharacterTotalBossKillsArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'>;
 export const getCharacterTotalBossKills = async (q: { name: string }): Promise<number> => {
-	const url = `${TWINSTAR_API_URL}/bosskills/player?${queryString(q)}`;
-	const fallback = async () => {
+	const fetchPlayer = async ({ page, pageSize, ...rest }: CharacterTotalBossKillsArgs) => {
+		const url = `${TWINSTAR_API_URL}/bosskills/player?${queryString({ ...rest, page, pageSize })}`;
 		try {
 			const r = await fetch(url);
-			const data: Character[] = await r.json();
-			if (Array.isArray(data) === false) {
-				throw new Error(`expected array, got: ${typeof data}`);
+			const items: Character[] | PaginatedResponse<Character> = await r.json();
+
+			// TODO: this is wrong but we do not have items.total yet
+			let total = 2000;
+			let data = [];
+			if (Array.isArray(items)) {
+				data = items;
+			} else if (Array.isArray(items.data) && typeof items.total === 'number') {
+				data = items.data;
+				total = items.total;
+			} else {
+				throw new Error(`expected array or paginated response, got: ${typeof items}`);
 			}
-			return data.length;
+
+			return {
+				data,
+				total
+			};
 		} catch (e) {
 			console.error(e, url);
+			throw e;
+		}
+	};
+
+	const fallback = async () => {
+		try {
+			const all = await listAll(
+				({ page, pageSize }) =>
+					fetchPlayer({
+						...q,
+						page,
+						pageSize
+					}),
+				{ pageSize: 100 }
+			);
+			return all.length;
+		} catch (e) {
+			console.error(e);
 			throw e;
 		}
 	};

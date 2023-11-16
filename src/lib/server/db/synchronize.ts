@@ -30,7 +30,8 @@ import { realmTable } from './schema/realm.schema';
 
 type Args = {
 	onLog: (line: string) => void;
-	startAt?: Date;
+	startsAt?: Date;
+	endsAt?: Date;
 	bosskillIds?: number[];
 	bossIds?: number[];
 	pageSize?: number;
@@ -38,7 +39,8 @@ type Args = {
 };
 export const synchronize = async ({
 	onLog,
-	startAt,
+	startsAt,
+	endsAt,
 	bosskillIds,
 	bossIds,
 	pageSize,
@@ -66,8 +68,11 @@ export const synchronize = async ({
 				filters: [{ column: 'entry', operator: FilterOperator.EQUALS, value: boss.entry }]
 			};
 
-			if (startAt) {
-				query.filters?.push({ column: 'time', operator: FilterOperator.GTE, value: startAt });
+			if (startsAt) {
+				query.filters?.push({ column: 'time', operator: FilterOperator.GTE, value: startsAt });
+			}
+			if (endsAt) {
+				query.filters?.push({ column: 'time', operator: FilterOperator.LTE, value: endsAt });
 			}
 			if (Array.isArray(bosskillIds) && bosskillIds.length > 0) {
 				query.filters?.push({ column: 'id', operator: FilterOperator.IN, value: bosskillIds });

@@ -19,16 +19,20 @@ program.parse();
 console.log(program.opts());
 const { offset, bosskillIds, bossIds, page, pageSize } = program.opts();
 
-let startAt: Date | undefined = undefined;
+let startsAt: Date | undefined = undefined;
+let endsAt: Date | undefined = undefined;
 if (typeof offset !== 'undefined') {
 	const now = new Date();
-	const { start } = raidLock(now, offset);
-	startAt = start;
+	const { start, end } = raidLock(now, offset);
+	startsAt = start;
+	endsAt = end;
 }
+console.log({ startsAt, endsAt });
 
 await synchronize({
 	onLog: console.log,
-	startAt,
+	startsAt,
+	endsAt,
 	bosskillIds,
 	bossIds,
 	page,
