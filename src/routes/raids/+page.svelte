@@ -44,21 +44,21 @@
 								data.bosskillsByBossByDifficulty[boss.entry] ?? {}
 							)}
 							<li style="list-style-type: decimal; margin-top: 0.25rem;">
-								<Link href={links.boss(boss.entry)}>{boss.name}</Link>
+								<Link href={links.boss(boss.entry)} style="font-size: 1.25rem">{boss.name}</Link>
 								<span title="Number of kills during current raid lock">
 									<TextColorSuccess>
 										{data.bosskillsByBoss[boss.entry] ?? 0}
 									</TextColorSuccess>
 									kills
 								</span>
-								<ul class="diff-distrib-list">
+								<div class="diff-distrib-list">
 									{#each byDifficulty as [diff, total]}
-										<span class="diff-distrib-item">
+										<div class="diff-distrib-item">
 											{difficultyToString(diff)}:
 											<TextColorSuccess>{total}</TextColorSuccess>
-										</span>
+										</div>
 									{/each}
-								</ul>
+								</div>
 							</li>
 						{/each}
 					</ol>
@@ -83,10 +83,12 @@
 	}
 	.bg {
 		position: relative;
-		width: 360px;
+		min-width: 360px;
+		width: 100%;
 		height: 180px;
 		background-size: cover;
 		background-image: var(--background-image);
+		background-repeat: no-repeat;
 	}
 	.bg .kills-count {
 		position: absolute;
