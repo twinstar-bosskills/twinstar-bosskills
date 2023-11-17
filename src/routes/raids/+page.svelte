@@ -2,6 +2,7 @@
 	import Link from '$lib/components/Link.svelte';
 	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
 	import { links } from '$lib/links';
+	import { difficultyToString } from '$lib/model';
 	import { getRaidIconUrl } from '$lib/raid';
 	import type { PageData } from './$types';
 
@@ -14,13 +15,24 @@
 <h1>Raids</h1>
 <ul class="raids">
 	{#each data.raids as raid}
+		{@const byDifficulty = Object.entries(data.bosskillsByRaidByDifficulty[raid.map] ?? {})}
 		<li class="raid">
 			<div class="bg" style="--background-image: url({getRaidIconUrl(raid.map)})">
 				<div class="kills-count" title="Number of killed bosses during current raid lock">
 					<TextColorSuccess>
 						{data.bosskillsByRaid[raid.map] ?? 0}
 					</TextColorSuccess>
-					kills
+					kills this raid lock
+					<div style="border-top: 1px solid rgba(var(--color-primary), 1); padding-top: 0.25rem;">
+						<ul>
+							{#each byDifficulty as [diff, total]}
+								<li>
+									{difficultyToString(diff)}
+									<TextColorSuccess>{total}</TextColorSuccess> times
+								</li>
+							{/each}
+						</ul>
+					</div>
 				</div>
 			</div>
 			<div class="content">
@@ -28,7 +40,10 @@
 				<div class="bosses">
 					<ol>
 						{#each raid.bosses as boss}
-							<li style="list-style-type: decimal;">
+							{@const byDifficulty = Object.entries(
+								data.bosskillsByBossByDifficulty[boss.entry] ?? {}
+							)}
+							<li style="list-style-type: decimal; margin-top: 0.25rem;">
 								<Link href={links.boss(boss.entry)}>{boss.name}</Link>
 								<span title="Number of kills during current raid lock">
 									<TextColorSuccess>
@@ -36,6 +51,14 @@
 									</TextColorSuccess>
 									kills
 								</span>
+								<ul class="diff-distrib-list">
+									{#each byDifficulty as [diff, total]}
+										<span class="diff-distrib-item">
+											{difficultyToString(diff)}:
+											<TextColorSuccess>{total}</TextColorSuccess>
+										</span>
+									{/each}
+								</ul>
 							</li>
 						{/each}
 					</ol>
@@ -78,6 +101,16 @@
 	.bosses {
 		margin-left: 1rem;
 		margin-top: 0.5rem;
+	}
+	.diff-distrib-list {
+		margin-top: 0.25rem;
+	}
+	.diff-distrib-item {
+		display: inline-block;
+		margin-left: calc(1rem / 8);
+		margin-right: calc(1rem / 8);
+		padding: calc(1rem / 4);
+		border: 1px solid rgba(var(--color-primary), 0.5);
 	}
 	@media (max-width: 380px) {
 		.bg {

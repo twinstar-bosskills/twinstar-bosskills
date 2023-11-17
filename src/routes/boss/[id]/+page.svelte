@@ -162,26 +162,27 @@
 	<title>{title}</title>
 </svelte:head>
 <h1>{title}</h1>
-<p>
-	{data.boss.name} ({difficultyToString(currentDifficulty)}) was killed
-	<TextColorSuccess>{data.kw.kills.total}</TextColorSuccess> times by raiders and wiped them <TextColorError
-		>{data.kw.wipes.total}</TextColorError
-	> times (<TextColorError>{data.kw.wipes.avg}</TextColorError>
-	times on average).
-</p>
-<p>
-	You have <TextColorSuccess>{data.kw.kills.chance}%</TextColorSuccess> chance to make a kill and <TextColorError
-		>{data.kw.wipes.chance}%</TextColorError
-	> chance to wipe.
-</p>
-<p>
-	<TextColorSuccess>Fastest</TextColorSuccess> kill took
-	<TextColorSuccess>{formatSecondsInterval(data.kw.fightDuration.min)}</TextColorSuccess>,
-	<TextColorWarning>average</TextColorWarning> kill took
-	<TextColorWarning>{formatSecondsInterval(data.kw.fightDuration.avg)}</TextColorWarning> and
-	<TextColorError>slowest</TextColorError> kill took
-	<TextColorError>{formatSecondsInterval(data.kw.fightDuration.max)}</TextColorError>
-</p>
+{#if data.kw}
+	<p>
+		{data.boss.name} ({difficultyToString(currentDifficulty)}) was killed
+		<TextColorSuccess>{data.kw.kills.total}</TextColorSuccess> times by raiders and wiped them <TextColorError
+			>{data.kw.wipes.total}</TextColorError
+		> times (<TextColorError>{data.kw.wipes.avg}</TextColorError>
+		times on average).
+	</p>
+	<p>
+		You have <TextColorSuccess>{data.kw.kills.chance.toFixed(2)}%</TextColorSuccess> chance to make a
+		kill and <TextColorError>{data.kw.wipes.chance.toFixed(2)}%</TextColorError> chance to wipe.
+	</p>
+	<p>
+		<TextColorSuccess>Fastest</TextColorSuccess> kill took
+		<TextColorSuccess>{formatSecondsInterval(data.kw.fightDuration.min)}</TextColorSuccess>,
+		<TextColorWarning>average</TextColorWarning> kill took
+		<TextColorWarning>{formatSecondsInterval(data.kw.fightDuration.avg)}</TextColorWarning> and
+		<TextColorError>slowest</TextColorError> kill took
+		<TextColorError>{formatSecondsInterval(data.kw.fightDuration.max)}</TextColorError>
+	</p>
+{/if}
 
 <h2>Top stats by spec</h2>
 <div>
