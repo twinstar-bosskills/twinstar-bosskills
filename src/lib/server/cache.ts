@@ -34,13 +34,15 @@ type Args<T> = {
 	 * Refresh timers on cache hit
 	 */
 	sliding?: boolean;
+	defaultValue?: T;
 };
 
 export const withCache = async <T = unknown>({
 	deps,
 	fallback,
 	expire = 5 * 60,
-	sliding = true
+	sliding = true,
+	defaultValue = undefined
 }: Args<T>): Promise<T> => {
 	const key = await sha256(JSON.stringify(deps));
 	if (typeof CACHE[key] === 'undefined') {
@@ -50,6 +52,7 @@ export const withCache = async <T = unknown>({
 			setupTimer(key, expire);
 		} catch (e) {
 			// ignore
+			return defaultValue as T;
 		}
 	} else {
 		// console.log(`cache-hit, key: ${key}`, CACHE[key]);

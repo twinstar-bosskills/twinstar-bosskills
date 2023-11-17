@@ -32,7 +32,7 @@ export const getBoss = async (id: number): Promise<Boss | null> => {
 		return null;
 	};
 
-	return withCache({ deps: [`boss`, id], fallback }) ?? null;
+	return withCache({ deps: [`boss`, id], fallback, defaultValue: null });
 };
 
 type BossStats = {
@@ -92,7 +92,7 @@ export const getBossStats = async (id: number): Promise<BossStats> => {
 		}
 	};
 
-	return withCache({ deps: [`boss-stats`, q], fallback }) ?? EMPTY_STATS;
+	return withCache({ deps: [`boss-stats`, q], fallback, defaultValue: EMPTY_STATS });
 };
 
 type BossStatsQueryArgs = Pick<
@@ -133,7 +133,7 @@ export const getBossStatsV2 = async (id: number, qa: BossStatsQueryArgs): Promis
 		}
 	};
 
-	return withCache({ deps: [`boss-stats-v2`, id, q], fallback }) ?? EMPTY_STATS;
+	return withCache({ deps: [`boss-stats-v2`, id, q], fallback, defaultValue: EMPTY_STATS });
 };
 
 export const getBossKillsWipesTimes = async (id: number, mode: number | null) => {
@@ -206,7 +206,8 @@ export const getBossKillsWipesTimes = async (id: number, mode: number | null) =>
 	};
 	return withCache({
 		deps: ['boss-kwt', id, mode],
-		fallback
+		fallback,
+		defaultValue: null
 	});
 };
 
@@ -301,12 +302,10 @@ export const getBossAggregatedStats = async (
 			throw e;
 		}
 	};
-
-	return (
-		withCache({
-			deps: ['boss-aggregated', id, field, mode],
-			fallback,
-			sliding: false
-		}) ?? { indexToSpecId: {}, prepared: { axisData: [], boxData: [], outliers: [] } }
-	);
+	return await withCache({
+		deps: ['boss-aggregated', id, field, mode],
+		fallback,
+		sliding: false,
+		defaultValue: { indexToSpecId: {}, prepared: { axisData: [], boxData: [], outliers: [] } }
+	});
 };

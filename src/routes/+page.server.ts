@@ -28,7 +28,19 @@ type RaidLockData = {
 
 const toRaidLockData = (data: BossKill[]): RaidLockData => {
 	const byHour: Record<string, number> = {};
-	const byWeekDay: Record<string, number> = {};
+	for (let i = 0; i < 24; i++) {
+		const key = `${String(i).padStart(2, '0')}:00`;
+		byHour[key] = 0;
+	}
+	const byWeekDay: Record<string, number> = {
+		Wednesday: 0,
+		Thursday: 0,
+		Friday: 0,
+		Saturday: 0,
+		Sunday: 0,
+		Monday: 0,
+		Tuesday: 0
+	};
 
 	const wipesByBoss: Record<string, ByBoss> = {};
 	const killsByBoss: Record<string, ByBoss> = {};
@@ -47,7 +59,7 @@ const toRaidLockData = (data: BossKill[]): RaidLockData => {
 		} catch (e) {}
 
 		try {
-			const hourKey = format(date, 'HH');
+			const hourKey = format(date, 'HH:00');
 			byHour[hourKey] ??= 0;
 			byHour[hourKey]++;
 		} catch (e) {}

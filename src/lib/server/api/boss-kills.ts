@@ -31,9 +31,11 @@ export const getBossKills = async (q: BossKillQueryArgs): Promise<BossKillsData>
 		});
 	}
 
-	return (
-		withCache({ deps: [`boss-kills`, q], fallback }) ?? (EMPTY_PAGINATED_RESPONSE as BossKillsData)
-	);
+	return withCache({
+		deps: [`boss-kills`, q],
+		fallback,
+		defaultValue: EMPTY_PAGINATED_RESPONSE as BossKillsData
+	});
 };
 
 export type LatestBossKillQueryArgs = Omit<BossKillQueryArgs, 'sorter'>;
@@ -73,12 +75,11 @@ export const listAllLatestBossKills = async (
 		});
 	}
 
-	return (
-		withCache({
-			deps: ['list-all-lastest-boss-kills', q],
-			fallback
-		}) ?? []
-	);
+	return withCache({
+		deps: ['list-all-lastest-boss-kills', q],
+		fallback,
+		defaultValue: []
+	});
 };
 
 export const getBossKillDetail = async (id: string): Promise<BossKillDetail | null> => {
@@ -93,5 +94,5 @@ export const getBossKillDetail = async (id: string): Promise<BossKillDetail | nu
 		}
 	};
 
-	return withCache({ deps: [`boss-kill-detail`, id], fallback }) ?? null;
+	return withCache({ deps: [`boss-kill-detail`, id], fallback, defaultValue: null });
 };

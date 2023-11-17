@@ -22,15 +22,15 @@
 	for (const [key, value] of Object.entries(current.byWeekDay)) {
 		byWeekDay.push({ key, value });
 	}
-	byWeekDay.sort((a, b) => b.value - a.value);
-	const topDay = byWeekDay[0] ?? 0;
+	// byWeekDay.sort((a, b) => b.value - a.value);
+	const topDay = byWeekDay.slice().sort((a, b) => b.value - a.value)[0] ?? null;
 
 	const byHour: ByData[] = [];
 	for (const [key, value] of Object.entries(current.byHour)) {
 		byHour.push({ key, value });
 	}
-	byHour.sort((a, b) => b.value - a.value);
-	const topHour = byHour[0] ?? null;
+	// byHour.sort((a, b) => b.value - a.value);
+	const topHour = byHour.slice().sort((a, b) => b.value - a.value)[0] ?? null;
 
 	type T = (typeof current.killsByBoss)[0];
 	const byBossColumns: ColumnDef<T>[] = [

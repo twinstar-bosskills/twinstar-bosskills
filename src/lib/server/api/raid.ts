@@ -47,5 +47,5 @@ export const getRaids = async (): Promise<Raid[]> => {
 		}
 	};
 
-	return withCache({ deps: [`raids`], fallback }) ?? [];
+	return withCache({ deps: [`raids`], fallback, defaultValue: [] });
 };

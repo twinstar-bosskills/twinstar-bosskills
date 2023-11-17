@@ -168,7 +168,7 @@ export const getItem = async (id: number): Promise<Item | null> => {
 
 		return null;
 	};
-	return withCache({ deps: ['item', id], fallback }) ?? null;
+	return withCache({ deps: ['item', id], fallback, defaultValue: null });
 };
 
 export const getItemIconUrl = (id: number): string => {
@@ -191,5 +191,5 @@ export const getItemTooltip = async (id: number): Promise<ItemTooltip | null> =>
 		// @ts-ignore
 		return null;
 	};
-	return withCache({ deps: [`item-tooltip`, id], fallback }) ?? null;
+	return withCache({ deps: [`item-tooltip`, id], fallback, defaultValue: null });
 };

@@ -18,12 +18,11 @@ const getBlob = async (url: string): Promise<Blob | null> => {
 			throw e;
 		}
 	};
-	return (
-		withCache({
-			deps: [`img-icon-blob`, url],
-			fallback
-		}) ?? null
-	);
+	return withCache({
+		deps: [`img-icon-blob`, url],
+		fallback,
+		defaultValue: null
+	});
 };
 
 export const GET: RequestHandler = async ({ url }) => {

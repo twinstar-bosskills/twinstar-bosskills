@@ -16,7 +16,10 @@
 	const options: EChartsOption = {
 		backgroundColor: 'transparent',
 		tooltip: {
-			trigger: 'axis'
+			trigger: 'axis',
+			axisPointer: {
+				type: 'shadow'
+			}
 		},
 		animation: false,
 		grid: {
@@ -45,6 +48,9 @@
 				type: 'bar',
 
 				color: 'rgba(var(--color-primary), 1)',
+				emphasis: {
+					focus: 'series'
+				},
 				data: series
 			}
 		]
