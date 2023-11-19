@@ -12,13 +12,13 @@
 	<nav>
 		<ul>
 			<li>
-				<Link href="/">Home</Link>
+				<Link href="/{data.realm}">Home</Link>
 			</li>
 			<li>
-				<Link href={links.BOSS_KILLS}>Latest</Link>
+				<Link href={links.bossKills(data.realm)}>Latest</Link>
 			</li>
 			<li>
-				<Link href={links.RAIDS}>Raids</Link>
+				<Link href={links.raids(data.realm)}>Raids</Link>
 			</li>
 		</ul>
 	</nav>

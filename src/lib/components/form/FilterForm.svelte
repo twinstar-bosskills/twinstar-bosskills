@@ -19,8 +19,10 @@
 <script lang="ts">
 	import { links } from '$lib/links';
 	import { Difficulty, difficultyToString, isRaidDifficulty, type Raid } from '$lib/model';
+	import { REALM_HELIOS } from '$lib/realm';
 	import Link from '../Link.svelte';
 
+	export let realm: string = REALM_HELIOS;
 	export let data: Data;
 	export let values: Values;
 
@@ -54,7 +56,7 @@
 		}));
 </script>
 
-<form data-sveltekit-reload method="GET" action="/boss-kills">
+<form data-sveltekit-reload method="GET" action="/{realm}/boss-kills">
 	<div class="group">
 		<div class="item-container">
 			<div class="headline">Boss</div>
@@ -116,7 +118,7 @@
 	<div style="background: rgba(var(--color-primary), 0.5); height: 2px; width: 100%;" />
 	<div class="group">
 		<button type="submit">Submit</button>
-		<Link href={links.BOSS_KILLS}>Reset</Link>
+		<Link href={links.bossKills(realm)}>Reset</Link>
 	</div>
 </form>
 

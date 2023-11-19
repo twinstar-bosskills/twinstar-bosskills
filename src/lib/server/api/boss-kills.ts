@@ -82,10 +82,14 @@ export const listAllLatestBossKills = async (
 	});
 };
 
-export const getBossKillDetail = async (id: string): Promise<BossKillDetail | null> => {
+type GetBosskillDetailArgs = { realm: string; id: string };
+export const getBossKillDetail = async ({
+	realm,
+	id
+}: GetBosskillDetailArgs): Promise<BossKillDetail | null> => {
 	const fallback = async () => {
 		try {
-			const r = await fetch(`${TWINSTAR_API_URL}/bosskills/${id}`);
+			const r = await fetch(`${TWINSTAR_API_URL}/bosskills/${id}?realm=${realm}`);
 			const item: BossKillDetail = await r.json();
 			return mutateBossKill(item);
 		} catch (e) {
@@ -94,5 +98,5 @@ export const getBossKillDetail = async (id: string): Promise<BossKillDetail | nu
 		}
 	};
 
-	return withCache({ deps: [`boss-kill-detail`, id], fallback, defaultValue: null });
+	return withCache({ deps: [`boss-kill-detail`, realm, id], fallback, defaultValue: null });
 };

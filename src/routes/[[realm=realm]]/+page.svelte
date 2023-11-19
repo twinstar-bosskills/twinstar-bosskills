@@ -46,6 +46,7 @@
 			cell: (info) => {
 				const bk = info.row.original;
 				return cellComponent(Boss, {
+					realm: data.realm,
 					bosskill: {
 						entry: bk.bossId,
 						mode: bk.mode,

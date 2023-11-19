@@ -86,7 +86,8 @@
 			id: 'name',
 			accessorFn: (row) => row.name,
 			header: () => 'Name',
-			cell: (info) => cellComponent(CharacterName, { character: info.row.original })
+			cell: (info) =>
+				cellComponent(CharacterName, { realm: data.realm, character: info.row.original })
 		},
 
 		{
@@ -192,7 +193,9 @@
 		<dl>
 			<dt>Boss</dt>
 			<dd>
-				<Link href={links.boss(data.bosskill.entry, { difficulty: data.bosskill.mode })}>
+				<Link
+					href={links.boss(data.realm, data.bosskill.entry, { difficulty: data.bosskill.mode })}
+				>
 					{data.boss.name}
 				</Link>
 				- <LinkExternal href={links.twinstarNPC(data.bosskill.entry)}>Twinhead</LinkExternal>

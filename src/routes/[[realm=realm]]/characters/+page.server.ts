@@ -1,7 +1,8 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
+import { links } from '$lib/links';
 export const actions: Actions = {
-	select: async ({ request, cookies }) => {
+	select: async ({ request, cookies, params }) => {
 		const form = await request.formData();
 		const character = String(form.get('character') ?? '').trim();
 
@@ -15,6 +16,6 @@ export const actions: Actions = {
 		throw redirect(303, redirectUrl);
 		*/
 
-		throw redirect(303, `/character/${character}`);
+		throw redirect(303, links.character(params.realm!, character));
 	}
 } satisfies Actions;

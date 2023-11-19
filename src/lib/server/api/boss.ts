@@ -3,20 +3,15 @@ import { prepareData, type PreparedData } from '$lib/components/echart/boxplot';
 import { mutateCharacter, type Boss, type Character } from '$lib/model';
 import { REALM_HELIOS } from '$lib/realm';
 import { withCache } from '../cache';
-import {
-	getBossKillDetail,
-	getLatestBossKills,
-	listAllLatestBossKills,
-	type BossKillQueryArgs,
-	type LatestBossKillQueryArgs
-} from './boss-kills';
+import { listAllLatestBossKills, type LatestBossKillQueryArgs } from './boss-kills';
 import { FilterOperator, queryString, type QueryArgs } from './filter';
 import { getRaids } from './raid';
 
-export const getBoss = async (id: number): Promise<Boss | null> => {
+type GetBossArgs = { realm?: string; id: number };
+export const getBoss = async ({ id, realm = REALM_HELIOS }: GetBossArgs): Promise<Boss | null> => {
 	const fallback = async () => {
 		try {
-			const raids = await getRaids();
+			const raids = await getRaids({ realm });
 			for (const raid of raids) {
 				for (const boss of raid.bosses) {
 					if (boss.entry === id) {
@@ -32,7 +27,7 @@ export const getBoss = async (id: number): Promise<Boss | null> => {
 		return null;
 	};
 
-	return withCache({ deps: [`boss`, id], fallback, defaultValue: null });
+	return withCache({ deps: [`boss`, realm, id], fallback, defaultValue: null });
 };
 
 type BossStats = {
@@ -40,65 +35,10 @@ type BossStats = {
 	bySpec: Record<number, Character[]>;
 };
 const EMPTY_STATS: BossStats = { byClass: {}, bySpec: {} };
-export const getBossStats = async (id: number): Promise<BossStats> => {
-	const q: BossKillQueryArgs = {
-		page: 0,
-		pageSize: 100,
-		filters: [
-			{
-				column: 'entry',
-				operator: FilterOperator.EQUALS,
-				value: id
-			}
-			// this break API
-			/*
-			{
-				column: 'difficulty',
-				operator: FilterOperator.IN,
-				value: [
-					Difficulty.DIFFICULTY_10_N,
-					Difficulty.DIFFICULTY_10_HC,
-					Difficulty.DIFFICULTY_25_N,
-					Difficulty.DIFFICULTY_25_HC
-				]
-			}
-			*/
-		]
-	};
-
-	const fallback = async (): Promise<BossStats> => {
-		try {
-			const bosskills = await getLatestBossKills(q);
-			// TODO: byDifficulty
-			const byClass: BossStats['byClass'] = {};
-			const bySpec: BossStats['bySpec'] = {};
-			const details = await Promise.all(bosskills.data.map((bk) => getBossKillDetail(bk.id)));
-			for (const detail of details) {
-				if (detail) {
-					for (const character of detail.boss_kills_players) {
-						// TODO: this eats memory
-						byClass[character.class] ??= [];
-						bySpec[character.talent_spec] ??= [];
-
-						byClass[character.class]!.push(character);
-						bySpec[character.talent_spec]!.push(character);
-					}
-				}
-			}
-			return { byClass, bySpec };
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	};
-
-	return withCache({ deps: [`boss-stats`, q], fallback, defaultValue: EMPTY_STATS });
-};
-
 type BossStatsQueryArgs = Pick<
 	QueryArgs<'dmgDone' | 'healingDone' | 'dps' | 'hps'>,
 	'sorter' | 'difficulty' | 'pageSize' | 'talentSpec'
->;
+> & { realm: string };
 export const getBossStatsV2 = async (id: number, qa: BossStatsQueryArgs): Promise<BossStats> => {
 	const q: BossStatsQueryArgs = {
 		sorter: {
@@ -118,7 +58,7 @@ export const getBossStatsV2 = async (id: number, qa: BossStatsQueryArgs): Promis
 			const data: Character[] = await r.json();
 
 			for (const character of data) {
-				mutateCharacter(character);
+				mutateCharacter(q.realm, character);
 				// TODO: this eats memory
 				byClass[character.class] ??= [];
 				bySpec[character.talent_spec] ??= [];
@@ -136,7 +76,12 @@ export const getBossStatsV2 = async (id: number, qa: BossStatsQueryArgs): Promis
 	return withCache({ deps: [`boss-stats-v2`, id, q], fallback, defaultValue: EMPTY_STATS });
 };
 
-export const getBossKillsWipesTimes = async (id: number, mode: number | null) => {
+type GetBossKillsWipesTimesArgs = {
+	realm: string;
+	id: number;
+	mode: number | null;
+};
+export const getBossKillsWipesTimes = async ({ realm, id, mode }: GetBossKillsWipesTimesArgs) => {
 	const fallback = async () => {
 		const filters: LatestBossKillQueryArgs['filters'] = [
 			{
@@ -150,6 +95,7 @@ export const getBossKillsWipesTimes = async (id: number, mode: number | null) =>
 			filters.push({ column: 'mode', operator: FilterOperator.EQUALS, value: mode });
 		}
 		const bosskills = await listAllLatestBossKills({
+			realm,
 			filters
 		});
 
@@ -205,23 +151,25 @@ export const getBossKillsWipesTimes = async (id: number, mode: number | null) =>
 		};
 	};
 	return withCache({
-		deps: ['boss-kwt', id, mode],
+		deps: ['boss-kwt', realm, id, mode],
 		fallback,
 		defaultValue: null
 	});
 };
 
 type IndexToSpecId = Record<number, number>;
+type GetBossAggregatedStatsArgs = { realm: string; id: number; field: 'dps' | 'hps'; mode: number };
 export type BossAggregatedStats = { indexToSpecId: IndexToSpecId; prepared: PreparedData };
-export const getBossAggregatedStats = async (
-	id: number,
-	field: 'dps' | 'hps',
-	mode: number
-): Promise<BossAggregatedStats> => {
+export const getBossAggregatedStats = async ({
+	realm,
+	id,
+	field,
+	mode
+}: GetBossAggregatedStatsArgs): Promise<BossAggregatedStats> => {
 	const fallback = async () => {
 		// const items: { value: number; spec: number; label: string }[] = [];
 		type Item = { spec: number; talent_spec: number; dps?: string; hps?: string };
-		const url = `${TWINSTAR_API_URL}/bosskills/aggreggate?realm=${REALM_HELIOS}&entry=${id}&field=${field}&mode=${mode}`;
+		const url = `${TWINSTAR_API_URL}/bosskills/aggreggate?realm=${realm}&entry=${id}&field=${field}&mode=${mode}`;
 		try {
 			const r = await fetch(url);
 			const data: Item[] = await r.json();
@@ -303,7 +251,7 @@ export const getBossAggregatedStats = async (
 		}
 	};
 	return await withCache({
-		deps: ['boss-aggregated', id, field, mode],
+		deps: ['boss-aggregated', realm, id, field, mode],
 		fallback,
 		sliding: false,
 		defaultValue: { indexToSpecId: {}, prepared: { axisData: [], boxData: [], outliers: [] } }

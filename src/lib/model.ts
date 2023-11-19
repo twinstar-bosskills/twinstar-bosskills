@@ -26,7 +26,7 @@ export const mutateBossKill = <T extends BossKillDetail | BossKill>(item: T): T 
 	// @ts-ignore
 	if (Array.isArray(item.boss_kills_players)) {
 		for (const character of (item as BossKillDetail).boss_kills_players) {
-			mutateCharacter(character);
+			mutateCharacter(item.realm as string, character);
 		}
 	}
 
@@ -94,7 +94,7 @@ export type BosskillTimeline = {
 	raidHeal: string;
 };
 
-export const mutateCharacter = (character: Character): Character => {
+export const mutateCharacter = (realm: string, character: Character): Character => {
 	character.dmgDone = Number(character.dmgDone);
 	character.healingDone = Number(character.healingDone);
 	character.absorbDone = Number(character.absorbDone);
@@ -112,7 +112,7 @@ export const mutateCharacter = (character: Character): Character => {
 	character.raceIconUrl = getRaceIconUrl({ race: character.race, gender: character.gender });
 
 	character.talentSpecString = talentSpecToString(character.talent_spec);
-	character.talentSpecIconUrl = getTalentSpecIconUrl(character.talent_spec);
+	character.talentSpecIconUrl = getTalentSpecIconUrl(realm, character.talent_spec);
 	if (typeof character.boss_kills !== 'undefined') {
 		character.boss_kills = mutateBossKill(character.boss_kills);
 	}

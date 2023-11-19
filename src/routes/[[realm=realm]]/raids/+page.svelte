@@ -44,7 +44,9 @@
 								data.bosskillsByBossByDifficulty[boss.entry] ?? {}
 							)}
 							<li style="list-style-type: decimal; margin-top: 0.25rem;">
-								<Link href={links.boss(boss.entry)} style="font-size: 1.25rem">{boss.name}</Link>
+								<Link href={links.boss(data.realm, boss.entry)} style="font-size: 1.25rem"
+									>{boss.name}</Link
+								>
 								<span title="Number of kills during current raid lock">
 									<TextColorSuccess>
 										{data.bosskillsByBoss[boss.entry] ?? 0}

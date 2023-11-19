@@ -49,7 +49,7 @@ export const queryString = ({
 }: QueryArgs) => {
 	const q = new URLSearchParams();
 
-	q.append('realm', realm);
+	q.append('realm', (realm[0]?.toUpperCase() ?? '') + realm.slice(1));
 	if (typeof difficulty !== 'undefined') {
 		q.append('mode', String(difficulty));
 	}

@@ -5,18 +5,21 @@ import { getBoss } from '$lib/server/api';
 import { getCharacterPerformance } from '$lib/server/db/character';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { REALM_HELIOS } from '$lib/realm';
 
 export const load: PageServerLoad = async ({ params, url }) => {
+	const realm = params.realm ?? REALM_HELIOS;
 	const page = getPageFromURL(url);
 	const pageSize = getPageSizeFromURL(url, 20);
 	const name = params.name.charAt(0).toUpperCase() + params.name.slice(1);
 	const [data, total] = await Promise.all([
 		api.getCharacterBossKills({
+			realm,
 			name,
 			page,
 			pageSize
 		}),
-		api.getCharacterTotalBossKills({ name })
+		api.getCharacterTotalBossKills({ realm, name })
 	]);
 
 	if (data.length === 0) {
@@ -61,7 +64,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	const bossById: Record<Boss['entry'], Boss> = {};
 	await Promise.all(
 		Object.values(bossIds).map((id) => {
-			return getBoss(id).then((boss) => {
+			return getBoss({ realm, id }).then((boss) => {
 				if (boss) {
 					bossById[boss.entry] = boss;
 				}

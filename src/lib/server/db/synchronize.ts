@@ -7,6 +7,7 @@ import type {
 	Character,
 	Raid
 } from '$lib/model';
+import { REALM_HELIOS } from '$lib/realm';
 import { eq } from 'drizzle-orm';
 import {
 	getBossKillDetail,
@@ -47,11 +48,12 @@ export const synchronize = async ({
 	page
 }: Args) => {
 	// TODO: better log
-	// TODO: better transactions
+	// TODO: realm
+	const realm = REALM_HELIOS;
 
 	onLog('start');
 	const playerIdByGUID: Record<number, number> = {};
-	const raids = await getRaids();
+	const raids = await getRaids({ realm });
 	let isLimited = false;
 	for (const raid of raids) {
 		safeGC();
@@ -65,6 +67,7 @@ export const synchronize = async ({
 
 			const query: LatestBossKillQueryArgs = {
 				cache: false,
+				realm,
 				filters: [{ column: 'entry', operator: FilterOperator.EQUALS, value: boss.entry }]
 			};
 
@@ -121,7 +124,7 @@ export const synchronize = async ({
 				});
 				const bosskillId = bkEnt.id;
 
-				const detail = await getBossKillDetail(bk.id);
+				const detail = await getBossKillDetail({ realm: realmEnt.name, id: bk.id });
 				if (detail) {
 					onLog(`${xOfY} Processing bosskill detail ${detail.id}`);
 

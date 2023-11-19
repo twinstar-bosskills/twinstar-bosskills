@@ -44,7 +44,7 @@
 		searchParams.set('spec', String(id));
 		specs.push({
 			id,
-			iconUrl: getTalentSpecIconUrl(id),
+			iconUrl: getTalentSpecIconUrl(data.realm, id),
 			href: `?${searchParams}`,
 			isActive
 		});
@@ -89,13 +89,11 @@
 						rank = index + 1;
 					}
 
-					return {
-						component: CharacterName,
-						props: {
-							character: info.row.original.char,
-							rank
-						}
-					};
+					return cellComponent(CharacterName, {
+						realm: data.realm,
+						character: info.row.original.char,
+						rank
+					});
 				}
 			},
 			{
@@ -148,7 +146,7 @@
 				id: 'detail',
 				cell: (info) => {
 					const bossKillId = info.row.original.char.boss_kills?.id;
-					return cellComponent(BossKillDetailLink, { id: bossKillId });
+					return cellComponent(BossKillDetailLink, { realm: data.realm, id: bossKillId });
 				},
 				header: () => 'Details',
 				enableSorting: false
@@ -231,6 +229,7 @@
 
 <h2>DPS by Talent Spec</h2>
 <BossPerformanceBoxChart
+	realm={data.realm}
 	width={data.windowInnerWidth}
 	field="dps"
 	aggregated={data.aggregated.dps}
@@ -238,6 +237,7 @@
 
 <h2>HPS by Talent Spec</h2>
 <BossPerformanceBoxChart
+	realm={data.realm}
 	width={data.windowInnerWidth}
 	field="hps"
 	aggregated={data.aggregated.hps}
