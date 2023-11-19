@@ -4,13 +4,14 @@ import { listAllLatestBossKills } from '$lib/server/api';
 import { FilterOperator } from '$lib/server/api/filter';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ params }) => {
 	const now = new Date();
 	const { start: thisRaidLockStart, end: thisRaidLockEnd } = raidLock(now);
 
 	const [raids, bosskills] = await Promise.all([
-		api.getRaids(),
+		api.getRaids({ realm: params.realm }),
 		listAllLatestBossKills({
+			realm: params.realm,
 			pageSize: 10_000,
 			filters: [
 				{ column: 'time', operator: FilterOperator.GTE, value: thisRaidLockStart },

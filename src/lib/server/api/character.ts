@@ -6,7 +6,7 @@ import { listAll } from './pagination';
 import type { PaginatedResponse } from './response';
 
 // /bosskills/player?map=<mapa>&mode=<obtiznost>&page=<stranka>&pageSize=<velikost>&(guid=<guid> or name=<name>)
-type CharacterQueryArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'>;
+type CharacterQueryArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'> & { realm: string };
 export const getCharacterBossKills = async (q: CharacterQueryArgs): Promise<Character[]> => {
 	const url = `${TWINSTAR_API_URL}/bosskills/player?${queryString(q)}`;
 	const fallback = async () => {
@@ -19,7 +19,7 @@ export const getCharacterBossKills = async (q: CharacterQueryArgs): Promise<Char
 
 			const data = items.data;
 			for (const item of items.data) {
-				mutateCharacter(item);
+				mutateCharacter(q.realm, item);
 			}
 
 			return data;
@@ -33,7 +33,10 @@ export const getCharacterBossKills = async (q: CharacterQueryArgs): Promise<Char
 };
 
 type CharacterTotalBossKillsArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'>;
-export const getCharacterTotalBossKills = async (q: { name: string }): Promise<number> => {
+export const getCharacterTotalBossKills = async (q: {
+	realm: string;
+	name: string;
+}): Promise<number> => {
 	const fetchPlayer = async ({ page, pageSize, ...rest }: CharacterTotalBossKillsArgs) => {
 		const url = `${TWINSTAR_API_URL}/bosskills/player?${queryString({ ...rest, page, pageSize })}`;
 		try {

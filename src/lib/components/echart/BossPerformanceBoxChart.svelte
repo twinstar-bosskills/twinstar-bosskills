@@ -9,7 +9,9 @@
 	import type { BossAggregatedStats } from '$lib/server/api';
 	import { getTalentSpecIconUrl } from '$lib/talent';
 	import Chart from './Chart.svelte';
+	import { REALM_HELIOS } from '$lib/realm';
 
+	export let realm: string = REALM_HELIOS;
 	export let width: number | undefined = undefined;
 	export let aggregated: BossAggregatedStats;
 	export let field = 'dps';
@@ -24,7 +26,7 @@
 			height: 24,
 			align: 'right',
 			backgroundColor: {
-				image: getTalentSpecIconUrl(spec)
+				image: getTalentSpecIconUrl(realm, spec)
 			}
 		};
 	}

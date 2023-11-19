@@ -5,7 +5,7 @@ import * as api from '$lib/server/api';
 import { FilterOperator } from '$lib/server/api/filter';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ url, request }) => {
+export const load: PageServerLoad = async ({ url, params }) => {
 	const page = getPageFromURL(url);
 	const pageSize = getPageSizeFromURL(url);
 
@@ -35,13 +35,15 @@ export const load: PageServerLoad = async ({ url, request }) => {
 		});
 	}
 
+	const realm = params.realm;
 	const [latestData, raidData] = await Promise.all([
 		api.getLatestBossKills({
+			realm,
 			page,
 			pageSize,
 			filters
 		}),
-		api.getRaids()
+		api.getRaids({ realm })
 	]);
 
 	return {

@@ -24,7 +24,7 @@
 			id: 'boss',
 			accessorFn: (row) => row.creature_name ?? row.entry,
 			header: () => 'Boss',
-			cell: (info) => cellComponent(Boss, { bosskill: info.row.original })
+			cell: (info) => cellComponent(Boss, { realm: data.realm, bosskill: info.row.original })
 		},
 		{
 			id: 'raid',
@@ -62,7 +62,8 @@
 		{
 			id: 'fightDetails',
 			header: () => 'Fight Details',
-			cell: (info) => cellComponent(FightDetails, { bosskill: info.row.original }),
+			cell: (info) =>
+				cellComponent(FightDetails, { realm: data.realm, bosskill: info.row.original }),
 			enableSorting: false
 		}
 	];
@@ -74,7 +75,7 @@
 </svelte:head>
 <h1>Latest Bosskills</h1>
 <div style="margin-bottom: 1rem;">
-	<FilterForm data={data.form.data} values={data.form.values} />
+	<FilterForm realm={data.realm} data={data.form.data} values={data.form.values} />
 </div>
 <div>
 	<Table
@@ -84,7 +85,7 @@
 	>
 		<svelte:fragment slot="pagination">
 			<Pagination
-				path={links.BOSS_KILLS}
+				path={links.bossKills(data.realm)}
 				searchParams={$page.url.searchParams}
 				page={page_}
 				{pageSize}

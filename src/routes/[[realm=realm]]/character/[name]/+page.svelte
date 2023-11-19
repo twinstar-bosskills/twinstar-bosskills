@@ -34,7 +34,8 @@
 				return data.bossById[entry]?.name ?? entry;
 			},
 			header: () => 'Boss',
-			cell: (info) => cellComponent(Boss, { bosskill: info.row.original.boss_kills })
+			cell: (info) =>
+				cellComponent(Boss, { realm: data.realm, bosskill: info.row.original.boss_kills })
 		},
 		{
 			id: 'difficulty',
@@ -100,7 +101,8 @@
 		{
 			id: 'fightDetails',
 			header: () => 'Fight Details',
-			cell: (info) => cellComponent(FightDetails, { bosskill: info.row.original.boss_kills! }),
+			cell: (info) =>
+				cellComponent(FightDetails, { realm: data.realm, bosskill: info.row.original.boss_kills! }),
 			enableSorting: false
 		}
 	];
@@ -124,7 +126,7 @@
 	<Table data={bosskills} columns={columnsUnknown} sorting={[{ id: 'killedAt', desc: true }]}>
 		<svelte:fragment slot="pagination">
 			<Pagination
-				path={links.character(data.name)}
+				path={links.character(data.realm, data.name)}
 				searchParams={$page.url.searchParams}
 				page={page_}
 				{pageSize}

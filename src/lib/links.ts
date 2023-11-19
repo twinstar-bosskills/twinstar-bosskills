@@ -16,14 +16,14 @@ const withSearchParams = (url: string, query: SearchParams) => {
 	return ps !== '' ? url + '?' + p.toString() : url;
 };
 const CHARACTERS = '/characters';
-const RAIDS = '/raids';
-const BOSS_KILLS = '/boss-kills';
-const character = (name: string) => `/character/${name}`;
-const boss = (id: number, params: SearchParams = {}) => {
-	const url = `/boss/${id}`;
+const raids = (realm: string) => `/${realm}/raids`;
+const bossKills = (realm: string) => `/${realm}/boss-kills`;
+const character = (realm: string, name: string) => `/${realm}/character/${name}`;
+const boss = (realm: string, id: number, params: SearchParams = {}) => {
+	const url = `/${realm}/boss/${id}`;
 	return withSearchParams(url, params);
 };
-const bossKill = (id: string) => `/boss-kills/${id}`;
+const bossKill = (realm: string, id: string) => `/${realm}/boss-kills/${id}`;
 const twinstarBossKill = (id: string) => {
 	const bkid = id.replace(`${REALM_HELIOS_ID}_`, '');
 	return `https://mop-twinhead.twinstar.cz/?boss-kill=${bkid}`;
@@ -35,8 +35,8 @@ export const twinstarGuild = (guild: string) =>
 	`https://mop-twinhead.twinstar.cz/?guild=${encodeURIComponent(guild)}&realm=${REALM_HELIOS}`;
 export const links = {
 	CHARACTERS,
-	RAIDS,
-	BOSS_KILLS,
+	raids,
+	bossKills,
 	character,
 	boss,
 	bossKill,

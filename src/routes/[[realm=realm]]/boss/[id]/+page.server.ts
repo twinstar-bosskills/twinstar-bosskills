@@ -6,21 +6,23 @@ import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 
 import type { PageServerLoad } from './$types';
+import { REALM_HELIOS } from '$lib/realm';
 const LIMIT = 200;
 export const load: PageServerLoad = async ({ url, params }) => {
 	const id = Number(params.id);
-	const boss = await api.getBoss(id);
+	const boss = await api.getBoss({ realm: params.realm, id });
 	if (!boss) {
 		throw error(404, {
 			message: 'Not found'
 		});
 	}
 
+	const realm = params.realm ?? REALM_HELIOS;
 	const mode = getDifficultyFromUrl(url) ?? DEFAULT_DIFFICULTY;
 	const [kw, dpsPrepared, hpsPrepared] = await Promise.all([
-		getBossKillsWipesTimes(id, mode),
-		api.getBossAggregatedStats(id, 'dps', mode),
-		api.getBossAggregatedStats(id, 'hps', mode)
+		getBossKillsWipesTimes({ realm, id, mode }),
+		api.getBossAggregatedStats({ realm, id, field: 'dps', mode }),
+		api.getBossAggregatedStats({ realm, id, field: 'hps', mode })
 	]);
 
 	type Stats = {
@@ -69,6 +71,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 
 	const [byDPS, byHPS] = await Promise.all([
 		api.getBossStatsV2(id, {
+			realm,
 			difficulty,
 			talentSpec,
 			pageSize: LIMIT,
@@ -78,6 +81,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 			}
 		}),
 		api.getBossStatsV2(id, {
+			realm,
 			difficulty,
 			talentSpec,
 			pageSize: LIMIT,

@@ -5,6 +5,7 @@ import { FilterOperator } from '$lib/server/api/filter';
 import { format } from 'date-fns';
 
 import type { PageServerLoad } from './$types';
+import { REALM_HELIOS } from '$lib/realm';
 type ByTime = Record<string, number>;
 type ByBoss = {
 	count: number;
@@ -102,13 +103,15 @@ const toRaidLockData = (data: BossKill[]): RaidLockData => {
 		wipePercentage
 	};
 };
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ params }) => {
 	const now = new Date();
 	const { start: thisRaidLockStart, end: thisRaidLockEnd } = raidLock(now);
 	const { start: lastRaidLockStart, end: lastRaidLockEnd } = raidLock(now, 1);
 
+	const realm = params.realm ?? REALM_HELIOS;
 	const [thisRaidLock, lastRaidLock] = await Promise.all([
 		listAllLatestBossKills({
+			realm,
 			pageSize: 10_000,
 			filters: [
 				{ column: 'time', operator: FilterOperator.GTE, value: thisRaidLockStart },
@@ -117,6 +120,7 @@ export const load: PageServerLoad = async () => {
 			cache: false
 		}).then(toRaidLockData),
 		listAllLatestBossKills({
+			realm,
 			pageSize: 10_000,
 			filters: [
 				{ column: 'time', operator: FilterOperator.GTE, value: lastRaidLockStart },

@@ -1,5 +1,6 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
 import type { Item, ItemTooltip } from '$lib/model';
+import { realmToExpansion } from '$lib/realm';
 import { withCache } from '../cache';
 
 const API_ITEM = {
@@ -176,11 +177,16 @@ export const getItemIconUrl = (id: number): string => {
 };
 export const getRemoteItemIconUrl = (id: number) => `${TWINSTAR_API_URL}/item/icon/${id}`;
 
-export const getItemTooltip = async (id: number): Promise<ItemTooltip | null> => {
+type GetItemTooltipArgs = { realm: string; id: number };
+export const getItemTooltip = async ({
+	realm,
+	id
+}: GetItemTooltipArgs): Promise<ItemTooltip | null> => {
+	const expansion = realmToExpansion(realm);
 	const fallback = async () => {
 		try {
 			// const r = await fetch(`https://mop-twinhead.twinstar.cz/?tooltip&type=item&id=${id}`);
-			const r = await fetch(`${TWINSTAR_API_URL}/item/tooltip?id=${id}&expansion=4`);
+			const r = await fetch(`${TWINSTAR_API_URL}/item/tooltip?id=${id}&expansion=${expansion}`);
 			const json = await r.json();
 			return json?.['data'] ?? null;
 		} catch (e) {
@@ -191,5 +197,5 @@ export const getItemTooltip = async (id: number): Promise<ItemTooltip | null> =>
 		// @ts-ignore
 		return null;
 	};
-	return withCache({ deps: [`item-tooltip`, id], fallback, defaultValue: null });
+	return withCache({ deps: [`item-tooltip`, expansion, id], fallback, defaultValue: null });
 };

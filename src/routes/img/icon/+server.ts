@@ -6,6 +6,7 @@ import { withCache } from '$lib/server/cache';
 import { getRemoteTalentSpecIconUrl } from '$lib/talent';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { REALM_HELIOS } from '$lib/realm';
 
 const getBlob = async (url: string): Promise<Blob | null> => {
 	const fallback = async () => {
@@ -26,6 +27,7 @@ const getBlob = async (url: string): Promise<Blob | null> => {
 };
 
 export const GET: RequestHandler = async ({ url }) => {
+	const realm = url.searchParams.get('realm') ?? REALM_HELIOS;
 	const type = url.searchParams.get('type') ?? '';
 	let id: string | number = url.searchParams.get('id') ?? '';
 	if (type !== 'race' && type !== 'raid') {
@@ -39,7 +41,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	if (type === 'item') {
 		iconUrl = getRemoteItemIconUrl(id as number);
 	} else if (type === 'talent') {
-		iconUrl = getRemoteTalentSpecIconUrl(id as number);
+		iconUrl = getRemoteTalentSpecIconUrl(realm, id as number);
 	} else if (type === 'class') {
 		iconUrl = getRemoteClassIconUrl(id as number);
 	} else if (type === 'race') {
