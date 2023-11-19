@@ -1,9 +1,12 @@
 <script lang="ts">
+	import { REALM_HELIOS } from '$lib/realm';
+
+	export let realm: string = REALM_HELIOS;
 	export let redirectUrl: string = '/';
 	export let character: string = '';
 </script>
 
-<form method="POST" action="/characters?/select">
+<form method="POST" action="/{realm}/characters?/select">
 	<label for="character"> Character </label>
 	<input type="text" id="character" name="character" value={character} />
 	<input type="hidden" name="redirectUrl" value={redirectUrl} />
