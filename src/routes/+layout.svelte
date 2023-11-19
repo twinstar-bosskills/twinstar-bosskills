@@ -12,7 +12,7 @@
 	<nav>
 		<ul>
 			<li>
-				<Link href="/">Home</Link>
+				<Link href="/{data.realm}">Home</Link>
 			</li>
 			<li>
 				<Link href={links.bossKills(data.realm)}>Latest</Link>
