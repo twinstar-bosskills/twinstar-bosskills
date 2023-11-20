@@ -73,6 +73,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	);
 
 	const performance = getCharacterPerformance({
+		realm,
 		guid,
 		startDate,
 		endDate

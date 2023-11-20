@@ -1,12 +1,12 @@
-import { Difficulty, type Character } from '$lib/model';
-import { DEFAULT_DIFFICULTY, getDifficultyFromUrl } from '$lib/search-params';
+import { type Character, defaultDifficultyByExpansion } from '$lib/model';
+import { getDifficultyFromUrl } from '$lib/search-params';
 import * as api from '$lib/server/api';
 import { getBossKillsWipesTimes } from '$lib/server/api';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 
 import type { PageServerLoad } from './$types';
-import { REALM_HELIOS } from '$lib/realm';
+import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 const LIMIT = 200;
 export const load: PageServerLoad = async ({ url, params }) => {
 	const id = Number(params.id);
@@ -18,7 +18,8 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	}
 
 	const realm = params.realm ?? REALM_HELIOS;
-	const mode = getDifficultyFromUrl(url) ?? DEFAULT_DIFFICULTY;
+	const expansion = realmToExpansion(realm);
+	const mode = getDifficultyFromUrl(url) ?? defaultDifficultyByExpansion(expansion);
 	const [kw, dpsPrepared, hpsPrepared] = await Promise.all([
 		getBossKillsWipesTimes({ realm, id, mode }),
 		api.getBossAggregatedStats({ realm, id, field: 'dps', mode }),
@@ -56,7 +57,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	*/
 
 	const difficultyStr = url.searchParams.get('difficulty');
-	let difficulty: number | undefined = Difficulty.DIFFICULTY_10_N;
+	let difficulty: number | undefined = defaultDifficultyByExpansion(expansion);
 	if (difficultyStr !== null) {
 		const v = Number(difficultyStr);
 		difficulty = isFinite(v) ? v : difficulty;

@@ -1,6 +1,3 @@
-import { Difficulty } from './model';
-
-export const DEFAULT_DIFFICULTY = Difficulty.DIFFICULTY_10_N;
 export const getDifficulty = (v: string | number | null): number | null => {
 	if (v === null) {
 		return v;

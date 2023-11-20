@@ -8,6 +8,8 @@
 
 	export let data: PageData;
 
+	const realm = data.realm;
+	const expansion = realmToExpansion(realm);
 	const title = `Boss Kill Details - ${data.bosskill.id}`;
 	const fightLength = data.bosskill.length;
 
@@ -34,6 +36,7 @@
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
 	import type { ColumnDef } from '@tanstack/svelte-table';
+	import { realmToExpansion } from '$lib/realm';
 
 	const charactersByGUID = data.bosskill.boss_kills_players?.reduce((acc, item) => {
 		acc[item.guid] = item;
@@ -186,7 +189,7 @@
 </svelte:head>
 <div class="title">
 	<h1>{title}</h1>
-	<LinkExternal href={links.twinstarBossKill(data.bosskill.id)}>Twinhead</LinkExternal>
+	<LinkExternal href={links.twinstarBossKill(realm, data.bosskill.id)}>Twinhead</LinkExternal>
 </div>
 <div class="grid">
 	<div class="grid-boss">
@@ -198,7 +201,7 @@
 				>
 					{data.boss.name}
 				</Link>
-				- <LinkExternal href={links.twinstarNPC(data.bosskill.entry)}>Twinhead</LinkExternal>
+				- <LinkExternal href={links.twinstarNPC(realm, data.bosskill.entry)}>Twinhead</LinkExternal>
 			</dd>
 
 			<dt>Raid</dt>
@@ -207,7 +210,7 @@
 			<dt>Guild</dt>
 			<dd>
 				{#if data.bosskill.guild != ''}
-					<LinkExternal href={links.twinstarGuild(data.bosskill.guild)}>
+					<LinkExternal href={links.twinstarGuild(realm, data.bosskill.guild)}>
 						{data.bosskill.guild}
 					</LinkExternal>
 				{:else}
@@ -240,7 +243,7 @@
 
 	<div class="grid-loot">
 		<h2>Boss Loot</h2>
-		{#if isRaidDifficultyWithLoot(data.bosskill.mode)}
+		{#if isRaidDifficultyWithLoot(expansion, data.bosskill.mode)}
 			<div class="loot" role="table">
 				{#each data.items as item, i}
 					{@const chance = data.lootChance[item.id] ?? null}

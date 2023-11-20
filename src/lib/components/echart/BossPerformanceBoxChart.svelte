@@ -9,13 +9,14 @@
 	import type { BossAggregatedStats } from '$lib/server/api';
 	import { getTalentSpecIconUrl } from '$lib/talent';
 	import Chart from './Chart.svelte';
-	import { REALM_HELIOS } from '$lib/realm';
+	import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 
 	export let realm: string = REALM_HELIOS;
 	export let width: number | undefined = undefined;
 	export let aggregated: BossAggregatedStats;
 	export let field = 'dps';
 
+	const expansion = realmToExpansion(realm);
 	echarts.use([TooltipComponent, GridComponent, BoxplotChart, SVGRenderer]);
 
 	// TextCommonOption
@@ -52,8 +53,8 @@
 
 				const spec = aggregated.indexToSpecId[index];
 				if (spec) {
-					const cls = talentSpecToClass(spec);
-					const specString = talentSpecToString(spec);
+					const cls = talentSpecToClass(expansion, spec);
+					const specString = talentSpecToString(expansion, spec);
 					return `
 					<div style="
 						background: rgba(var(--color-bg), 0.9);
@@ -110,7 +111,7 @@
 					const spec = aggregated.indexToSpecId?.[Number(i)] ?? null;
 					let cls = null;
 					if (spec) {
-						cls = talentSpecToClass(spec);
+						cls = talentSpecToClass(expansion, spec);
 						return `var(--color-class-${cls})`;
 					}
 					return `var(--color-fg)`;
@@ -119,7 +120,7 @@
 				formatter: (v) => {
 					const spec = aggregated.indexToSpecId?.[Number(v)] ?? null;
 					if (spec) {
-						return talentSpecToString(spec) + ' {' + v + '|}';
+						return talentSpecToString(expansion, spec) + ' {' + v + '|}';
 					}
 					return v;
 				}

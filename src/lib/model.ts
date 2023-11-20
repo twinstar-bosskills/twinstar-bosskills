@@ -1,5 +1,6 @@
 import { getClassIconUrl } from './class';
 import { getRaceIconUrl } from './race';
+import { expansionIsCata, expansionIsMoP, realmToExpansion } from './realm';
 import { getTalentSpecIconUrl } from './talent';
 
 export type BossKill = {
@@ -21,12 +22,15 @@ export type BossKill = {
 	difficulty: string;
 };
 export const mutateBossKill = <T extends BossKillDetail | BossKill>(item: T): T => {
-	item.difficulty = difficultyToString(item.mode);
+	const realm = item.realm as string;
+	const expansion = realmToExpansion(realm);
+
+	item.difficulty = difficultyToString(expansion, item.mode);
 
 	// @ts-ignore
 	if (Array.isArray(item.boss_kills_players)) {
 		for (const character of (item as BossKillDetail).boss_kills_players) {
-			mutateCharacter(item.realm as string, character);
+			mutateCharacter(realm, character);
 		}
 	}
 
@@ -111,7 +115,7 @@ export const mutateCharacter = (realm: string, character: Character): Character 
 	character.raceString = raceToString(character.race);
 	character.raceIconUrl = getRaceIconUrl({ race: character.race, gender: character.gender });
 
-	character.talentSpecString = talentSpecToString(character.talent_spec);
+	character.talentSpecString = talentSpecToString(realmToExpansion(realm), character.talent_spec);
 	character.talentSpecIconUrl = getTalentSpecIconUrl(realm, character.talent_spec);
 	if (typeof character.boss_kills !== 'undefined') {
 		character.boss_kills = mutateBossKill(character.boss_kills);
@@ -166,7 +170,7 @@ export type Raid = {
 	bosses: Boss[];
 };
 
-export const Difficulty = {
+const DifficultyMoP = {
 	DIFFICULTY_NONE: 0,
 
 	DIFFICULTY_NORMAL: 1,
@@ -184,37 +188,143 @@ export const Difficulty = {
 
 	MAX_DIFFICULTY: 15
 };
-const DIFFICULTY_TO_STRING = {
-	[Difficulty.DIFFICULTY_NONE]: 'None',
-	[Difficulty.DIFFICULTY_NORMAL]: 'N',
-	[Difficulty.DIFFICULTY_HEROIC]: 'HC',
-	[Difficulty.DIFFICULTY_10_N]: '10 N',
-	[Difficulty.DIFFICULTY_25_N]: '25 N',
-	[Difficulty.DIFFICULTY_10_HC]: '10 HC',
-	[Difficulty.DIFFICULTY_25_HC]: '25 HC',
-	[Difficulty.DIFFICULTY_LFR]: 'LFR',
-	[Difficulty.DIFFICULTY_CHALLENGE]: 'Challenge',
-	[Difficulty.DIFFICULTY_40]: '40',
-	[Difficulty.DIFFICULTY_HC_SCENARIO]: 'Scenario HC',
-	[Difficulty.DIFFICULTY_N_SCENARIO]: 'Scenario N',
-	[Difficulty.DIFFICULTY_FLEX]: 'Flex',
-	[Difficulty.MAX_DIFFICULTY]: 'Max'
+
+const DifficultyCata = {
+	// DIFFICULTY_REGULAR: 0,
+
+	// DIFFICULTY_NORMAL: 0,
+	// DIFFICULTY_HEROIC: 1,
+	// DIFFICULTY_EPIC: 2,
+
+	DIFFICULTY_10_N: 0,
+	DIFFICULTY_25_N: 1,
+	DIFFICULTY_10_HC: 2,
+	DIFFICULTY_25_HC: 3
 };
 
-export const difficultyToString = (diff: string | number): string => {
-	return DIFFICULTY_TO_STRING[diff as number] ?? 'None';
+export const defaultDifficultyByExpansion = (expansion: number): number => {
+	if (expansionIsMoP(expansion)) {
+		return DifficultyMoP.DIFFICULTY_10_N;
+	}
+
+	if (expansionIsCata(expansion)) {
+		return DifficultyCata.DIFFICULTY_10_N;
+	}
+
+	return 0;
 };
-export const isRaidDifficulty = (diff: number) => {
-	return isRaidDifficultyWithLoot(diff) || diff === Difficulty.DIFFICULTY_LFR;
+
+export const difficultiesByExpansion = (
+	expansion: number
+): typeof DifficultyMoP | typeof DifficultyCata | null => {
+	if (expansionIsMoP(expansion)) {
+		return DifficultyMoP;
+	}
+
+	if (expansionIsCata(expansion)) {
+		return DifficultyCata;
+	}
+
+	return null;
 };
-export const isRaidDifficultyWithLoot = (diff: number) => {
+
+export const getPerformaceDifficultiesByExpansion = (expansion: number): number[] => {
+	if (expansionIsMoP(expansion)) {
+		return [
+			DifficultyMoP.DIFFICULTY_10_N,
+			DifficultyMoP.DIFFICULTY_10_HC,
+			DifficultyMoP.DIFFICULTY_25_N,
+			DifficultyMoP.DIFFICULTY_25_HC
+		];
+	}
+
+	if (expansionIsCata(expansion)) {
+		return [
+			DifficultyCata.DIFFICULTY_10_N,
+			DifficultyCata.DIFFICULTY_10_HC,
+			DifficultyCata.DIFFICULTY_25_N,
+			DifficultyCata.DIFFICULTY_25_HC
+		];
+	}
+
+	return [];
+};
+
+const DIFFICULTY_MOP_TO_STRING = {
+	[DifficultyMoP.DIFFICULTY_NONE]: 'None',
+	[DifficultyMoP.DIFFICULTY_NORMAL]: 'N',
+	[DifficultyMoP.DIFFICULTY_HEROIC]: 'HC',
+	[DifficultyMoP.DIFFICULTY_10_N]: '10 N',
+	[DifficultyMoP.DIFFICULTY_25_N]: '25 N',
+	[DifficultyMoP.DIFFICULTY_10_HC]: '10 HC',
+	[DifficultyMoP.DIFFICULTY_25_HC]: '25 HC',
+	[DifficultyMoP.DIFFICULTY_LFR]: 'LFR',
+	[DifficultyMoP.DIFFICULTY_CHALLENGE]: 'Challenge',
+	[DifficultyMoP.DIFFICULTY_40]: '40',
+	[DifficultyMoP.DIFFICULTY_HC_SCENARIO]: 'Scenario HC',
+	[DifficultyMoP.DIFFICULTY_N_SCENARIO]: 'Scenario N',
+	[DifficultyMoP.DIFFICULTY_FLEX]: 'Flex',
+	[DifficultyMoP.MAX_DIFFICULTY]: 'Max'
+};
+
+const DIFFICULTY_CATA_TO_STRING = {
+	// [DifficultyCata.DIFFICULTY_REGULAR]: 'Regular',
+	// [DifficultyCata.DIFFICULTY_NORMAL]: 'N',
+	// [DifficultyCata.DIFFICULTY_HEROIC]: 'HC',
+	[DifficultyCata.DIFFICULTY_10_N]: '10 N',
+	[DifficultyCata.DIFFICULTY_25_N]: '25 N',
+	[DifficultyCata.DIFFICULTY_10_HC]: '10 HC',
+	[DifficultyCata.DIFFICULTY_25_HC]: '25 HC'
+};
+export const difficultyToString = (expansion: number, diff: string | number): string => {
+	if (expansionIsMoP(expansion)) {
+		return DIFFICULTY_MOP_TO_STRING[diff as number] ?? 'None';
+	}
+
+	if (expansionIsCata(expansion)) {
+		return DIFFICULTY_CATA_TO_STRING[diff as number] ?? 'None';
+	}
+	return 'None';
+};
+
+const isRaidDifficultyMoP = (diff: number) => {
 	return (
-		diff === Difficulty.DIFFICULTY_10_N ||
-		diff === Difficulty.DIFFICULTY_10_HC ||
-		diff === Difficulty.DIFFICULTY_25_N ||
-		diff === Difficulty.DIFFICULTY_25_HC ||
-		diff === Difficulty.DIFFICULTY_FLEX
+		diff === DifficultyMoP.DIFFICULTY_10_N ||
+		diff === DifficultyMoP.DIFFICULTY_10_HC ||
+		diff === DifficultyMoP.DIFFICULTY_25_N ||
+		diff === DifficultyMoP.DIFFICULTY_25_HC ||
+		diff === DifficultyMoP.DIFFICULTY_LFR ||
+		diff === DifficultyMoP.DIFFICULTY_FLEX
 	);
+};
+
+const isRaidDifficultyCata = (diff: number) => {
+	return (
+		diff === DifficultyCata.DIFFICULTY_10_N ||
+		diff === DifficultyCata.DIFFICULTY_10_HC ||
+		diff === DifficultyCata.DIFFICULTY_25_N ||
+		diff === DifficultyCata.DIFFICULTY_25_HC
+	);
+};
+export const isRaidDifficulty = (expansion: number, diff: number) => {
+	if (expansionIsMoP(expansion)) {
+		return isRaidDifficultyMoP(diff);
+	}
+
+	if (expansionIsCata(expansion)) {
+		return isRaidDifficultyCata(diff);
+	}
+	return false;
+};
+export const isRaidDifficultyWithLoot = (expansion: number, diff: number) => {
+	if (expansionIsMoP(expansion)) {
+		return isRaidDifficultyMoP(diff) && diff !== DifficultyMoP.DIFFICULTY_LFR;
+	}
+
+	if (expansionIsCata(expansion)) {
+		return isRaidDifficultyCata(diff);
+	}
+	return false;
 };
 enum Class {
 	WARRIOR = 1,
@@ -286,7 +396,10 @@ export const raceToString = (race: number): string => {
 	return RACE_TO_STRING[race as Race] ?? 'Unknown race';
 };
 
-export const TalentSpec = {
+/**
+ * @link https://wow.tools/dbc/?dbc=chrspecialization&build=5.4.8.18273#page=1
+ */
+export const TalentSpecMoP = {
 	MAGE_ARCANE: 62,
 	MAGE_FIRE: 63,
 	MAGE_FROST: 64,
@@ -331,103 +444,268 @@ export const TalentSpec = {
 	MONK_BREWMASTER: 268,
 	MONK_WINDWALKER: 269,
 	MONK_MISTWEAVER: 270
-
-	// TODO: https://wow.tools/dbc/?dbc=chrspecialization&build=5.4.8.18273#page=1
-};
-const TALENT_SPEC_TO_STRING = {
-	[TalentSpec.MAGE_ARCANE]: 'Arcane',
-	[TalentSpec.MAGE_FIRE]: 'Fire',
-	[TalentSpec.MAGE_FROST]: 'Frost (Mage)',
-	[TalentSpec.PALADIN_HOLY]: 'Holy (Paladin)',
-	[TalentSpec.PALADIN_PROT]: 'Protection (Paladin)',
-	[TalentSpec.PALADIN_RET]: 'Retribution',
-	[TalentSpec.WARR_ARMS]: 'Arms',
-	[TalentSpec.WARR_FURY]: 'Fury',
-	[TalentSpec.WARR_PROT]: 'Protection (Warrior)',
-	[TalentSpec.DRUID_BALA]: 'Balance',
-	[TalentSpec.DRUID_CAT]: 'Feral',
-	[TalentSpec.DRUID_BEAR]: 'Guardian',
-	[TalentSpec.DRUID_RESTO]: 'Restoration (Druid)',
-	[TalentSpec.DK_BLOOD]: 'Blood',
-	[TalentSpec.DK_FROST]: 'Frost (Death Knight)',
-	[TalentSpec.DK_UNHOLY]: 'Unholy',
-	[TalentSpec.HUNTER_BM]: 'Beast Mastery',
-	[TalentSpec.HUNTER_MM]: 'Marksmanship',
-	[TalentSpec.HUNTER_SURV]: 'Survival',
-	[TalentSpec.PRIEST_DISC]: 'Discipline',
-	[TalentSpec.PRIEST_HOLY]: 'Holy (Priest)',
-	[TalentSpec.PRIEST_SHADOW]: 'Shadow',
-	[TalentSpec.ROGUE_ASSA]: 'Assasination',
-	[TalentSpec.ROGUE_COMBAT]: 'Combat',
-	[TalentSpec.ROGUE_SUB]: 'Subtlety',
-	[TalentSpec.SHAMAN_ELE]: 'Elemental',
-	[TalentSpec.SHAMAN_ENHA]: 'Enhancement',
-	[TalentSpec.SHAMAN_RESTO]: 'Restoration (Shaman)',
-	[TalentSpec.WARLOCK_AFFLI]: 'Affliction',
-	[TalentSpec.WARLOCK_DEMO]: 'Demonology',
-	[TalentSpec.WARLOCK_DESTO]: 'Destruction',
-	[TalentSpec.MONK_BREWMASTER]: 'Brewmaster',
-	[TalentSpec.MONK_WINDWALKER]: 'Windwalker',
-	[TalentSpec.MONK_MISTWEAVER]: 'Mistweaver'
 };
 
-export const talentSpecToString = (spec: number): string => {
-	return TALENT_SPEC_TO_STRING[spec] ?? 'Unknown spec';
+/**
+ * @link https://wow.tools/dbc/?dbc=talenttab&build=4.3.4.15595#page=1
+ */
+export const TalentSpecCata = {
+	MAGE_ARCANE: 799,
+	MAGE_FIRE: 851,
+	MAGE_FROST: 823,
+
+	WARR_ARMS: 746,
+	WARR_FURY: 815,
+	WARR_PROT: 845,
+
+	PALADIN_HOLY: 831,
+	PALADIN_PROT: 839,
+	PALADIN_RET: 855,
+
+	DRUID_RESTO: 748,
+	DRUID_BALA: 752,
+	DRUID_FERAL: 750,
+
+	DK_BLOOD: 398,
+	DK_FROST: 399,
+	DK_UNHOLY: 400,
+
+	HUNTER_BM: 811,
+	HUNTER_MM: 807,
+	HUNTER_SURV: 809,
+
+	PRIEST_DISC: 760,
+	PRIEST_HOLY: 813,
+	PRIEST_SHADOW: 795,
+
+	ROGUE_ASSA: 181,
+	ROGUE_COMBAT: 182,
+	ROGUE_SUB: 183,
+
+	SHAMAN_ELE: 261,
+	SHAMAN_ENHA: 263,
+	SHAMAN_RESTO: 262,
+
+	WARLOCK_AFFLI: 871,
+	WARLOCK_DEMO: 867,
+	WARLOCK_DESTO: 865
 };
 
-export const TALENT_SPEC_TO_CLASS = {
-	[TalentSpec.MAGE_ARCANE]: Class.MAGE,
-	[TalentSpec.MAGE_FIRE]: Class.MAGE,
-	[TalentSpec.MAGE_FROST]: Class.MAGE,
+export const talentSpecsByExpansion = (
+	expansion: number
+): typeof TalentSpecMoP | typeof TalentSpecCata | null => {
+	if (expansionIsMoP(expansion)) {
+		return TalentSpecMoP;
+	}
 
-	[TalentSpec.PALADIN_HOLY]: Class.PALADIN,
-	[TalentSpec.PALADIN_PROT]: Class.PALADIN,
-	[TalentSpec.PALADIN_RET]: Class.PALADIN,
+	if (expansionIsCata(expansion)) {
+		return TalentSpecCata;
+	}
 
-	[TalentSpec.WARR_ARMS]: Class.WARRIOR,
-	[TalentSpec.WARR_FURY]: Class.WARRIOR,
-	[TalentSpec.WARR_PROT]: Class.WARRIOR,
-
-	[TalentSpec.DRUID_BALA]: Class.DRUID,
-	[TalentSpec.DRUID_CAT]: Class.DRUID,
-	[TalentSpec.DRUID_BEAR]: Class.DRUID,
-	[TalentSpec.DRUID_RESTO]: Class.DRUID,
-
-	[TalentSpec.DK_BLOOD]: Class.DK,
-	[TalentSpec.DK_FROST]: Class.DK,
-	[TalentSpec.DK_UNHOLY]: Class.DK,
-
-	[TalentSpec.HUNTER_BM]: Class.HUNTER,
-	[TalentSpec.HUNTER_MM]: Class.HUNTER,
-	[TalentSpec.HUNTER_SURV]: Class.HUNTER,
-
-	[TalentSpec.PRIEST_DISC]: Class.PRIEST,
-	[TalentSpec.PRIEST_HOLY]: Class.PRIEST,
-	[TalentSpec.PRIEST_SHADOW]: Class.PRIEST,
-
-	[TalentSpec.ROGUE_ASSA]: Class.ROGUE,
-	[TalentSpec.ROGUE_COMBAT]: Class.ROGUE,
-	[TalentSpec.ROGUE_SUB]: Class.ROGUE,
-
-	[TalentSpec.SHAMAN_ELE]: Class.SHAMAN,
-	[TalentSpec.SHAMAN_ENHA]: Class.SHAMAN,
-	[TalentSpec.SHAMAN_RESTO]: Class.SHAMAN,
-
-	[TalentSpec.WARLOCK_AFFLI]: Class.WARLOCK,
-	[TalentSpec.WARLOCK_DEMO]: Class.WARLOCK,
-	[TalentSpec.WARLOCK_DESTO]: Class.WARLOCK,
-
-	[TalentSpec.MONK_BREWMASTER]: Class.MONK,
-	[TalentSpec.MONK_WINDWALKER]: Class.MONK,
-	[TalentSpec.MONK_MISTWEAVER]: Class.MONK
+	return null;
 };
 
-export const talentSpecToClass = (spec: number): number | null => {
-	return TALENT_SPEC_TO_CLASS[spec] ?? null;
+const TALENT_SPEC_MOP_TO_STRING = {
+	[TalentSpecMoP.MAGE_ARCANE]: 'Arcane',
+	[TalentSpecMoP.MAGE_FIRE]: 'Fire',
+	[TalentSpecMoP.MAGE_FROST]: 'Frost (Mage)',
+	[TalentSpecMoP.PALADIN_HOLY]: 'Holy (Paladin)',
+	[TalentSpecMoP.PALADIN_PROT]: 'Protection (Paladin)',
+	[TalentSpecMoP.PALADIN_RET]: 'Retribution',
+	[TalentSpecMoP.WARR_ARMS]: 'Arms',
+	[TalentSpecMoP.WARR_FURY]: 'Fury',
+	[TalentSpecMoP.WARR_PROT]: 'Protection (Warrior)',
+	[TalentSpecMoP.DRUID_BALA]: 'Balance',
+	[TalentSpecMoP.DRUID_CAT]: 'Feral',
+	[TalentSpecMoP.DRUID_BEAR]: 'Guardian',
+	[TalentSpecMoP.DRUID_RESTO]: 'Restoration (Druid)',
+	[TalentSpecMoP.DK_BLOOD]: 'Blood',
+	[TalentSpecMoP.DK_FROST]: 'Frost (Death Knight)',
+	[TalentSpecMoP.DK_UNHOLY]: 'Unholy',
+	[TalentSpecMoP.HUNTER_BM]: 'Beast Mastery',
+	[TalentSpecMoP.HUNTER_MM]: 'Marksmanship',
+	[TalentSpecMoP.HUNTER_SURV]: 'Survival',
+	[TalentSpecMoP.PRIEST_DISC]: 'Discipline',
+	[TalentSpecMoP.PRIEST_HOLY]: 'Holy (Priest)',
+	[TalentSpecMoP.PRIEST_SHADOW]: 'Shadow',
+	[TalentSpecMoP.ROGUE_ASSA]: 'Assasination',
+	[TalentSpecMoP.ROGUE_COMBAT]: 'Combat',
+	[TalentSpecMoP.ROGUE_SUB]: 'Subtlety',
+	[TalentSpecMoP.SHAMAN_ELE]: 'Elemental',
+	[TalentSpecMoP.SHAMAN_ENHA]: 'Enhancement',
+	[TalentSpecMoP.SHAMAN_RESTO]: 'Restoration (Shaman)',
+	[TalentSpecMoP.WARLOCK_AFFLI]: 'Affliction',
+	[TalentSpecMoP.WARLOCK_DEMO]: 'Demonology',
+	[TalentSpecMoP.WARLOCK_DESTO]: 'Destruction',
+	[TalentSpecMoP.MONK_BREWMASTER]: 'Brewmaster',
+	[TalentSpecMoP.MONK_WINDWALKER]: 'Windwalker',
+	[TalentSpecMoP.MONK_MISTWEAVER]: 'Mistweaver'
 };
 
-export const talentSpecToClassString = (spec: number): string => {
-	const cls = talentSpecToClass(spec);
+const TALENT_SPEC_CATA_TO_STRING = {
+	[TalentSpecCata.MAGE_ARCANE]: 'Arcane',
+	[TalentSpecCata.MAGE_FIRE]: 'Fire',
+	[TalentSpecCata.MAGE_FROST]: 'Frost (Mage)',
+	[TalentSpecCata.PALADIN_HOLY]: 'Holy (Paladin)',
+	[TalentSpecCata.PALADIN_PROT]: 'Protection (Paladin)',
+	[TalentSpecCata.PALADIN_RET]: 'Retribution',
+	[TalentSpecCata.WARR_ARMS]: 'Arms',
+	[TalentSpecCata.WARR_FURY]: 'Fury',
+	[TalentSpecCata.WARR_PROT]: 'Protection (Warrior)',
+	[TalentSpecCata.DRUID_BALA]: 'Balance',
+	[TalentSpecCata.DRUID_FERAL]: 'Feral',
+	[TalentSpecCata.DRUID_RESTO]: 'Restoration (Druid)',
+	[TalentSpecCata.DK_BLOOD]: 'Blood',
+	[TalentSpecCata.DK_FROST]: 'Frost (Death Knight)',
+	[TalentSpecCata.DK_UNHOLY]: 'Unholy',
+	[TalentSpecCata.HUNTER_BM]: 'Beast Mastery',
+	[TalentSpecCata.HUNTER_MM]: 'Marksmanship',
+	[TalentSpecCata.HUNTER_SURV]: 'Survival',
+	[TalentSpecCata.PRIEST_DISC]: 'Discipline',
+	[TalentSpecCata.PRIEST_HOLY]: 'Holy (Priest)',
+	[TalentSpecCata.PRIEST_SHADOW]: 'Shadow',
+	[TalentSpecCata.ROGUE_ASSA]: 'Assasination',
+	[TalentSpecCata.ROGUE_COMBAT]: 'Combat',
+	[TalentSpecCata.ROGUE_SUB]: 'Subtlety',
+	[TalentSpecCata.SHAMAN_ELE]: 'Elemental',
+	[TalentSpecCata.SHAMAN_ENHA]: 'Enhancement',
+	[TalentSpecCata.SHAMAN_RESTO]: 'Restoration (Shaman)',
+	[TalentSpecCata.WARLOCK_AFFLI]: 'Affliction',
+	[TalentSpecCata.WARLOCK_DEMO]: 'Demonology',
+	[TalentSpecCata.WARLOCK_DESTO]: 'Destruction'
+};
+
+export const talentSpecToString = (expansion: number, spec: number): string => {
+	if (expansionIsMoP(expansion)) {
+		return talentSpecMoPcToString(spec);
+	}
+
+	if (expansionIsCata(expansion)) {
+		return talentSpecCataToString(spec);
+	}
+
+	return 'Unknown spec';
+};
+
+const talentSpecMoPcToString = (spec: number): string => {
+	return TALENT_SPEC_MOP_TO_STRING[spec] ?? 'Unknown spec';
+};
+
+const talentSpecCataToString = (spec: number): string => {
+	return TALENT_SPEC_CATA_TO_STRING[spec] ?? 'Unknown spec';
+};
+
+const TALENT_SPEC_MOP_TO_CLASS = {
+	[TalentSpecMoP.MAGE_ARCANE]: Class.MAGE,
+	[TalentSpecMoP.MAGE_FIRE]: Class.MAGE,
+	[TalentSpecMoP.MAGE_FROST]: Class.MAGE,
+
+	[TalentSpecMoP.PALADIN_HOLY]: Class.PALADIN,
+	[TalentSpecMoP.PALADIN_PROT]: Class.PALADIN,
+	[TalentSpecMoP.PALADIN_RET]: Class.PALADIN,
+
+	[TalentSpecMoP.WARR_ARMS]: Class.WARRIOR,
+	[TalentSpecMoP.WARR_FURY]: Class.WARRIOR,
+	[TalentSpecMoP.WARR_PROT]: Class.WARRIOR,
+
+	[TalentSpecMoP.DRUID_BALA]: Class.DRUID,
+	[TalentSpecMoP.DRUID_CAT]: Class.DRUID,
+	[TalentSpecMoP.DRUID_BEAR]: Class.DRUID,
+	[TalentSpecMoP.DRUID_RESTO]: Class.DRUID,
+
+	[TalentSpecMoP.DK_BLOOD]: Class.DK,
+	[TalentSpecMoP.DK_FROST]: Class.DK,
+	[TalentSpecMoP.DK_UNHOLY]: Class.DK,
+
+	[TalentSpecMoP.HUNTER_BM]: Class.HUNTER,
+	[TalentSpecMoP.HUNTER_MM]: Class.HUNTER,
+	[TalentSpecMoP.HUNTER_SURV]: Class.HUNTER,
+
+	[TalentSpecMoP.PRIEST_DISC]: Class.PRIEST,
+	[TalentSpecMoP.PRIEST_HOLY]: Class.PRIEST,
+	[TalentSpecMoP.PRIEST_SHADOW]: Class.PRIEST,
+
+	[TalentSpecMoP.ROGUE_ASSA]: Class.ROGUE,
+	[TalentSpecMoP.ROGUE_COMBAT]: Class.ROGUE,
+	[TalentSpecMoP.ROGUE_SUB]: Class.ROGUE,
+
+	[TalentSpecMoP.SHAMAN_ELE]: Class.SHAMAN,
+	[TalentSpecMoP.SHAMAN_ENHA]: Class.SHAMAN,
+	[TalentSpecMoP.SHAMAN_RESTO]: Class.SHAMAN,
+
+	[TalentSpecMoP.WARLOCK_AFFLI]: Class.WARLOCK,
+	[TalentSpecMoP.WARLOCK_DEMO]: Class.WARLOCK,
+	[TalentSpecMoP.WARLOCK_DESTO]: Class.WARLOCK,
+
+	[TalentSpecMoP.MONK_BREWMASTER]: Class.MONK,
+	[TalentSpecMoP.MONK_WINDWALKER]: Class.MONK,
+	[TalentSpecMoP.MONK_MISTWEAVER]: Class.MONK
+};
+
+const TALENT_SPEC_CATA_TO_CLASS = {
+	[TalentSpecCata.MAGE_ARCANE]: Class.MAGE,
+	[TalentSpecCata.MAGE_FIRE]: Class.MAGE,
+	[TalentSpecCata.MAGE_FROST]: Class.MAGE,
+
+	[TalentSpecCata.PALADIN_HOLY]: Class.PALADIN,
+	[TalentSpecCata.PALADIN_PROT]: Class.PALADIN,
+	[TalentSpecCata.PALADIN_RET]: Class.PALADIN,
+
+	[TalentSpecCata.WARR_ARMS]: Class.WARRIOR,
+	[TalentSpecCata.WARR_FURY]: Class.WARRIOR,
+	[TalentSpecCata.WARR_PROT]: Class.WARRIOR,
+
+	[TalentSpecCata.DRUID_BALA]: Class.DRUID,
+	[TalentSpecCata.DRUID_FERAL]: Class.DRUID,
+	[TalentSpecCata.DRUID_RESTO]: Class.DRUID,
+
+	[TalentSpecCata.DK_BLOOD]: Class.DK,
+	[TalentSpecCata.DK_FROST]: Class.DK,
+	[TalentSpecCata.DK_UNHOLY]: Class.DK,
+
+	[TalentSpecCata.HUNTER_BM]: Class.HUNTER,
+	[TalentSpecCata.HUNTER_MM]: Class.HUNTER,
+	[TalentSpecCata.HUNTER_SURV]: Class.HUNTER,
+
+	[TalentSpecCata.PRIEST_DISC]: Class.PRIEST,
+	[TalentSpecCata.PRIEST_HOLY]: Class.PRIEST,
+	[TalentSpecCata.PRIEST_SHADOW]: Class.PRIEST,
+
+	[TalentSpecCata.ROGUE_ASSA]: Class.ROGUE,
+	[TalentSpecCata.ROGUE_COMBAT]: Class.ROGUE,
+	[TalentSpecCata.ROGUE_SUB]: Class.ROGUE,
+
+	[TalentSpecCata.SHAMAN_ELE]: Class.SHAMAN,
+	[TalentSpecCata.SHAMAN_ENHA]: Class.SHAMAN,
+	[TalentSpecCata.SHAMAN_RESTO]: Class.SHAMAN,
+
+	[TalentSpecCata.WARLOCK_AFFLI]: Class.WARLOCK,
+	[TalentSpecCata.WARLOCK_DEMO]: Class.WARLOCK,
+	[TalentSpecCata.WARLOCK_DESTO]: Class.WARLOCK
+};
+
+export const talentSpecToClass = (expansion: number, spec: number): number | null => {
+	if (expansionIsMoP(expansion)) {
+		return talentSpecMoPToClass(spec);
+	}
+
+	if (expansionIsCata(expansion)) {
+		return talentSpecCataToClass(spec);
+	}
+
+	return null;
+};
+
+const talentSpecMoPToClass = (spec: number): number | null => {
+	return TALENT_SPEC_MOP_TO_CLASS[spec] ?? null;
+};
+
+const talentSpecCataToClass = (spec: number): number | null => {
+	return TALENT_SPEC_CATA_TO_CLASS[spec] ?? null;
+};
+
+export const talentSpecToClassString = (expansion: number, spec: number): string => {
+	const cls = talentSpecToClass(expansion, spec);
 	if (cls === null) {
 		return 'Unknown spec';
 	}

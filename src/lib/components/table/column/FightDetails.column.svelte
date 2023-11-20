@@ -10,4 +10,4 @@
 </script>
 
 <Link href={links.bossKill(realm, bosskill.id)} style="margin-right: 0.5rem;">Detail</Link>
-<LinkExternal href={links.twinstarBossKill(bosskill.id)}>Twinhead</LinkExternal>
+<LinkExternal href={links.twinstarBossKill(realm, bosskill.id)}>Twinhead</LinkExternal>

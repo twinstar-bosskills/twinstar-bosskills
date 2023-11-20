@@ -1,5 +1,6 @@
 import { raidLock } from '$lib/date';
-import { Difficulty } from '$lib/model';
+import { getPerformaceDifficultiesByExpansion } from '$lib/model';
+import { expansionIsMoP, realmToExpansion } from '$lib/realm';
 import { and, desc, eq, gte, inArray, lt, lte } from 'drizzle-orm';
 import { createConnection } from '.';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
@@ -7,11 +8,13 @@ import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
 
 type CharacterPerformanceArgs = {
+	realm: string;
 	guid: number;
 	startDate?: Date;
 	endDate?: Date;
 };
 export const getCharacterPerformance = async ({
+	realm,
 	guid,
 	startDate,
 	endDate
@@ -22,6 +25,15 @@ export const getCharacterPerformance = async ({
 
 	const start = startDate;
 	const end = endDate ?? currentRaidLock.end;
+
+	const expansion = realmToExpansion(realm);
+	const isMop = expansionIsMoP(expansion);
+	const isCata = expansionIsMoP(expansion);
+	if (isMop === false || isCata === false) {
+		return { byRemoteId: {} };
+	}
+
+	const diffs = getPerformaceDifficultiesByExpansion(expansion);
 
 	try {
 		const db = await createConnection();
@@ -35,7 +47,7 @@ export const getCharacterPerformance = async ({
 					eq(bosskillPlayerTable.guid, guid),
 					start ? gte(bosskillTable.time, start.toISOString()) : undefined,
 					lte(bosskillTable.time, end.toISOString()),
-					inArray(bosskillTable.mode, [Difficulty.DIFFICULTY_10_N, Difficulty.DIFFICULTY_10_HC])
+					inArray(bosskillTable.mode, diffs)
 				)
 			)
 			.groupBy(bosskillTable.mode, bosskillTable.bossId, bosskillTable.time)
