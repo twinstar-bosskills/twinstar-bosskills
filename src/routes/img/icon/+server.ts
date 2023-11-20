@@ -1,19 +1,28 @@
 import { getRemoteClassIconUrl } from '$lib/class';
 import { getRemoteRaceIconUrl } from '$lib/race';
 import { getRemotRaidIconUrl } from '$lib/raid';
+import { REALM_HELIOS } from '$lib/realm';
 import { getRemoteItemIconUrl } from '$lib/server/api';
 import { withCache } from '$lib/server/cache';
 import { getRemoteTalentSpecIconUrl } from '$lib/talent';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { REALM_HELIOS } from '$lib/realm';
 
 const getBlob = async (url: string): Promise<Blob | null> => {
 	const fallback = async () => {
 		try {
 			const res = await fetch(url);
 			const blob = await res.blob();
-			return blob;
+			if (
+				blob.type === 'image/png' ||
+				blob.type === 'image/jpeg' ||
+				blob.type === 'image/webp' ||
+				blob.type === 'application/octet-stream'
+			) {
+				return blob;
+			}
+
+			throw new Error(`Invalid blob type: ${blob.type}`);
 		} catch (e) {
 			console.error(e);
 			throw e;
@@ -59,8 +68,10 @@ export const GET: RequestHandler = async ({ url }) => {
 				}
 			});
 		}
-		// TODO: show placeholder image?
-		throw error(404, `img not found by id ${id} and type ${type}`);
+
+		// return placeholder
+		throw redirect(302, `/icons/inv_misc_questionmark.png`);
+		// throw error(404, `img not found by id ${id} and type ${type}`);
 	}
 
 	throw error(400, `unknown type ${type}`);

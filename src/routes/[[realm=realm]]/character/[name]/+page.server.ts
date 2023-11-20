@@ -1,11 +1,11 @@
 import type { Boss } from '$lib/model';
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
+import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
 import { getBoss } from '$lib/server/api';
 import { getCharacterPerformance } from '$lib/server/db/character';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { REALM_HELIOS } from '$lib/realm';
 
 export const load: PageServerLoad = async ({ params, url }) => {
 	const realm = params.realm ?? REALM_HELIOS;
@@ -61,12 +61,12 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		}
 	}
 
-	const bossById: Record<Boss['entry'], Boss> = {};
+	const bossNameById: Record<Boss['entry'], string> = {};
 	await Promise.all(
 		Object.values(bossIds).map((id) => {
 			return getBoss({ realm, id }).then((boss) => {
 				if (boss) {
-					bossById[boss.entry] = boss;
+					bossNameById[boss.entry] = boss.name;
 				}
 			});
 		})
@@ -80,7 +80,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 	});
 
 	return {
-		bossById,
+		bossNameById,
 		bosskills: {
 			data: data,
 			total
