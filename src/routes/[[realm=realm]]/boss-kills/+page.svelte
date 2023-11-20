@@ -22,9 +22,17 @@
 	const columns: ColumnDef<T>[] = [
 		{
 			id: 'boss',
-			accessorFn: (row) => row.creature_name ?? row.entry,
+			accessorFn: (row) => data.bossNameById[row.entry] ?? row.creature_name ?? row.entry,
 			header: () => 'Boss',
-			cell: (info) => cellComponent(Boss, { realm: data.realm, bosskill: info.row.original })
+			cell: (info) =>
+				cellComponent(Boss, {
+					realm: data.realm,
+					bosskill: {
+						...info.row.original,
+						creature_name:
+							data.bossNameById[info.row.original.entry] ?? info.row.original.creature_name
+					}
+				})
 		},
 		{
 			id: 'raid',

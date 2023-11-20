@@ -18,13 +18,21 @@
 
 <script lang="ts">
 	import { links } from '$lib/links';
-	import { Difficulty, difficultyToString, isRaidDifficulty, type Raid } from '$lib/model';
-	import { REALM_HELIOS } from '$lib/realm';
+	import {
+		difficultiesByExpansion,
+		difficultyToString,
+		isRaidDifficulty,
+		type Raid
+	} from '$lib/model';
+	import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 	import Link from '../Link.svelte';
 
 	export let realm: string = REALM_HELIOS;
 	export let data: Data;
 	export let values: Values;
+
+	const expansion = realmToExpansion(realm);
+	const diffByExp = Object.values(difficultiesByExpansion(expansion) ?? {});
 
 	const bossByRaid: Record<string, Data['raids'][0]['bosses']> = {};
 	const raids: Options = [];
@@ -47,12 +55,12 @@
 		}
 	}
 
-	const difficulties: Options = Object.values(Difficulty)
-		.filter(isRaidDifficulty)
-		.map((d) => ({
-			label: difficultyToString(d),
-			value: d,
-			selected: values.difficulties.includes(d)
+	const difficulties: Options = diffByExp
+		.filter((diff) => isRaidDifficulty(expansion, diff))
+		.map((diff) => ({
+			label: difficultyToString(expansion, diff),
+			value: diff,
+			selected: values.difficulties.includes(diff)
 		}));
 </script>
 

@@ -1,4 +1,5 @@
 import { toArrayOfInf as toArrayOfInt, toArrayOfNonEmptyStrings } from '$lib/mapper';
+import type { Boss } from '$lib/model';
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import type { LatestBossKillQueryArgs } from '$lib/server/api';
 import * as api from '$lib/server/api';
@@ -36,6 +37,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	}
 
 	const realm = params.realm;
+
 	const [latestData, raidData] = await Promise.all([
 		api.getLatestBossKills({
 			realm,
@@ -46,8 +48,16 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		api.getRaids({ realm })
 	]);
 
+	const bossNameById: Record<Boss['entry'], string> = {};
+	for (const raid of raidData) {
+		for (const boss of raid.bosses) {
+			bossNameById[boss.entry] = boss.name;
+		}
+	}
+
 	return {
 		latest: latestData,
+		bossNameById,
 		form: {
 			data: {
 				raids: raidData

@@ -16,13 +16,15 @@
 	import { formatSecondsInterval } from '$lib/date';
 	import { characterDps, characterHps } from '$lib/metrics';
 	import {
-		Difficulty,
-		TalentSpec,
+		defaultDifficultyByExpansion,
+		difficultiesByExpansion,
 		difficultyToString,
 		isRaidDifficulty,
-		talentSpecToString
+		talentSpecToString,
+		talentSpecsByExpansion
 	} from '$lib/model';
 	import { formatAvgItemLvl } from '$lib/number';
+	import { realmToExpansion } from '$lib/realm';
 	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
 	import { getTalentSpecIconUrl } from '$lib/talent';
@@ -32,14 +34,19 @@
 
 	export let data: PageData;
 
+	const expansion = realmToExpansion(data.realm);
+	const talentSpecs = Object.values(talentSpecsByExpansion(expansion) ?? {});
+	const difficulties = Object.values(difficultiesByExpansion(expansion) ?? {});
 	const title = `Boss ${data.boss.name}`;
 
 	let searchParams = new URLSearchParams($page.url.searchParams);
-	const currentDifficulty = String(getDifficultyFromUrl($page.url) ?? Difficulty.DIFFICULTY_10_N);
+	const currentDifficulty = String(
+		getDifficultyFromUrl($page.url) ?? defaultDifficultyByExpansion(expansion)
+	);
 	const currentSpec = searchParams.get('spec');
 
 	const specs: { id: number; iconUrl: string; href: string; isActive: boolean }[] = [];
-	for (const id of Object.values(TalentSpec)) {
+	for (const id of talentSpecs) {
 		const isActive = currentSpec === String(id);
 		searchParams.set('spec', String(id));
 		specs.push({
@@ -54,13 +61,13 @@
 
 	searchParams = new URLSearchParams($page.url.searchParams);
 	const diffs: { id: number; label: string; href: string; isActive: boolean }[] = [];
-	for (const id of Object.values(Difficulty)) {
-		if (isRaidDifficulty(id)) {
+	for (const id of difficulties) {
+		if (isRaidDifficulty(expansion, id)) {
 			const isActive = currentDifficulty === String(id);
 			searchParams.set('difficulty', String(id));
 			diffs.push({
 				id,
-				label: difficultyToString(id),
+				label: difficultyToString(expansion, id),
 				href: `?${searchParams}`,
 				isActive
 			});
@@ -162,7 +169,7 @@
 <h1>{title}</h1>
 {#if data.kw}
 	<p>
-		{data.boss.name} ({difficultyToString(currentDifficulty)}) was killed
+		{data.boss.name} ({difficultyToString(expansion, currentDifficulty)}) was killed
 		<TextColorSuccess>{data.kw.kills.total}</TextColorSuccess> times by raiders and wiped them <TextColorError
 			>{data.kw.wipes.total}</TextColorError
 		> times (<TextColorError>{data.kw.wipes.avg}</TextColorError>
@@ -204,7 +211,11 @@
 			<li class:active={isActive}>
 				<div class:active={isActive}>
 					<Link data-sveltekit-reload style="display: flex;" {href}>
-						<Icon src={iconUrl} label={talentSpecToString(id)} style="width: 24px; height: 24px;" />
+						<Icon
+							src={iconUrl}
+							label={talentSpecToString(expansion, id)}
+							style="width: 24px; height: 24px;"
+						/>
 					</Link>
 				</div>
 			</li>

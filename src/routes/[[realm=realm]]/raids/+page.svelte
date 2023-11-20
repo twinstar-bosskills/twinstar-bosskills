@@ -4,9 +4,11 @@
 	import { links } from '$lib/links';
 	import { difficultyToString } from '$lib/model';
 	import { getRaidIconUrl } from '$lib/raid';
+	import { realmToExpansion } from '$lib/realm';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
+	const expansion = realmToExpansion(data.realm);
 </script>
 
 <svelte:head>
@@ -27,7 +29,7 @@
 						<ul>
 							{#each byDifficulty as [diff, total]}
 								<li>
-									{difficultyToString(diff)}
+									{difficultyToString(expansion, diff)}
 									<TextColorSuccess>{total}</TextColorSuccess> times
 								</li>
 							{/each}
@@ -56,7 +58,7 @@
 								<div class="diff-distrib-list">
 									{#each byDifficulty as [diff, total]}
 										<div class="diff-distrib-item">
-											{difficultyToString(diff)}:
+											{difficultyToString(expansion, diff)}:
 											<TextColorSuccess>{total}</TextColorSuccess>
 										</div>
 									{/each}
