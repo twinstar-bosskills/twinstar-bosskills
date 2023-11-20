@@ -31,11 +31,19 @@
 			id: 'boss',
 			accessorFn: (row) => {
 				const entry = row.boss_kills?.entry ?? 0;
-				return data.bossById[entry]?.name ?? entry;
+				return data.bossNameById[entry] ?? entry;
 			},
 			header: () => 'Boss',
 			cell: (info) =>
-				cellComponent(Boss, { realm: data.realm, bosskill: info.row.original.boss_kills })
+				cellComponent(Boss, {
+					realm: data.realm,
+					bosskill: {
+						...info.row.original.boss_kills,
+						creature_name:
+							data.bossNameById[info.row.original.boss_kills?.entry ?? 0] ??
+							info.row.original.boss_kills?.creature_name
+					}
+				})
 		},
 		{
 			id: 'difficulty',
