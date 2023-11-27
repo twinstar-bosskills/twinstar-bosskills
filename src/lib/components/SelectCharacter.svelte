@@ -7,8 +7,8 @@
 </script>
 
 <form method="POST" action="/{realm}/characters?/select">
-	<label for="character"> Character </label>
-	<input type="text" id="character" name="character" value={character} />
+	<label for="character" />
+	<input type="text" id="character" name="character" value={character} placeholder="Character" />
 	<input type="hidden" name="redirectUrl" value={redirectUrl} />
 </form>
 
@@ -28,13 +28,9 @@
 		margin-left: 0.5rem;
 	}
 
-	@media (max-width: 320px) {
+	@media (max-width: 540px) {
 		input {
 			margin-left: 0;
-		}
-		form {
-			display: flex;
-			flex-direction: column;
 		}
 	}
 	@media (max-width: 220px) {

@@ -164,8 +164,15 @@
 		flex-wrap: wrap;
 		gap: 1rem;
 	}
+
 	.by-boss .tc {
 		max-height: 500px;
 		overflow: auto;
+	}
+
+	@media (max-width: 450px) {
+		.by-boss > div {
+			width: 100%;
+		}
 	}
 </style>
