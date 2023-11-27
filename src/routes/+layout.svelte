@@ -3,25 +3,33 @@
 	import Link from '$lib/components/Link.svelte';
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import SelectCharacter from '$lib/components/SelectCharacter.svelte';
+	import SelectRealm from '$lib/components/SelectRealm.svelte';
 	import { links } from '$lib/links';
 	import type { LayoutData } from './$types';
 	export let data: LayoutData;
+
+	const bklink = links.bossKills(data.realm);
+	const raidsLink = links.raids(data.realm);
 </script>
 
 <div class="top">
+	<div class="select-realm">
+		<SelectRealm realm={data.realm} />
+	</div>
 	<nav>
 		<ul>
-			<li>
+			<!-- <li>
 				<Link href="/{data.realm}">Home</Link>
+			</li> -->
+			<li>
+				<Link href={bklink} active={$page.url.pathname === bklink}>Latest</Link>
 			</li>
 			<li>
-				<Link href={links.bossKills(data.realm)}>Latest</Link>
-			</li>
-			<li>
-				<Link href={links.raids(data.realm)}>Raids</Link>
+				<Link href={raidsLink} active={$page.url.pathname === raidsLink}>Raids</Link>
 			</li>
 		</ul>
 	</nav>
+
 	<div class="select-character">
 		<SelectCharacter
 			realm={data.realm}
@@ -180,7 +188,7 @@
 	.top {
 		display: grid;
 		gap: 0.5rem;
-		grid-template-columns: 1fr max-content;
+		grid-template-columns: 1fr max-content max-content;
 
 		font-size: 1.25rem;
 
@@ -192,6 +200,10 @@
 		flex-grow: 1;
 	}
 
+	.select-realm {
+		display: flex;
+		align-items: center;
+	}
 	.select-character {
 		padding: 0.25rem 0;
 		display: flex;
@@ -216,6 +228,9 @@
 		padding: 0.25rem 0;
 		margin-right: 0.5rem;
 	}
+	nav ul li:last-child {
+		margin-right: 0;
+	}
 
 	footer {
 		padding: 0.5rem;
@@ -223,19 +238,27 @@
 		font-size: 75%;
 	}
 
-	@media (max-width: 480px) {
+	@media (max-width: 540px) {
+		.top {
+			grid-template-columns: 1fr 1fr;
+		}
+		nav {
+			justify-self: flex-end;
+		}
+	}
+	@media (max-width: 330px) {
 		.top {
 			grid-template-columns: 1fr;
 		}
-	}
-	@media (max-width: 220px) {
 		nav ul {
 			flex-direction: column;
 		}
 		nav {
-			justify-content: center;
+			justify-self: auto;
 		}
-		.select-character {
+		nav,
+		.select-character,
+		.select-realm {
 			justify-content: center;
 		}
 	}
