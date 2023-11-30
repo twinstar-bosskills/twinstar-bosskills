@@ -7,10 +7,10 @@
 </script>
 
 <div class="realms">
-	{#each realms as [key]}
-		<div class="realm" class:active={realm.toLowerCase() === key}>
-			<Link href="/{key}">
-				<img src="/logos/{key}.png" width="32" height="32" alt="Realm {key} icon" />
+	{#each realms as [name, label]}
+		<div class="realm" class:active={realm.toLowerCase() === name}>
+			<Link href="/{label}">
+				<img src="/logos/{name}.png" width="32" height="32" alt="Realm {label} icon" />
 			</Link>
 		</div>
 	{/each}

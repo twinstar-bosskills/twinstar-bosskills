@@ -169,7 +169,11 @@ export const getBossAggregatedStats = async ({
 	const fallback = async () => {
 		// const items: { value: number; spec: number; label: string }[] = [];
 		type Item = { spec: number; talent_spec: number; dps?: string; hps?: string };
-		const url = `${TWINSTAR_API_URL}/bosskills/aggreggate?realm=${realm}&entry=${id}&field=${field}&mode=${mode}`;
+		const qs = queryString({
+			realm,
+			difficulty: mode
+		});
+		const url = `${TWINSTAR_API_URL}/bosskills/aggreggate?${qs}&entry=${id}&field=${field}`;
 		try {
 			const r = await fetch(url);
 			const data: Item[] = await r.json();

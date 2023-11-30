@@ -65,8 +65,12 @@ export const queryString = ({
 	if (typeof talentSpec !== 'undefined') {
 		q.append('talent_spec', String(talentSpec));
 	}
-	q.append('page', String(page));
-	q.append('pageSize', String(pageSize));
+	if (typeof page !== 'undefined') {
+		q.append('page', String(page));
+	}
+	if (typeof pageSize !== 'undefined') {
+		q.append('pageSize', String(pageSize));
+	}
 	if (filters && filters.length > 0) {
 		q.append('filters', JSON.stringify(filters));
 	}

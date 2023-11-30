@@ -88,12 +88,13 @@ export const getBossKillDetail = async ({
 	id
 }: GetBosskillDetailArgs): Promise<BossKillDetail | null> => {
 	const fallback = async () => {
+		const url = `${TWINSTAR_API_URL}/bosskills/${id}?${queryString({ realm })}`;
 		try {
-			const r = await fetch(`${TWINSTAR_API_URL}/bosskills/${id}?realm=${realm}`);
+			const r = await fetch(url);
 			const item: BossKillDetail = await r.json();
 			return mutateBossKill(item);
 		} catch (e) {
-			console.error(e);
+			console.error(e, url);
 			throw e;
 		}
 	};

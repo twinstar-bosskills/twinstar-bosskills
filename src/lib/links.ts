@@ -33,8 +33,8 @@ const twinstarBossKill = (realm: string, id: string) => {
 		expansionIsCata(expansion) ? 'cata' : 'mop'
 	}-twinhead.twinstar.cz/?boss-kill=${bkid}`;
 };
-export const twinstarArmory = (name: string) =>
-	`https://armory.twinstar-wow.com/character?name=${name}&realm=${REALM_HELIOS}`;
+export const twinstarArmory = (realm: string, name: string) =>
+	`https://armory.twinstar-wow.com/character?name=${name}&realm=${realm}`;
 export const twinstarNPC = (realm: string, id: number) => {
 	const expansion = realmToExpansion(realm);
 	return `https://${expansionIsCata(expansion) ? 'cata' : 'mop'}-twinhead.twinstar.cz/?npc=${id}`;
