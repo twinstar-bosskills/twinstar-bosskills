@@ -126,7 +126,7 @@
 		Character {data.name}
 	</h1>
 	<div class="link">
-		<LinkExternal href={links.twinstarArmory(data.name)}>Armory</LinkExternal>
+		<LinkExternal href={links.twinstarArmory(data.realm, data.name)}>Armory</LinkExternal>
 	</div>
 </div>
 
