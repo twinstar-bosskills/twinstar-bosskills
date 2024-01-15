@@ -1,6 +1,6 @@
 import { raidLock } from '$lib/date';
 import { getPerformaceDifficultiesByExpansion } from '$lib/model';
-import { expansionIsMoP, realmToExpansion } from '$lib/realm';
+import { expansionIsCata, expansionIsMoP, realmToExpansion } from '$lib/realm';
 import { and, desc, eq, gte, inArray, lt, lte } from 'drizzle-orm';
 import { createConnection } from '.';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
@@ -28,7 +28,7 @@ export const getCharacterPerformance = async ({
 
 	const expansion = realmToExpansion(realm);
 	const isMop = expansionIsMoP(expansion);
-	const isCata = expansionIsMoP(expansion);
+	const isCata = expansionIsCata(expansion);
 	if (isMop === false || isCata === false) {
 		return { byRemoteId: {} };
 	}
