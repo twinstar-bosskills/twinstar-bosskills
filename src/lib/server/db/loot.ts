@@ -21,7 +21,7 @@ export const getLootChance = async ({
 }: GetLootChanceArgs): Promise<LootChance | null> => {
 	try {
 		const db = await createConnection();
-		const current = await db
+		const currentRows = await db
 			.select({ count: sql<number>`count(*)` })
 			.from(bosskillTable)
 			.innerJoin(bosskillLootTable, eq(bosskillTable.id, bosskillLootTable.bosskillId))
@@ -32,16 +32,17 @@ export const getLootChance = async ({
 					eq(bossTable.remoteId, bossRemoteId),
 					eq(bosskillLootTable.itemId, itemId)
 				)
-			)
-			.get();
+			);
+		const current = currentRows[0] ?? null;
 
-		const total = await db
+		const totalRows = await db
 			.select({ count: sql<number>`count(*)` })
 			.from(bosskillTable)
 			.innerJoin(bosskillLootTable, eq(bosskillTable.id, bosskillLootTable.bosskillId))
 			.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
-			.where(and(eq(bosskillTable.mode, mode), eq(bossTable.remoteId, bossRemoteId)))
-			.get();
+			.where(and(eq(bosskillTable.mode, mode), eq(bossTable.remoteId, bossRemoteId)));
+		const total = totalRows[0] ?? null;
+
 		if (!total || total.count === 0) {
 			return null;
 		}
