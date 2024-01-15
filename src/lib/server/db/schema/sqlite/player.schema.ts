@@ -1,11 +1,10 @@
 import { relations } from 'drizzle-orm';
-import { int, text } from 'drizzle-orm/mysql-core';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { bosskillDeathTable } from './boss-kill-death.schema';
 import { bosskillPlayerTable } from './boss-kill-player.schema';
-import { bosskills } from './mysql.schema';
-export const playerTable = bosskills.table('player', {
-	id: int('id').primaryKey().autoincrement(),
-	remoteId: int('remote_id').unique(),
+export const playerTable = sqliteTable('player', {
+	id: integer('id').primaryKey(),
+	remoteId: integer('remote_id').unique(),
 	name: text('name')
 });
 

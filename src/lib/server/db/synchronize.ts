@@ -190,11 +190,12 @@ const getOrCreateRealm = async (realmName: string) => {
 		const result = await db.transaction((tx) => {
 			return tx
 				.insert(realmTable)
-				.values([{ name: realmName }])
-				.onConflictDoNothing()
-				.returning();
+				.ignore()
+				.values([{ name: realmName }]);
 		});
-		ent = result[0] ?? null;
+		const id = result[0].insertId;
+		const refetch = await db.select().from(realmTable).where(eq(realmTable.id, id));
+		ent = refetch[0] ?? null;
 	}
 	if (ent === null) {
 		throw new Error(`Realm entity not found nor created`);
@@ -208,13 +209,11 @@ const getOrCreateRaid = async (raid: Raid) => {
 	let ent = result[0] ?? null;
 	if (ent === null) {
 		const result = await db.transaction((tx) => {
-			return tx
-				.insert(raidTable)
-				.values([{ name: raid.map }])
-				.onConflictDoNothing()
-				.returning();
+			return tx.insert(raidTable).values([{ name: raid.map }]);
 		});
-		ent = result[0] ?? null;
+		const id = result[0].insertId;
+		const refetch = await db.select().from(raidTable).where(eq(raidTable.id, id));
+		ent = refetch[0] ?? null;
 	}
 	if (ent === null) {
 		throw new Error(`Raid entity not found nor created`);
@@ -232,13 +231,11 @@ const getOrCreateBoss = async (boss: Boss) => {
 	let ent = result[0] ?? null;
 	if (ent === null) {
 		const result = await db.transaction((tx) => {
-			return tx
-				.insert(bossTable)
-				.values({ remoteId: boss.entry, name: boss.name })
-				.onConflictDoNothing()
-				.returning();
+			return tx.insert(bossTable).ignore().values({ remoteId: boss.entry, name: boss.name });
 		});
-		ent = result[0] ?? null;
+		const id = result[0].insertId;
+		const refetch = await db.select().from(bossTable).where(eq(bossTable.id, id));
+		ent = refetch[0] ?? null;
 	} else {
 		if (ent.name !== boss.name) {
 			const entId = ent.id;
@@ -264,13 +261,11 @@ const getOrCreatePlayer = async (guid: number, name: string) => {
 	let ent = result[0] ?? null;
 	if (ent === null) {
 		const result = await db.transaction((tx) => {
-			return tx
-				.insert(playerTable)
-				.values({ remoteId: guid, name: name })
-				.onConflictDoNothing()
-				.returning();
+			return tx.insert(playerTable).ignore().values({ remoteId: guid, name: name });
 		});
-		ent = result[0] ?? null;
+		const id = result[0].insertId;
+		const refetch = await db.select().from(playerTable).where(eq(playerTable.id, id));
+		ent = refetch[0] ?? null;
 	}
 
 	if (ent === null) {
@@ -294,26 +289,24 @@ const getOrCreateBosskill = async ({ bossId, realmId, raidId, bk }: CreateBosski
 		.execute();
 	let ent = result[0] ?? null;
 	if (ent === null) {
-		const bkResult = await db.transaction(async (tx) => {
-			return tx
-				.insert(bosskillTable)
-				.values({
-					remoteId: bk.id,
-					bossId: bossId,
-					raidId: raidId,
-					realmId: realmId,
-					mode: bk.mode,
-					guild: bk.guild,
-					time: bk.time,
-					length: bk.length,
-					wipes: bk.wipes,
-					deaths: bk.deaths,
-					ressUsed: bk.ressUsed
-				})
-				.onConflictDoNothing()
-				.returning();
+		const result = await db.transaction(async (tx) => {
+			return tx.insert(bosskillTable).values({
+				remoteId: bk.id,
+				bossId: bossId,
+				raidId: raidId,
+				realmId: realmId,
+				mode: bk.mode,
+				guild: bk.guild,
+				time: bk.time,
+				length: bk.length,
+				wipes: bk.wipes,
+				deaths: bk.deaths,
+				ressUsed: bk.ressUsed
+			});
 		});
-		ent = bkResult[0] ?? null;
+		const id = result[0].insertId;
+		const refetch = await db.select().from(bosskillTable).where(eq(bosskillTable.id, id));
+		ent = refetch[0] ?? null;
 	}
 	if (ent === null) {
 		throw new Error(`Bosskill ${bk.id} entity not found nor created`);
@@ -345,6 +338,7 @@ const createBossKillPlayers = async ({ bosskillId, players }: BossKillPlayerArgs
 	await db.transaction((tx) => {
 		return tx
 			.insert(bosskillPlayerTable)
+			.ignore()
 			.values(
 				players.map((player) => ({
 					bosskillId,
@@ -370,7 +364,6 @@ const createBossKillPlayers = async ({ bosskillId, players }: BossKillPlayerArgs
 					level: player.level
 				}))
 			)
-			.onConflictDoNothing()
 			.execute();
 	});
 };
@@ -396,15 +389,14 @@ const createBossKillLoot = async ({ bosskillId, items }: BossKillLootArgs) => {
 	await db.transaction((tx) => {
 		return tx
 			.insert(bosskillLootTable)
+			.ignore()
 			.values(
 				items.map((loot) => ({
 					bosskillId,
 					itemId: Number(loot.itemId),
 					count: loot.count
 				}))
-			)
-			.onConflictDoNothing()
-			.returning();
+			);
 	});
 };
 
@@ -429,6 +421,7 @@ const createBossKillDeaths = async ({ bosskillId, deaths }: BossKillDeathsArgs) 
 	await db.transaction((tx) => {
 		return tx
 			.insert(bosskillDeathTable)
+			.ignore()
 			.values(
 				deaths.map((death) => ({
 					bosskillId,
@@ -438,7 +431,6 @@ const createBossKillDeaths = async ({ bosskillId, deaths }: BossKillDeathsArgs) 
 					isRess: death.time < 0 ? 1 : 0
 				}))
 			)
-			.onConflictDoNothing()
 			.execute();
 	});
 };
@@ -464,6 +456,7 @@ const createBossKillTimeline = async ({ bosskillId, timeline }: BossKillTimeline
 	await db.transaction((tx) => {
 		return tx
 			.insert(bosskillTimelineTable)
+			.ignore()
 			.values(
 				timeline.map((item) => ({
 					bosskillId,
@@ -475,7 +468,6 @@ const createBossKillTimeline = async ({ bosskillId, timeline }: BossKillTimeline
 					time: item.time
 				}))
 			)
-			.onConflictDoNothing()
 			.execute();
 	});
 };

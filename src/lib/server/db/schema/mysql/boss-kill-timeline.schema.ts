@@ -3,7 +3,7 @@ import { int } from 'drizzle-orm/mysql-core';
 import { bosskillTable } from './boss-kill.schema';
 import { bosskills } from './mysql.schema';
 export const bosskillTimelineTable = bosskills.table('boss_kill_timeline', {
-	id: int('id').primaryKey(),
+	id: int('id').primaryKey().autoincrement(),
 	bosskillId: int('boss_kill_id')
 		.notNull()
 		.references(() => bosskillTable.id),

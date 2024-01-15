@@ -1,11 +1,5 @@
-import { integer, sqliteTable } from 'drizzle-orm/sqlite-core';
-import { bosskillTable } from './boss-kill.schema';
-export const bosskillLootTable = sqliteTable('boss_kill_loot', {
-	id: integer('id').primaryKey(),
-	bosskillId: integer('boss_kill_id')
-		.notNull()
-		.references(() => bosskillTable.id),
-
-	itemId: integer('item_id').notNull(),
-	count: integer('count').notNull()
-});
+import { isMysql } from '..';
+import { bosskillLootTable as mysqlTable } from './mysql/boss-kill-loot.schema';
+import { bosskillLootTable as sqliteTable } from './sqlite/boss-kill-loot.schema';
+const _keepMe = isMysql() ? mysqlTable : sqliteTable;
+export const bosskillLootTable = mysqlTable;

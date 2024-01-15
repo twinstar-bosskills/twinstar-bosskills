@@ -44,7 +44,7 @@ export const getCharacterPerformance = async ({
 		const bosskills = await currentQb.execute();
 
 		for (const current of bosskills) {
-			const previous = await db
+			const previousRows = await db
 				.select()
 				.from(bosskillPlayerTable)
 				.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
@@ -59,8 +59,8 @@ export const getCharacterPerformance = async ({
 					)
 				)
 				.groupBy(bosskillTable.mode, bosskillTable.bossId)
-				.orderBy(desc(bosskillTable.time))
-				.get();
+				.orderBy(desc(bosskillTable.time));
+			const previous = previousRows[0] ?? null;
 
 			if (previous) {
 				const currentHps = current.boss_kill_player.healingDone / current.boss_kill.length;

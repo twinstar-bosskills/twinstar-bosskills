@@ -2,7 +2,7 @@ import 'dotenv/config';
 import type { Config } from 'drizzle-kit';
 
 export default {
-	out: './migrations_mariadb',
+	out: './migrations_mysql',
 	schema: './src/lib/server/db/schema/mysql',
 	breakpoints: true,
 	dbCredentials: {

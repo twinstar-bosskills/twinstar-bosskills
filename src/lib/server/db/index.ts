@@ -7,7 +7,8 @@ import mysql from 'mysql2/promise';
 
 export const isMysql = () => process.env.DATABASE_DRIVER === 'mysql';
 export const isSqlite = () => isMysql() === false;
-const makeLibsqlClient = async () => {
+export type LibSQLClient = Client;
+const makeLibSQLClient = async (): Promise<LibSQLClient> => {
 	const instance = createClient({
 		url: process.env.DATABASE_URL!,
 		authToken: process.env.DATABASE_AUTH_TOKEN
@@ -20,7 +21,8 @@ const makeLibsqlClient = async () => {
 	return instance;
 };
 
-const makeMysqlClient = async () => {
+export type MysqlClient = mysql.Pool;
+const makeMysqlClient = async (): Promise<MysqlClient> => {
 	const poolConnection = mysql.createPool({
 		host: process.env.MARIADB_HOST!,
 		user: process.env.MARIADB_USER!,
@@ -31,15 +33,24 @@ const makeMysqlClient = async () => {
 	return poolConnection;
 };
 
-let globalDb: ReturnType<typeof libsqlDrizzle | typeof mysqlDrizzle> | null = null;
+// using mysql for now
+// let globalDb: ReturnType<typeof libsqlDrizzle | typeof mysqlDrizzle> | null = null;
+let globalDb: ReturnType<typeof mysqlDrizzle> | null = null;
 export const createConnection = async () => {
 	if (globalDb) {
 		return globalDb;
 	}
 
-	const client = await (isMysql() ? makeMysqlClient() : makeLibsqlClient());
-	const database = isMysql() ? mysqlDrizzle(client as mysql.Pool) : libsqlDrizzle(client as Client);
+	// const client = await (isMysql() ? makeMysqlClient() : makeLibSQLClient());
+	// const database = await (isMysql()
+	// 	? createMysqlConnection(client as MysqlClient)
+	// 	: createSQLiteConnection(client as LibSQLClient));
+	const database = await createMysqlConnection();
 	globalDb = database;
 
-	return globalDb;
+	return globalDb!;
 };
+export const createSQLiteConnection = async (client?: LibSQLClient) =>
+	libsqlDrizzle(client ?? (await makeLibSQLClient()));
+export const createMysqlConnection = async (client?: MysqlClient) =>
+	mysqlDrizzle(client ?? (await makeMysqlClient()));

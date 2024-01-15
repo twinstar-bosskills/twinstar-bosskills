@@ -1,7 +1,7 @@
-CREATE DATABASE `bosskills`;
+CREATE DATABASE IF NOT EXISTS `bosskills`;
 --> statement-breakpoint
 CREATE TABLE `bosskills`.`boss_kill_death` (
-	`id` int NOT NULL,
+	`id` int AUTO_INCREMENT NOT NULL,
 	`boss_kill_id` int NOT NULL,
 	`player_id` int NOT NULL,
 	`remote_id` int NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE `bosskills`.`boss_kill_death` (
 );
 --> statement-breakpoint
 CREATE TABLE `bosskills`.`boss_kill_loot` (
-	`id` int NOT NULL,
+	`id` int AUTO_INCREMENT NOT NULL,
 	`boss_kill_id` int NOT NULL,
 	`item_id` int NOT NULL,
 	`count` int NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE `bosskills`.`boss_kill_loot` (
 );
 --> statement-breakpoint
 CREATE TABLE `bosskills`.`boss_kill_player` (
-	`id` int NOT NULL,
+	`id` int AUTO_INCREMENT NOT NULL,
 	`boss_kill_id` int NOT NULL,
 	`player_id` int NOT NULL,
 	`talent_spec` int NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE `bosskills`.`boss_kill_player` (
 );
 --> statement-breakpoint
 CREATE TABLE `bosskills`.`boss_kill_timeline` (
-	`id` int NOT NULL,
+	`id` int AUTO_INCREMENT NOT NULL,
 	`boss_kill_id` int NOT NULL,
 	`encounterDamage` int NOT NULL,
 	`encounterHeal` int NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE `bosskills`.`boss_kill_timeline` (
 );
 --> statement-breakpoint
 CREATE TABLE `bosskills`.`boss_kill` (
-	`id` int NOT NULL,
+	`id` int AUTO_INCREMENT NOT NULL,
 	`remote_id` text NOT NULL,
 	`boss_id` int NOT NULL,
 	`raid_id` int NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE `bosskills`.`boss_kill` (
 );
 --> statement-breakpoint
 CREATE TABLE `bosskills`.`boss` (
-	`id` int NOT NULL,
+	`id` int AUTO_INCREMENT NOT NULL,
 	`remote_id` int NOT NULL,
 	`name` text NOT NULL,
 	CONSTRAINT `boss_id` PRIMARY KEY(`id`),
@@ -80,7 +80,7 @@ CREATE TABLE `bosskills`.`boss` (
 );
 --> statement-breakpoint
 CREATE TABLE `bosskills`.`player` (
-	`id` int NOT NULL,
+	`id` int AUTO_INCREMENT NOT NULL,
 	`remote_id` int,
 	`name` text,
 	CONSTRAINT `player_id` PRIMARY KEY(`id`),
@@ -88,14 +88,14 @@ CREATE TABLE `bosskills`.`player` (
 );
 --> statement-breakpoint
 CREATE TABLE `bosskills`.`raid` (
-	`id` int NOT NULL,
+	`id` int AUTO_INCREMENT NOT NULL,
 	`name` text NOT NULL,
 	CONSTRAINT `raid_id` PRIMARY KEY(`id`),
 	CONSTRAINT `raid_name_unique` UNIQUE(`name`)
 );
 --> statement-breakpoint
 CREATE TABLE `bosskills`.`realm` (
-	`id` int NOT NULL,
+	`id` int AUTO_INCREMENT NOT NULL,
 	`name` text NOT NULL,
 	CONSTRAINT `realm_id` PRIMARY KEY(`id`),
 	CONSTRAINT `realm_name_unique` UNIQUE(`name`)

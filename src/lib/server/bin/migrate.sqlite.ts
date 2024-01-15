@@ -1,10 +1,10 @@
 import { migrate as libsqlMigrate } from 'drizzle-orm/libsql/migrator';
-import { createConnection } from '../db/index';
+import { createSQLiteConnection } from '../db/index';
 
 console.log('migrate - start');
-const db = await createConnection();
+const db = await createSQLiteConnection();
 try {
-	await libsqlMigrate(db, { migrationsFolder: 'migrations' });
+	await libsqlMigrate(db, { migrationsFolder: 'migrations_sqlite' });
 	if (process.env.DATABASE_DRIVER) console.log('migrate - ok');
 	process.exit(0);
 } catch (e) {

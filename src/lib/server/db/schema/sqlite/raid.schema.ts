@@ -1,9 +1,8 @@
 import { relations } from 'drizzle-orm';
-import { int, text } from 'drizzle-orm/mysql-core';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { bosskillTable } from './boss-kill.schema';
-import { bosskills } from './mysql.schema';
-export const raidTable = bosskills.table('raid', {
-	id: int('id').primaryKey().autoincrement(),
+export const raidTable = sqliteTable('raid', {
+	id: integer('id').primaryKey(),
 	name: text('name').notNull().unique()
 });
 

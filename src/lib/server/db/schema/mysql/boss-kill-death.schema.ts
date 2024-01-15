@@ -3,7 +3,7 @@ import { bosskillTable } from './boss-kill.schema';
 import { bosskills } from './mysql.schema';
 import { playerTable } from './player.schema';
 export const bosskillDeathTable = bosskills.table('boss_kill_death', {
-	id: int('id').primaryKey(),
+	id: int('id').primaryKey().autoincrement(),
 	bosskillId: int('boss_kill_id')
 		.notNull()
 		.references(() => bosskillTable.id),

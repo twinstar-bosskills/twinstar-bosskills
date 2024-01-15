@@ -4,7 +4,7 @@ import { bosskills } from './mysql.schema';
 import { raidTable } from './raid.schema';
 import { realmTable } from './realm.schema';
 export const bosskillTable = bosskills.table('boss_kill', {
-	id: int('id').primaryKey(),
+	id: int('id').primaryKey().autoincrement(),
 	remoteId: text('remote_id').notNull().unique(),
 	bossId: int('boss_id')
 		.notNull()

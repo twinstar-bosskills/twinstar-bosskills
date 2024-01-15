@@ -1,12 +1,5 @@
-import { relations } from 'drizzle-orm';
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { bosskillTable } from './boss-kill.schema';
-export const bossTable = sqliteTable('boss', {
-	id: integer('id').primaryKey(),
-	remoteId: integer('remote_id').notNull().unique(),
-	name: text('name').notNull()
-});
-
-export const bossRelations = relations(bossTable, ({ many }) => ({
-	bosskills: many(bosskillTable)
-}));
+import { isMysql } from '..';
+import { bossTable as mysqlTable } from './mysql/boss.schema';
+import { bossTable as sqliteTable } from './sqlite/boss.schema';
+const _keepMe = isMysql() ? mysqlTable : sqliteTable;
+export const bossTable = mysqlTable;
