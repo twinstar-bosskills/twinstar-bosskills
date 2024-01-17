@@ -3,11 +3,15 @@ import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
 import { getBoss } from '$lib/server/api';
-import { getCharacterPerformance } from '$lib/server/db/character';
+import {
+	getCharacterPerformanceLine,
+	getCharacterPerformanceTrends,
+	type CharacterPerformanceLine
+} from '$lib/server/db/character';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params, url }) => {
+export const load = async ({ params, url }: Parameters<PageServerLoad>[0]) => {
 	const realm = params.realm ?? REALM_HELIOS;
 	const page = getPageFromURL(url);
 	const pageSize = getPageSizeFromURL(url, 20);
@@ -53,11 +57,31 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		endDate = endTime ? new Date(endTime) : undefined;
 	} catch (e) {}
 
+	const performanceLines: Record<Boss['entry'], Record<number, CharacterPerformanceLine>> = {};
+	const performanceLinesWaiting = [];
 	const bossIds: Record<Boss['entry'], Boss['entry']> = {};
 	for (const characterBk of data) {
 		if (characterBk.boss_kills) {
 			const bossId = characterBk.boss_kills.entry;
+			const mode = characterBk.boss_kills.mode;
 			bossIds[bossId] = bossId;
+
+			performanceLinesWaiting.push(
+				getCharacterPerformanceLine({
+					realm,
+					guid,
+					mode,
+					bossId
+				})
+					.then((rows) => {
+						// show al least 2 points
+						if (rows.length > 1) {
+							performanceLines[bossId] ??= {};
+							performanceLines[bossId]![mode] = rows;
+						}
+					})
+					.catch(console.error)
+			);
 		}
 	}
 
@@ -72,7 +96,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		})
 	);
 
-	const performance = getCharacterPerformance({
+	await Promise.all(performanceLinesWaiting);
+	const performanceTrends = await getCharacterPerformanceTrends({
 		realm,
 		guid,
 		startDate,
@@ -87,6 +112,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
 		},
 
 		name,
-		performance
+		performanceTrends,
+		performanceLines
 	};
 };

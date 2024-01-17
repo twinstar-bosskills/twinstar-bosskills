@@ -11,10 +11,13 @@
 
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
+	import CharacterPerformanceChart from '$lib/components/echart/CharacterPerformanceChart.svelte';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
+	import { difficultyToString } from '$lib/model';
 	import { formatAvgItemLvl } from '$lib/number';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
+	import { realmToExpansion } from '$lib/realm';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
@@ -23,6 +26,8 @@
 
 	export let data: PageData;
 
+	const expansion = realmToExpansion(data.realm);
+	const performanceLines = Object.entries(data.performanceLines);
 	type T = (typeof bosskills)[0];
 	const bosskills = data.bosskills.data.filter((v) => !!v.boss_kills);
 
@@ -69,7 +74,7 @@
 				const boskillId = info.row.original.boss_kills?.id ?? null;
 				let performance = null;
 				if (boskillId !== null) {
-					performance = data.performance.byRemoteId[boskillId];
+					performance = data.performanceTrends.byRemoteId[boskillId];
 				}
 				return cellComponent(CharacterDps, { character: info.row.original, performance });
 			},
@@ -83,7 +88,7 @@
 				const boskillId = info.row.original.boss_kills?.id ?? null;
 				let performance = null;
 				if (boskillId !== null) {
-					performance = data.performance.byRemoteId[boskillId];
+					performance = data.performanceTrends.byRemoteId[boskillId];
 				}
 				return cellComponent(CharacterHps, { character: info.row.original, performance });
 			}
@@ -143,6 +148,21 @@
 		</svelte:fragment>
 	</Table>
 </div>
+{#if performanceLines.length > 0}
+	<div>
+		<h2>{data.name}'s performance over time</h2>
+		{#each performanceLines as [bossId, byMode]}
+			{#each Object.entries(byMode) as [mode, line]}
+				{@const name = data.bossNameById[Number(bossId)]}
+				{@const diff = difficultyToString(expansion, mode)}
+				<div>
+					<h3>{data.name}'s performance on {name} {diff}</h3>
+					<CharacterPerformanceChart data={line} />
+				</div>
+			{/each}
+		{/each}
+	</div>
+{/if}
 
 <style>
 	.title {

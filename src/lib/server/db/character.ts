@@ -1,24 +1,24 @@
 import { raidLock } from '$lib/date';
 import { getPerformaceDifficultiesByExpansion } from '$lib/model';
-import { expansionIsCata, expansionIsMoP, realmToExpansion } from '$lib/realm';
-import { and, desc, eq, gte, inArray, lt, lte } from 'drizzle-orm';
+import { expansionIsMoP, realmToExpansion } from '$lib/realm';
+import { and, asc, desc, eq, gte, inArray, lt, lte, sql } from 'drizzle-orm';
 import { createConnection } from '.';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
 
-type CharacterPerformanceArgs = {
+type CharacterPerformanceTrendsArgs = {
 	realm: string;
 	guid: number;
 	startDate?: Date;
 	endDate?: Date;
 };
-export const getCharacterPerformance = async ({
+export const getCharacterPerformanceTrends = async ({
 	realm,
 	guid,
 	startDate,
 	endDate
-}: CharacterPerformanceArgs) => {
+}: CharacterPerformanceTrendsArgs) => {
 	const values: Record<string, { dps: number; hps: number }> = {};
 	const now = new Date();
 	const currentRaidLock = raidLock(now);
@@ -28,8 +28,7 @@ export const getCharacterPerformance = async ({
 
 	const expansion = realmToExpansion(realm);
 	const isMop = expansionIsMoP(expansion);
-	const isCata = expansionIsCata(expansion);
-	if (isMop === false || isCata === false) {
+	if (isMop === false) {
 		return { byRemoteId: {} };
 	}
 
@@ -92,4 +91,67 @@ export const getCharacterPerformance = async ({
 	}
 
 	return { byRemoteId: values };
+};
+type GetCharacterPerformanceLineArgs = {
+	realm: string;
+	guid: number;
+	mode: number;
+	bossId: number;
+	startDate?: Date;
+	endDate?: Date;
+};
+export type CharacterPerformanceLine = { time: string; dps: number; hps: number }[];
+export const getCharacterPerformanceLine = async ({
+	realm,
+	guid,
+	mode,
+	bossId,
+	startDate,
+	endDate
+}: GetCharacterPerformanceLineArgs): Promise<CharacterPerformanceLine> => {
+	const now = new Date();
+	const currentRaidLock = raidLock(now);
+
+	const start = startDate;
+	const end = endDate ?? currentRaidLock.end;
+
+	const expansion = realmToExpansion(realm);
+	const isMop = expansionIsMoP(expansion);
+	if (isMop === false) {
+		return [];
+	}
+
+	try {
+		const db = await createConnection();
+		const qb = db
+			.select({
+				time: bosskillTable.time,
+				dps: sql<number>`ROUND(IF(${bosskillTable.length} = 0, 0, ${bosskillPlayerTable.dmgDone}/(${bosskillTable.length}/1000)))`.mapWith(
+					Number
+				),
+				hps: sql<number>`ROUND(IF(${bosskillTable.length} = 0, 0, (${bosskillPlayerTable.healingDone} + ${bosskillPlayerTable.absorbDone})/(${bosskillTable.length}/1000)))`.mapWith(
+					Number
+				)
+			})
+			.from(bosskillPlayerTable)
+			.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
+			.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
+			.where(
+				and(
+					eq(bosskillPlayerTable.guid, guid),
+					eq(bossTable.remoteId, bossId),
+					start ? gte(bosskillTable.time, start.toISOString()) : undefined,
+					lte(bosskillTable.time, end.toISOString()),
+					eq(bosskillTable.mode, mode)
+				)
+			)
+			.groupBy(bosskillTable.time)
+			.orderBy(asc(bosskillTable.time));
+		const rows = await qb.execute();
+		return rows;
+	} catch (e) {
+		console.error(e);
+	}
+
+	return [];
 };
