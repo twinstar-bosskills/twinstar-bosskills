@@ -20,6 +20,8 @@ const REALM_TO_ID: Record<string, number> = {
 	[REALM_ATHENA]: REALM_ATHENA_ID,
 	[REALM_APOLLO]: REALM_APOLLO_ID
 };
+export const realmIsKnown = (realm: string) =>
+	typeof REALMS_LOWECASE[realm.toLowerCase()] !== 'undefined';
 export const realmToExpansion = (realm: string): number => {
 	const lc = REALMS_LOWECASE[realm.toLowerCase()] ?? REALM_HELIOS;
 	return REALM_TO_EXPANSION[lc]!;

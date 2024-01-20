@@ -1,14 +1,14 @@
 import type {
 	Boss,
 	BossKill,
+	BosskillCharacter,
 	BosskillDeath,
 	BosskillLoot,
 	BosskillTimeline,
-	BosskillCharacter,
 	Raid
 } from '$lib/model';
-import { REALM_HELIOS } from '$lib/realm';
-import { eq } from 'drizzle-orm';
+import { realmIsKnown, realmToExpansion, REALM_HELIOS } from '$lib/realm';
+import { and, eq } from 'drizzle-orm';
 import {
 	getBossKillDetail,
 	getLatestBossKills,
@@ -51,7 +51,14 @@ export const synchronize = async ({
 }: Args) => {
 	// TODO: better log
 
+	if (realmIsKnown(realm) === false) {
+		onLog(`unknown realm ${realm}`);
+		return;
+	}
 	onLog('start');
+	const expansion = realmToExpansion(realm);
+	const realmEnt = await getOrCreateRealm({ name: realm, expansion });
+
 	const playerIdByGUID: Record<number, number> = {};
 	const raids = await getRaids({ realm });
 	let isLimited = false;
@@ -115,7 +122,6 @@ export const synchronize = async ({
 					}`
 				);
 				onLog(`${xOfY} Processing ${boss.name} bosskill: ${bk.id}`);
-				const realmEnt = await getOrCreateRealm(bk.realm);
 				const bkEnt = await getOrCreateBosskill({
 					bossId: bossEnt.id,
 					realmId: realmEnt.id,
@@ -133,7 +139,11 @@ export const synchronize = async ({
 						await deleteBossKillPlayers({ bosskillId });
 						const players = [];
 						for (const player of detail.boss_kills_players) {
-							const playerEnt = await getOrCreatePlayer(player.guid, player.name);
+							const playerEnt = await getOrCreatePlayer({
+								guid: player.guid,
+								name: player.name,
+								realmId: realmEnt.id
+							});
 							playerIdByGUID[player.guid] = playerEnt.id;
 							players.push({ ...player, playerId: playerEnt.id });
 						}
@@ -190,16 +200,13 @@ export const synchronize = async ({
 	onLog('done');
 };
 
-const getOrCreateRealm = async (realmName: string) => {
+const getOrCreateRealm = async ({ name, expansion }: { name: string; expansion: number }) => {
 	const db = await createConnection();
-	const result = await db.select().from(realmTable).where(eq(realmTable.name, realmName)).execute();
+	const result = await db.select().from(realmTable).where(eq(realmTable.name, name)).execute();
 	let ent = result[0] ?? null;
 	if (ent === null) {
 		const result = await db.transaction((tx) => {
-			return tx
-				.insert(realmTable)
-				.ignore()
-				.values([{ name: realmName }]);
+			return tx.insert(realmTable).ignore().values([{ name, expansion }]);
 		});
 		const id = result[0].insertId;
 		const refetch = await db.select().from(realmTable).where(eq(realmTable.id, id));
@@ -259,17 +266,25 @@ const getOrCreateBoss = async (boss: Boss) => {
 	return ent;
 };
 
-const getOrCreatePlayer = async (guid: number, name: string) => {
+const getOrCreatePlayer = async ({
+	guid,
+	name,
+	realmId
+}: {
+	guid: number;
+	name: string;
+	realmId: number;
+}) => {
 	const db = await createConnection();
 	const result = await db
 		.select()
 		.from(playerTable)
-		.where(eq(playerTable.remoteId, guid))
+		.where(and(eq(playerTable.remoteId, guid), eq(playerTable.realmId, realmId)))
 		.execute();
 	let ent = result[0] ?? null;
 	if (ent === null) {
 		const result = await db.transaction((tx) => {
-			return tx.insert(playerTable).ignore().values({ remoteId: guid, name: name });
+			return tx.insert(playerTable).ignore().values({ remoteId: guid, name, realmId });
 		});
 		const id = result[0].insertId;
 		const refetch = await db.select().from(playerTable).where(eq(playerTable.id, id));
