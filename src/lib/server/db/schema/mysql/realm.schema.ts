@@ -5,7 +5,8 @@ import { bosskills } from './mysql.schema';
 export const realmTable = bosskills.table('realm', {
 	id: int('id').primaryKey().autoincrement(),
 	// remoteId: int('remote_id').unique(),
-	name: text('name').notNull().unique()
+	name: text('name').notNull().unique(),
+	expansion: int('expansion').notNull()
 });
 
 export const raidRelations = relations(realmTable, ({ many }) => ({
