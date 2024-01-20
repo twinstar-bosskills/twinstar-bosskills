@@ -4,7 +4,7 @@
 	// import * as echarts from 'echarts';
 
 	// NOTE: if something breaks, just `import * as echarts from 'echarts';`
-	import type { Character } from '$lib/model';
+	import type { BosskillCharacter } from '$lib/model';
 	import type { EChartsOption, TooltipComponentFormatterCallbackParams } from 'echarts';
 	import { LineChart, ScatterChart } from 'echarts/charts';
 	import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';
@@ -14,7 +14,7 @@
 	import type { CallbackDataParams } from 'echarts/types/dist/shared';
 	import Chart from './Chart.svelte';
 
-	type TDeathOrRess = { value: number; players: Character[] };
+	type TDeathOrRess = { value: number; players: BosskillCharacter[] };
 	export let width: number | undefined = undefined;
 	export let xAxisData: number[] = [];
 	export let seriesEncounterDamage: number[] = [];

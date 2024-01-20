@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import Link from '$lib/components/Link.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import Boss from '$lib/components/table/column/Boss.column.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
@@ -11,13 +12,10 @@
 
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
-	import CharacterPerformanceChart from '$lib/components/echart/CharacterPerformanceChart.svelte';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
-	import { difficultyToString } from '$lib/model';
 	import { formatAvgItemLvl } from '$lib/number';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
-	import { realmToExpansion } from '$lib/realm';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
@@ -26,8 +24,7 @@
 
 	export let data: PageData;
 
-	const expansion = realmToExpansion(data.realm);
-	const performanceLines = Object.entries(data.performanceLines);
+	const name = data.name;
 	type T = (typeof bosskills)[0];
 	const bosskills = data.bosskills.data.filter((v) => !!v.boss_kills);
 
@@ -72,9 +69,10 @@
 			accessorFn: (row) => characterDps(row),
 			cell: (info) => {
 				const boskillId = info.row.original.boss_kills?.id ?? null;
+				const mode = info.row.original.boss_kills?.mode ?? null;
 				let performance = null;
-				if (boskillId !== null) {
-					performance = data.performanceTrends.byRemoteId[boskillId];
+				if (boskillId !== null && mode !== null) {
+					performance = data.performanceTrends?.[boskillId]?.[mode] ?? null;
 				}
 				return cellComponent(CharacterDps, { character: info.row.original, performance });
 			},
@@ -86,9 +84,10 @@
 			header: () => 'HPS',
 			cell: (info) => {
 				const boskillId = info.row.original.boss_kills?.id ?? null;
+				const mode = info.row.original.boss_kills?.mode ?? null;
 				let performance = null;
-				if (boskillId !== null) {
-					performance = data.performanceTrends.byRemoteId[boskillId];
+				if (boskillId !== null && mode !== null) {
+					performance = data.performanceTrends?.[boskillId]?.[mode] ?? null;
 				}
 				return cellComponent(CharacterHps, { character: info.row.original, performance });
 			}
@@ -123,15 +122,18 @@
 </script>
 
 <svelte:head>
-	<title>Character {data.name}</title>
+	<title>{name}'s recent kills time</title>
 </svelte:head>
 
 <div class="title">
 	<h1>
-		Character {data.name}
+		{name}'s recent kills
 	</h1>
-	<div class="link">
-		<LinkExternal href={links.twinstarArmory(data.realm, data.name)}>Armory</LinkExternal>
+	<div>
+		<Link href={links.characterPerformance(data.realm, name)}>Performance</Link>
+	</div>
+	<div>
+		<LinkExternal href={links.twinstarArmory(data.realm, name)}>Armory</LinkExternal>
 	</div>
 </div>
 
@@ -148,21 +150,6 @@
 		</svelte:fragment>
 	</Table>
 </div>
-{#if performanceLines.length > 0}
-	<div>
-		<h2>{data.name}'s performance over time</h2>
-		{#each performanceLines as [bossId, byMode]}
-			{#each Object.entries(byMode) as [mode, line]}
-				{@const name = data.bossNameById[Number(bossId)]}
-				{@const diff = difficultyToString(expansion, mode)}
-				<div>
-					<h3>{data.name}'s performance on {name} {diff}</h3>
-					<CharacterPerformanceChart data={line} />
-				</div>
-			{/each}
-		{/each}
-	</div>
-{/if}
 
 <style>
 	.title {

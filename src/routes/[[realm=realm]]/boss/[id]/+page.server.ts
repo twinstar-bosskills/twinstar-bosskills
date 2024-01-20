@@ -1,4 +1,4 @@
-import { type Character, defaultDifficultyByExpansion } from '$lib/model';
+import { type BosskillCharacter, defaultDifficultyByExpansion } from '$lib/model';
 import { getDifficultyFromUrl } from '$lib/search-params';
 import * as api from '$lib/server/api';
 import { getBossKillsWipesTimes } from '$lib/server/api';
@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	]);
 
 	type Stats = {
-		char: Character;
+		char: BosskillCharacter;
 		amount: number;
 	};
 	let dmg: Stats[] = [];

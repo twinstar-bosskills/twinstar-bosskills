@@ -37,6 +37,16 @@ export const mutateBossKill = <T extends BossKillDetail | BossKill>(item: T): T 
 	return item;
 };
 export type Character = {
+	/**
+	 * In format <REALM_ID>_<GUID>
+	 */
+	id: string;
+	guid: number;
+	level: number;
+	realm: string;
+	name: string;
+};
+export type BosskillCharacter = {
 	id: number;
 	guid: number;
 	talent_spec: number;
@@ -98,7 +108,7 @@ export type BosskillTimeline = {
 	raidHeal: string;
 };
 
-export const mutateCharacter = (realm: string, character: Character): Character => {
+export const mutateCharacter = (realm: string, character: BosskillCharacter): BosskillCharacter => {
 	character.dmgDone = Number(character.dmgDone);
 	character.healingDone = Number(character.healingDone);
 	character.absorbDone = Number(character.absorbDone);
@@ -137,7 +147,7 @@ export type BossKillDetail = {
 	ressUsed: number;
 	boss_kills_deaths: BosskillDeath[];
 	boss_kills_maps: BosskillTimeline[];
-	boss_kills_players: Character[];
+	boss_kills_players: BosskillCharacter[];
 	boss_kills_loot: BosskillLoot[];
 
 	// extras

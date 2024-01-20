@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Icon from '$lib/components/Icon.svelte';
-	import type { Character } from '$lib/model';
+	import type { BosskillCharacter } from '$lib/model';
 
-	export let character: Character;
+	export let character: BosskillCharacter;
 </script>
 
 <!-- TODO: API does not return class -->

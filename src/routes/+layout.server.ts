@@ -11,7 +11,7 @@ export const load: LayoutServerLoad = async ({ cookies, params }) => {
 	// locals might be better?
 	params.realm = REALMS_LOWECASE[params.realm?.toLowerCase() as string] ?? REALM_HELIOS;
 	return {
-		character: cookies.get('character') ?? '',
+		selectedCharacter: cookies.get('character') ?? '',
 		realm: params.realm,
 		windowInnerWidth: isFinite(w) && w > 0 ? w : undefined,
 		windowInnerHeight: isFinite(h) && h > 0 ? h : undefined

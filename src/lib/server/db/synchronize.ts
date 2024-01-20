@@ -4,7 +4,7 @@ import type {
 	BosskillDeath,
 	BosskillLoot,
 	BosskillTimeline,
-	Character,
+	BosskillCharacter,
 	Raid
 } from '$lib/model';
 import { REALM_HELIOS } from '$lib/realm';
@@ -31,6 +31,7 @@ import { realmTable } from './schema/realm.schema';
 
 type Args = {
 	onLog: (line: string) => void;
+	realm?: string;
 	startsAt?: Date;
 	endsAt?: Date;
 	bosskillIds?: number[];
@@ -40,6 +41,7 @@ type Args = {
 };
 export const synchronize = async ({
 	onLog,
+	realm = REALM_HELIOS,
 	startsAt,
 	endsAt,
 	bosskillIds,
@@ -48,8 +50,6 @@ export const synchronize = async ({
 	page
 }: Args) => {
 	// TODO: better log
-	// TODO: realm
-	const realm = REALM_HELIOS;
 
 	onLog('start');
 	const playerIdByGUID: Record<number, number> = {};
@@ -114,7 +114,7 @@ export const synchronize = async ({
 						i > 0 ? Math.round((100 * timeSum) / i) / 100 : 0
 					}`
 				);
-				onLog(`${xOfY} Processing bosskill: ${bk.id}`);
+				onLog(`${xOfY} Processing ${boss.name} bosskill: ${bk.id}`);
 				const realmEnt = await getOrCreateRealm(bk.realm);
 				const bkEnt = await getOrCreateBosskill({
 					bossId: bossEnt.id,
@@ -126,10 +126,10 @@ export const synchronize = async ({
 
 				const detail = await getBossKillDetail({ realm: realmEnt.name, id: bk.id });
 				if (detail) {
-					onLog(`${xOfY} Processing bosskill detail ${detail.id}`);
+					onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id}`);
 
 					if (Array.isArray(detail.boss_kills_players)) {
-						onLog(`${xOfY} Processing bosskill detail ${detail.id} - players`);
+						onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - players`);
 						await deleteBossKillPlayers({ bosskillId });
 						const players = [];
 						for (const player of detail.boss_kills_players) {
@@ -144,7 +144,7 @@ export const synchronize = async ({
 					}
 
 					if (Array.isArray(detail.boss_kills_loot)) {
-						onLog(`${xOfY} Processing bosskill detail ${detail.id} - loot`);
+						onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - loot`);
 						await deleteBossKillLoot({ bosskillId });
 						await createBossKillLoot({
 							bosskillId,
@@ -153,7 +153,7 @@ export const synchronize = async ({
 					}
 
 					if (Array.isArray(detail.boss_kills_deaths)) {
-						onLog(`${xOfY} Processing bosskill detail ${detail.id} - deaths`);
+						onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - deaths`);
 						await deleteBossKillDeaths({ bosskillId });
 
 						const deaths: BossKillDeathsArgs['deaths'] = [];
@@ -170,7 +170,7 @@ export const synchronize = async ({
 					}
 
 					if (Array.isArray(detail.boss_kills_maps)) {
-						onLog(`${xOfY} Processing bosskill detail ${detail.id} - timeline`);
+						onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - timeline`);
 						await deleteBossKillTimeline({ bosskillId });
 						await createBossKillTimeline({
 							bosskillId,
@@ -182,7 +182,7 @@ export const synchronize = async ({
 				}
 
 				const took = performance.now() - start;
-				onLog(`${xOfY} Processing bosskill took ${took}`);
+				onLog(`${xOfY} Processing ${boss.name} bosskill took ${took}`);
 				timeSum += took;
 			}
 		}
@@ -336,7 +336,7 @@ const deleteBossKillPlayers = async ({ bosskillId }: DeleteByBosskillId) => {
 };
 type BossKillPlayerArgs = {
 	bosskillId: number;
-	players: (Character & { playerId: number })[];
+	players: (BosskillCharacter & { playerId: number })[];
 };
 const createBossKillPlayers = async ({ bosskillId, players }: BossKillPlayerArgs) => {
 	if (players.length === 0) {

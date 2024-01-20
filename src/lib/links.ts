@@ -19,6 +19,8 @@ const withSearchParams = (url: string, query: SearchParams) => {
 const raids = (realm: string) => `/${realm}/raids`;
 const bossKills = (realm: string) => `/${realm}/boss-kills`;
 const character = (realm: string, name: string) => `/${realm}/character/${name}`;
+const characterPerformance = (realm: string, name: string) =>
+	`/${realm}/character/${name}/performance`;
 const boss = (realm: string, id: number, params: SearchParams = {}) => {
 	const url = `/${realm}/boss/${id}`;
 	return withSearchParams(url, params);
@@ -49,6 +51,7 @@ export const links = {
 	raids,
 	bossKills,
 	character,
+	characterPerformance,
 	boss,
 	bossKill,
 	twinstarBossKill,

@@ -1,18 +1,23 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
-import { mutateCharacter, type Character } from '$lib/model';
+import { mutateCharacter, type BosskillCharacter, type Character } from '$lib/model';
+import { realmToId } from '$lib/realm';
 import { withCache } from '../cache';
 import { queryString, type QueryArgs } from './filter';
 import { listAll } from './pagination';
 import type { PaginatedResponse } from './response';
 
 // /bosskills/player?map=<mapa>&mode=<obtiznost>&page=<stranka>&pageSize=<velikost>&(guid=<guid> or name=<name>)
-type CharacterQueryArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'> & { realm: string };
-export const getCharacterBossKills = async (q: CharacterQueryArgs): Promise<Character[]> => {
+type CharacterBosskillsArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'> & {
+	realm: string;
+};
+export const getCharacterBossKills = async (
+	q: CharacterBosskillsArgs
+): Promise<BosskillCharacter[]> => {
 	const url = `${TWINSTAR_API_URL}/bosskills/player?${queryString(q)}`;
 	const fallback = async () => {
 		try {
 			const r = await fetch(url);
-			const items: PaginatedResponse<Character[]> = await r.json();
+			const items: PaginatedResponse<BosskillCharacter[]> = await r.json();
 			if (Array.isArray(items?.data) === false) {
 				throw new Error(`expected array, got: ${typeof items?.data}`);
 			}
@@ -29,7 +34,7 @@ export const getCharacterBossKills = async (q: CharacterQueryArgs): Promise<Char
 		}
 	};
 
-	return withCache<Character[]>({ deps: [`character`, q], fallback }) ?? [];
+	return withCache<BosskillCharacter[]>({ deps: [`character-bosskills`, q], fallback }) ?? [];
 };
 
 type CharacterTotalBossKillsArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'>;
@@ -41,7 +46,7 @@ export const getCharacterTotalBossKills = async (q: {
 		const url = `${TWINSTAR_API_URL}/bosskills/player?${queryString({ ...rest, page, pageSize })}`;
 		try {
 			const r = await fetch(url);
-			const items: Character[] | PaginatedResponse<Character> = await r.json();
+			const items: BosskillCharacter[] | PaginatedResponse<BosskillCharacter> = await r.json();
 
 			// TODO: this is wrong but we do not have items.total yet
 			let total = 2000;
@@ -85,5 +90,43 @@ export const getCharacterTotalBossKills = async (q: {
 
 	return withCache<number>({ deps: [`character-total-bosskills`, q], fallback }) ?? 0;
 };
+type CharacterByNameArgs = Pick<QueryArgs, 'page' | 'pageSize'> &
+	Required<Pick<QueryArgs, 'name' | 'realm'>>;
+export const getCharacterByName = async (q: CharacterByNameArgs): Promise<Character | null> => {
+	const fetchCharacter = async ({ page, pageSize, ...rest }: CharacterByNameArgs) => {
+		const url = `${TWINSTAR_API_URL}/characters?${queryString({ ...rest, page, pageSize })}`;
+		try {
+			const r = await fetch(url);
+			const items: PaginatedResponse<Character[]> = await r.json();
 
-// https://twinstar-api.twinstar-wow.com/characters?page=0&pageSize=25&name=gareo
+			const char =
+				items.data.find(
+					(char) => char.name === q.name && char.realm.toLowerCase() === q.realm.toLowerCase()
+				) ?? null;
+			if (char) {
+				const realmId = realmToId(q.realm);
+				char.guid = Number(char.id.replace(`${realmId}_`, ''));
+			}
+
+			return char;
+		} catch (e) {
+			console.error(e, url);
+			throw e;
+		}
+	};
+
+	const fallback = async () => {
+		try {
+			const char = await fetchCharacter(q);
+			if (char) {
+				return char;
+			}
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+		return null;
+	};
+
+	return withCache<Character | null>({ deps: [`character`, q], fallback, defaultValue: null });
+};

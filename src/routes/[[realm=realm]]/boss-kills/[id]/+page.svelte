@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
-	import { isRaidDifficultyWithLoot, type Character, type Item } from '$lib/model';
+	import { isRaidDifficultyWithLoot, type BosskillCharacter, type Item } from '$lib/model';
 	import { formatAvgItemLvl, formatNumber } from '$lib/number';
 
 	import type { PageData } from './$types';
@@ -41,7 +41,7 @@
 	const charactersByGUID = data.bosskill.boss_kills_players?.reduce((acc, item) => {
 		acc[item.guid] = item;
 		return acc;
-	}, {} as Record<number, Character>);
+	}, {} as Record<number, BosskillCharacter>);
 	const timeline = data.bosskill.boss_kills_maps;
 	const deaths = data.bosskill.boss_kills_deaths;
 
