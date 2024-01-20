@@ -49,7 +49,12 @@ export const getCharacterPerformanceTrends = async ({
 					inArray(bosskillTable.mode, diffs)
 				)
 			)
-			.groupBy(bosskillTable.mode, bosskillTable.bossId, bosskillTable.time)
+			.groupBy(
+				bosskillTable.mode,
+				bosskillTable.bossId,
+				bosskillPlayerTable.talentSpec,
+				bosskillTable.time
+			)
 			.orderBy(desc(bosskillTable.time));
 
 		const bosskills = await currentQb.execute();
@@ -69,7 +74,6 @@ export const getCharacterPerformanceTrends = async ({
 						eq(bosskillPlayerTable.talentSpec, current.boss_kill_player.talentSpec)
 					)
 				)
-				.groupBy(bosskillTable.mode, bosskillTable.bossId)
 				.orderBy(desc(bosskillTable.time));
 			const previous = previousRows[0] ?? null;
 
@@ -86,6 +90,8 @@ export const getCharacterPerformanceTrends = async ({
 				trends[remoteId]![mode] ??= {
 					dps: baseDps <= 0 ? 0 : Math.round((10000 * (currentDps - baseDps)) / baseDps) / 100,
 					hps: baseHps <= 0 ? 0 : Math.round((10000 * (currentHps - baseHps)) / baseHps) / 100
+					// currentId: current.boss_kill.remoteId,
+					// baseId: previous.boss_kill.remoteId
 				};
 			}
 		}
