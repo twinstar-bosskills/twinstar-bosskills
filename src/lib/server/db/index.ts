@@ -35,6 +35,7 @@ const makeMysqlClient = async (): Promise<MysqlClient> => {
 
 // using mysql for now
 // let globalDb: ReturnType<typeof libsqlDrizzle | typeof mysqlDrizzle> | null = null;
+export type DbConnection = NonNullable<typeof globalDb>;
 let globalDb: ReturnType<typeof mysqlDrizzle> | null = null;
 export const createConnection = async () => {
 	if (globalDb) {

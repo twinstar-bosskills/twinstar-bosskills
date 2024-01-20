@@ -8,14 +8,14 @@ import {
 	getCharacterPerformanceTrends,
 	type CharacterPerformanceLine
 } from '$lib/server/db/character';
-import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load = async ({ params, url }: Parameters<PageServerLoad>[0]) => {
+export const load: PageServerLoad = async ({ params, url, parent }) => {
+	const { character } = await parent();
 	const realm = params.realm ?? REALM_HELIOS;
 	const page = getPageFromURL(url);
 	const pageSize = getPageSizeFromURL(url, 20);
-	const name = params.name.charAt(0).toUpperCase() + params.name.slice(1);
+	const { name, guid } = character;
 	const [data, total] = await Promise.all([
 		api.getCharacterBossKills({
 			realm,
@@ -25,15 +25,6 @@ export const load = async ({ params, url }: Parameters<PageServerLoad>[0]) => {
 		}),
 		api.getCharacterTotalBossKills({ realm, name })
 	]);
-
-	if (data.length === 0) {
-		throw error(404, { message: `Character ${name} was not found` });
-	}
-
-	const guid = data[0]?.guid ?? null;
-	if (guid === null) {
-		throw error(404, { message: `Character ${name} was not found` });
-	}
 
 	// sort by time desc
 	data.sort((a, b) => {

@@ -1,3 +1,4 @@
+import { REALMS_LOWECASE } from '$lib/realm';
 import { InvalidArgumentError } from 'commander';
 import { isValid, parse } from 'date-fns';
 
@@ -5,6 +6,13 @@ export const integer = (v: string): number => {
 	const parsedValue = parseInt(v, 10);
 	if (isNaN(parsedValue) || !isFinite(parsedValue)) {
 		throw new InvalidArgumentError(`Value ${v} is not valid integer`);
+	}
+	return parsedValue;
+};
+export const realmString = (v: string): string => {
+	const parsedValue = REALMS_LOWECASE[v.toLowerCase()];
+	if (typeof parsedValue !== 'string') {
+		throw new InvalidArgumentError(`Value ${v} is not valid realm`);
 	}
 	return parsedValue;
 };

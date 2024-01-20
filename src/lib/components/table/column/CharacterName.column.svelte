@@ -1,11 +1,11 @@
 <script lang="ts">
 	import Link from '$lib/components/Link.svelte';
 	import { links } from '$lib/links';
-	import type { Character } from '$lib/model';
+	import type { BosskillCharacter } from '$lib/model';
 	import { REALM_HELIOS } from '$lib/realm';
 
 	export let realm: string = REALM_HELIOS;
-	export let character: Character;
+	export let character: BosskillCharacter;
 	export let rank: number | undefined = undefined;
 </script>
 

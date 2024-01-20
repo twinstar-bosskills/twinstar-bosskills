@@ -2,7 +2,7 @@ import { raidLock } from '$lib/date';
 import { program } from 'commander';
 import { synchronize } from '../db/synchronize';
 
-import { integerGte, listOfIntegers } from './parse-args';
+import { integerGte, listOfIntegers, realmString } from './parse-args';
 
 const gteZero = integerGte(0);
 program.option(
@@ -14,10 +14,11 @@ program.option('--bosskill-ids <items>', 'comma separated list of bosskill ids',
 program.option('--boss-ids <items>', 'comma separated list of boss ids', listOfIntegers);
 program.option('--page <number>', 'Page number', gteZero);
 program.option('--page-size <number>', 'Page size', gteZero);
+program.option('--realm <string>', 'Realm', realmString);
 program.parse();
 
 console.log(program.opts());
-const { offset, bosskillIds, bossIds, page, pageSize } = program.opts();
+const { offset, bosskillIds, bossIds, page, pageSize, realm } = program.opts();
 
 let startsAt: Date | undefined = undefined;
 let endsAt: Date | undefined = undefined;
@@ -27,10 +28,11 @@ if (typeof offset !== 'undefined') {
 	startsAt = start;
 	endsAt = end;
 }
-console.log({ startsAt, endsAt });
+console.log({ realm, startsAt, endsAt });
 
 await synchronize({
 	onLog: console.log,
+	realm,
 	startsAt,
 	endsAt,
 	bosskillIds,

@@ -34,7 +34,7 @@
 		<SelectCharacter
 			realm={data.realm}
 			redirectUrl={$page.url.pathname + $page.url.search + $page.url.hash}
-			character={data.character}
+			character={data.selectedCharacter}
 		/>
 	</div>
 </div>
