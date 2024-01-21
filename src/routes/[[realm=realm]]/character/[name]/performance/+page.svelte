@@ -30,11 +30,11 @@
 	</div>
 </div>
 {#if performanceLines.length === 0}
-	No performance recods found yet
+	No performance records found yet
 {:else}
 	{#each performanceLines as [bossId, byMode]}
 		{#each Object.entries(byMode) as [mode, line]}
-			{#if line.length > 0}
+			{#if line.length > 1}
 				{@const name = line[0]?.bossName ?? bossId}
 				{@const diff = difficultyToString(expansion, mode)}
 				<div>

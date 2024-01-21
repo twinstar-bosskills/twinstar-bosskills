@@ -6,7 +6,8 @@ export const createDragonflyClient = () => {
 	if (globalDf === null) {
 		globalDf = new Redis({
 			host: DRAGONFLY_HOST,
-			port: Number(DRAGONFLY_PORT)
+			port: Number(DRAGONFLY_PORT),
+			connectTimeout: 1_000
 		});
 	}
 	return globalDf!;

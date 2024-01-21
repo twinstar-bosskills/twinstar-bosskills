@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
-	import { isRaidDifficultyWithLoot, type BosskillCharacter, type Item } from '$lib/model';
+	import { isRaidDifficultyWithLoot, type Item } from '$lib/model';
 	import { formatAvgItemLvl, formatNumber } from '$lib/number';
 
 	import type { PageData } from './$types';
@@ -35,13 +35,13 @@
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
-	import type { ColumnDef } from '@tanstack/svelte-table';
 	import { realmToExpansion } from '$lib/realm';
+	import type { ColumnDef } from '@tanstack/svelte-table';
 
 	const charactersByGUID = data.bosskill.boss_kills_players?.reduce((acc, item) => {
 		acc[item.guid] = item;
 		return acc;
-	}, {} as Record<number, BosskillCharacter>);
+	}, {} as Record<number, (typeof data.bosskill.boss_kills_players)[0]>);
 	const timeline = data.bosskill.boss_kills_maps;
 	const deaths = data.bosskill.boss_kills_deaths;
 
@@ -99,6 +99,7 @@
 			cell: ({ row }) => {
 				const { original } = row;
 				return cellComponent(Class, {
+					realm: data.realm,
 					character: original
 				});
 			},

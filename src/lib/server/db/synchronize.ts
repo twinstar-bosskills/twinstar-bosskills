@@ -1,3 +1,4 @@
+import { realmIsKnown, realmToExpansion, REALM_HELIOS } from '$lib/realm';
 import type {
 	Boss,
 	BossKill,
@@ -6,8 +7,7 @@ import type {
 	BosskillLoot,
 	BosskillTimeline,
 	Raid
-} from '$lib/model';
-import { realmIsKnown, realmToExpansion, REALM_HELIOS } from '$lib/realm';
+} from '$lib/server/api/schema';
 import { and, eq } from 'drizzle-orm';
 import {
 	getBossKillDetail,

@@ -1,11 +1,12 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
 import { prepareData, type PreparedData } from '$lib/components/echart/boxplot';
-import { mutateCharacter, type Boss, type BosskillCharacter } from '$lib/model';
+import { mutateCharacter, type BosskillCharacter } from '$lib/model';
 import { REALM_HELIOS } from '$lib/realm';
 import { withCache } from '../cache';
 import { listAllLatestBossKills, type LatestBossKillQueryArgs } from './boss-kills';
 import { FilterOperator, queryString, type QueryArgs } from './filter';
 import { getRaids } from './raid';
+import type { Boss } from './schema';
 
 type GetBossArgs = { realm?: string; id: number };
 export const getBoss = async ({ id, realm = REALM_HELIOS }: GetBossArgs): Promise<Boss | null> => {
