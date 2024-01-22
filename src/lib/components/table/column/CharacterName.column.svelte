@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Link from '$lib/components/Link.svelte';
 	import { links } from '$lib/links';
-	import type { BosskillCharacter } from '$lib/model';
 	import { REALM_HELIOS } from '$lib/realm';
+	import type { BosskillCharacter } from '$lib/server/api/schema';
 
 	export let realm: string = REALM_HELIOS;
 	export let character: BosskillCharacter;

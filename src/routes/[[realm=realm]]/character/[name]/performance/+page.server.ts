@@ -1,5 +1,5 @@
-import type { Boss } from '$lib/model';
 import { REALM_HELIOS } from '$lib/realm';
+import type { Boss } from '$lib/server/api/schema';
 import {
 	getCharacterPerformanceLineByBoss,
 	type CharacterPerformanceLine

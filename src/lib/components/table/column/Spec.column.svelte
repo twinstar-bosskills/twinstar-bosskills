@@ -1,10 +1,17 @@
 <script lang="ts">
 	import Icon from '$lib/components/Icon.svelte';
-	import type { BosskillCharacter } from '$lib/model';
+	import { talentSpecToString } from '$lib/model';
+	import { realmToExpansion } from '$lib/realm';
+	import type { BosskillCharacter } from '$lib/server/api/schema';
+	import { getTalentSpecIconUrl } from '$lib/talent';
 
+	export let realm: string;
 	export let character: BosskillCharacter;
+
+	const talentSpecIconUrl = getTalentSpecIconUrl(realm, character.talent_spec);
+	const talentSpecString = talentSpecToString(realmToExpansion(realm), character.talent_spec);
 </script>
 
 <!-- TODO: API does not return class -->
 <!-- <Icon src={character.classIconUrl} label={character.classString} /> -->
-<Icon src={character.talentSpecIconUrl} label={character.talentSpecString} />
+<Icon src={talentSpecIconUrl} label={talentSpecString} />

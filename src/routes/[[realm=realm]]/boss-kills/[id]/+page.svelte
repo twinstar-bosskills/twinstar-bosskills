@@ -1,9 +1,22 @@
 <script lang="ts">
+	import Link from '$lib/components/Link.svelte';
+	import LinkExternal from '$lib/components/LinkExternal.svelte';
+	import BossKillDetailsChart from '$lib/components/echart/BossKillDetailsChart.svelte';
+	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
+	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
+	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
+	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
+	import Class from '$lib/components/table/column/Class.column.svelte';
+	import { formatCell } from '$lib/components/table/column/cell';
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
-	import { isRaidDifficultyWithLoot, type BosskillCharacter, type Item } from '$lib/model';
+	import { links } from '$lib/links';
+	import { characterDps, characterHps } from '$lib/metrics';
+	import { isRaidDifficultyWithLoot } from '$lib/model';
 	import { formatAvgItemLvl, formatNumber } from '$lib/number';
-
+	import { realmToExpansion } from '$lib/realm';
+	import type { Item } from '$lib/server/api/schema';
+	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -24,24 +37,10 @@
 		showTooltipById[key] = false;
 	}
 
-	import Link from '$lib/components/Link.svelte';
-	import LinkExternal from '$lib/components/LinkExternal.svelte';
-	import BossKillDetailsChart from '$lib/components/echart/BossKillDetailsChart.svelte';
-	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
-	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
-	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
-	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
-	import Class from '$lib/components/table/column/Class.column.svelte';
-	import { formatCell } from '$lib/components/table/column/cell';
-	import { links } from '$lib/links';
-	import { characterDps, characterHps } from '$lib/metrics';
-	import type { ColumnDef } from '@tanstack/svelte-table';
-	import { realmToExpansion } from '$lib/realm';
-
 	const charactersByGUID = data.bosskill.boss_kills_players?.reduce((acc, item) => {
 		acc[item.guid] = item;
 		return acc;
-	}, {} as Record<number, BosskillCharacter>);
+	}, {} as Record<number, (typeof data.bosskill.boss_kills_players)[0]>);
 	const timeline = data.bosskill.boss_kills_maps;
 	const deaths = data.bosskill.boss_kills_deaths;
 
@@ -99,6 +98,7 @@
 			cell: ({ row }) => {
 				const { original } = row;
 				return cellComponent(Class, {
+					realm: data.realm,
 					character: original
 				});
 			},

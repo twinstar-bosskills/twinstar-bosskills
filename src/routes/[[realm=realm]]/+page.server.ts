@@ -1,11 +1,11 @@
 import { fromServerTime, raidLock } from '$lib/date';
-import type { BossKill } from '$lib/model';
 import { listAllLatestBossKills } from '$lib/server/api';
 import { FilterOperator } from '$lib/server/api/filter';
+import type { BossKill } from '$lib/server/api/schema';
 import { format } from 'date-fns';
 
-import type { PageServerLoad } from './$types';
 import { REALM_HELIOS } from '$lib/realm';
+import type { PageServerLoad } from './$types';
 type ByTime = Record<string, number>;
 type ByBoss = {
 	count: number;

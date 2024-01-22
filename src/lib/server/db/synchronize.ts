@@ -1,13 +1,13 @@
+import { realmIsKnown, realmToExpansion, REALM_HELIOS } from '$lib/realm';
 import type {
 	Boss,
 	BossKill,
-	BosskillCharacter,
 	BosskillDeath,
+	BossKillDetail,
 	BosskillLoot,
 	BosskillTimeline,
 	Raid
-} from '$lib/model';
-import { realmIsKnown, realmToExpansion, REALM_HELIOS } from '$lib/realm';
+} from '$lib/server/api/schema';
 import { and, eq } from 'drizzle-orm';
 import {
 	getBossKillDetail,
@@ -351,7 +351,7 @@ const deleteBossKillPlayers = async ({ bosskillId }: DeleteByBosskillId) => {
 };
 type BossKillPlayerArgs = {
 	bosskillId: number;
-	players: (BosskillCharacter & { playerId: number })[];
+	players: (BossKillDetail['boss_kills_players'][0] & { playerId: number })[];
 };
 const createBossKillPlayers = async ({ bosskillId, players }: BossKillPlayerArgs) => {
 	if (players.length === 0) {

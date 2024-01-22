@@ -1,8 +1,8 @@
-import type { Boss } from '$lib/model';
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
 import { getBoss } from '$lib/server/api';
+import type { Boss } from '$lib/server/api/schema';
 import {
 	getCharacterPerformanceLine,
 	getCharacterPerformanceTrends,

@@ -1,9 +1,9 @@
 import { toArrayOfInf as toArrayOfInt, toArrayOfNonEmptyStrings } from '$lib/mapper';
-import type { Boss } from '$lib/model';
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import type { LatestBossKillQueryArgs } from '$lib/server/api';
 import * as api from '$lib/server/api';
 import { FilterOperator } from '$lib/server/api/filter';
+import type { Boss } from '$lib/server/api/schema';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, params }) => {

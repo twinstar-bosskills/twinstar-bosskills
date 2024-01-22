@@ -1,10 +1,16 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
-import { mutateCharacter, type BosskillCharacter, type Character } from '$lib/model';
+
 import { realmToId } from '$lib/realm';
 import { withCache } from '../cache';
 import { queryString, type QueryArgs } from './filter';
 import { listAll } from './pagination';
-import type { PaginatedResponse } from './response';
+import { makePaginatedResponseSchema, type PaginatedResponse } from './response';
+import {
+	bosskillCharactersPartialSchema,
+	charactersSchema,
+	type BosskillCharacterPartial,
+	type Character
+} from './schema';
 
 // /bosskills/player?map=<mapa>&mode=<obtiznost>&page=<stranka>&pageSize=<velikost>&(guid=<guid> or name=<name>)
 type CharacterBosskillsArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'> & {
@@ -12,20 +18,14 @@ type CharacterBosskillsArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec
 };
 export const getCharacterBossKills = async (
 	q: CharacterBosskillsArgs
-): Promise<BosskillCharacter[]> => {
+): Promise<BosskillCharacterPartial[]> => {
 	const url = `${TWINSTAR_API_URL}/bosskills/player?${queryString(q)}`;
 	const fallback = async () => {
 		try {
 			const r = await fetch(url);
-			const items: PaginatedResponse<BosskillCharacter[]> = await r.json();
-			if (Array.isArray(items?.data) === false) {
-				throw new Error(`expected array, got: ${typeof items?.data}`);
-			}
-
+			const json = await r.json();
+			const items = makePaginatedResponseSchema(bosskillCharactersPartialSchema).parse(json);
 			const data = items.data;
-			for (const item of items.data) {
-				mutateCharacter(q.realm, item);
-			}
 
 			return data;
 		} catch (e) {
@@ -34,7 +34,9 @@ export const getCharacterBossKills = async (
 		}
 	};
 
-	return withCache<BosskillCharacter[]>({ deps: [`character-bosskills`, q], fallback }) ?? [];
+	return (
+		withCache<BosskillCharacterPartial[]>({ deps: [`character-bosskills`, q], fallback }) ?? []
+	);
 };
 
 type CharacterTotalBossKillsArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'>;
@@ -46,7 +48,8 @@ export const getCharacterTotalBossKills = async (q: {
 		const url = `${TWINSTAR_API_URL}/bosskills/player?${queryString({ ...rest, page, pageSize })}`;
 		try {
 			const r = await fetch(url);
-			const items: BosskillCharacter[] | PaginatedResponse<BosskillCharacter> = await r.json();
+			const items: BosskillCharacterPartial[] | PaginatedResponse<BosskillCharacterPartial> =
+				await r.json();
 
 			// TODO: this is wrong but we do not have items.total yet
 			let total = 2000;
@@ -97,7 +100,8 @@ export const getCharacterByName = async (q: CharacterByNameArgs): Promise<Charac
 		const url = `${TWINSTAR_API_URL}/characters?${queryString({ ...rest, page, pageSize })}`;
 		try {
 			const r = await fetch(url);
-			const items: PaginatedResponse<Character[]> = await r.json();
+			const json = await r.json();
+			const items = makePaginatedResponseSchema(charactersSchema).parse(json);
 
 			const char =
 				items.data.find(

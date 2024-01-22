@@ -18,13 +18,9 @@
 
 <script lang="ts">
 	import { links } from '$lib/links';
-	import {
-		difficultiesByExpansion,
-		difficultyToString,
-		isRaidDifficulty,
-		type Raid
-	} from '$lib/model';
+	import { difficultiesByExpansion, difficultyToString, isRaidDifficulty } from '$lib/model';
 	import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
+	import type { Raid } from '$lib/server/api/schema';
 	import Link from '../Link.svelte';
 
 	export let realm: string = REALM_HELIOS;

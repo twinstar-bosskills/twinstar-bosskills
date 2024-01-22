@@ -9,8 +9,18 @@ services:
     networks:
       bosskills:
         ipv4_address: 172.19.0.2
+  dragonfly:
+    image: 'docker.dragonflydb.io/dragonflydb/dragonfly'
+    ulimits:
+      memlock: -1
+    volumes:
+      - dragonfly-data:/data
+    networks:
+      bosskills:
+        ipv4_address: 172.19.0.3
 volumes:
   mariadb-data:
+  dragonfly-data:
 networks:
   bosskills:
     driver: bridge

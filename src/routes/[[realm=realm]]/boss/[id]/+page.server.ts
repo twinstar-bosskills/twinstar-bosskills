@@ -1,12 +1,12 @@
-import { type BosskillCharacter, defaultDifficultyByExpansion } from '$lib/model';
+import { defaultDifficultyByExpansion } from '$lib/model';
 import { getDifficultyFromUrl } from '$lib/search-params';
 import * as api from '$lib/server/api';
 import { getBossKillsWipesTimes } from '$lib/server/api';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 
+import { realmToExpansion, REALM_HELIOS } from '$lib/realm';
 import type { PageServerLoad } from './$types';
-import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 const LIMIT = 200;
 export const load: PageServerLoad = async ({ url, params }) => {
 	const id = Number(params.id);
@@ -25,13 +25,6 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		api.getBossAggregatedStats({ realm, id, field: 'dps', mode }),
 		api.getBossAggregatedStats({ realm, id, field: 'hps', mode })
 	]);
-
-	type Stats = {
-		char: BosskillCharacter;
-		amount: number;
-	};
-	let dmg: Stats[] = [];
-	let heal: Stats[] = [];
 
 	/*
 	const stats = await api.getBossStats(id);
@@ -93,6 +86,12 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		})
 	]);
 
+	type Stats = {
+		char: (typeof byDPS)['bySpec'][number][0];
+		amount: number;
+	};
+	let dmg: Stats[] = [];
+	let heal: Stats[] = [];
 	for (const bySpec of Object.values(byDPS.bySpec)) {
 		for (const char of bySpec) {
 			const amount = Number(char.dmgDone);
