@@ -1,9 +1,22 @@
 <script lang="ts">
+	import Link from '$lib/components/Link.svelte';
+	import LinkExternal from '$lib/components/LinkExternal.svelte';
+	import BossKillDetailsChart from '$lib/components/echart/BossKillDetailsChart.svelte';
+	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
+	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
+	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
+	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
+	import Class from '$lib/components/table/column/Class.column.svelte';
+	import { formatCell } from '$lib/components/table/column/cell';
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
-	import { isRaidDifficultyWithLoot, type Item } from '$lib/model';
+	import { links } from '$lib/links';
+	import { characterDps, characterHps } from '$lib/metrics';
+	import { isRaidDifficultyWithLoot } from '$lib/model';
 	import { formatAvgItemLvl, formatNumber } from '$lib/number';
-
+	import { realmToExpansion } from '$lib/realm';
+	import type { Item } from '$lib/server/api/schema';
+	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -23,20 +36,6 @@
 	function hideTooltip(key: string) {
 		showTooltipById[key] = false;
 	}
-
-	import Link from '$lib/components/Link.svelte';
-	import LinkExternal from '$lib/components/LinkExternal.svelte';
-	import BossKillDetailsChart from '$lib/components/echart/BossKillDetailsChart.svelte';
-	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
-	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
-	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
-	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
-	import Class from '$lib/components/table/column/Class.column.svelte';
-	import { formatCell } from '$lib/components/table/column/cell';
-	import { links } from '$lib/links';
-	import { characterDps, characterHps } from '$lib/metrics';
-	import { realmToExpansion } from '$lib/realm';
-	import type { ColumnDef } from '@tanstack/svelte-table';
 
 	const charactersByGUID = data.bosskill.boss_kills_players?.reduce((acc, item) => {
 		acc[item.guid] = item;

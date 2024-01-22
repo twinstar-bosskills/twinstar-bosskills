@@ -5,7 +5,6 @@ import { realmToExpansion } from '$lib/realm';
 import { z } from 'zod';
 
 const bossIdSchema = z.number().gte(0);
-
 export const bossSchema = z.object({
 	entry: bossIdSchema,
 	name: z.string()
@@ -22,7 +21,7 @@ export type Raid = z.infer<typeof raidSchema>;
 export const raidsSchema = z.array(raidSchema);
 
 const modeSchema = z.number().gte(0);
-const bosskillTransform = (item: z.infer<typeof bosskillSchemaBase>) => {
+const bosskillTransform = <T extends { realm: string; mode: number }>(item: T) => {
 	const realm = item.realm;
 	const expansion = realmToExpansion(realm);
 	return { ...item, difficulty: difficultyToString(expansion, item.mode) };
@@ -45,6 +44,10 @@ export const bosskillSchema = bosskillSchemaBase.transform(bosskillTransform);
 export type BossKill = z.infer<typeof bosskillSchema>;
 export const bosskillsSchema = z.array(bosskillSchema);
 
+const raceSchema = z.number();
+const classSchema = z.number();
+const genderSchema = z.number();
+const levelSchema = z.number().gt(0);
 const bosskillCharacterSchemaBase = z.object({
 	id: z.number(),
 	guid: z.number(),
@@ -61,13 +64,18 @@ const bosskillCharacterSchemaBase = z.object({
 	dispels: z.coerce.number(),
 	interrupts: z.coerce.number(),
 	name: z.string(),
-	race: z.number(),
-	class: z.number(),
-	gender: z.number(),
-	level: z.number(),
-	boss_kills: z.union([bosskillSchema, z.undefined()])
+	race: raceSchema,
+	class: classSchema,
+	gender: genderSchema,
+	level: levelSchema,
+	boss_kills: z.union([
+		bosskillSchemaBase.omit({ creature_name: true }).transform(bosskillTransform),
+		z.undefined()
+	])
 });
-const bosskillCharacterTransform = (item: z.infer<typeof bosskillCharacterSchemaBase>) => {
+const bosskillCharacterTransform = <T extends { class: number; race: number; gender: number }>(
+	item: T
+) => {
 	const classString = classToString(item.class);
 	const classIconUrl = getClassIconUrl(item.class);
 
@@ -85,7 +93,19 @@ const bosskillCharacterTransform = (item: z.infer<typeof bosskillCharacterSchema
 export const bosskillCharacterSchema = bosskillCharacterSchemaBase.transform((item) => {
 	return bosskillCharacterTransform(item);
 });
+export const bosskillCharactersSchema = z.array(bosskillCharacterSchema);
 export type BosskillCharacter = z.infer<typeof bosskillCharacterSchema>;
+
+export const bosskillCharacterPartialSchema = bosskillCharacterSchemaBase.omit({
+	name: true,
+	level: true,
+	race: true,
+	class: true,
+	gender: true
+});
+
+export const bosskillCharactersPartialSchema = z.array(bosskillCharacterPartialSchema);
+export type BosskillCharacterPartial = z.infer<typeof bosskillCharacterPartialSchema>;
 
 export const bosskillLootSchema = z.object({
 	id: z.number(),
@@ -126,3 +146,55 @@ const bosskillDetailSchemaBase = bosskillSchemaBase.omit({ creature_name: true }
 });
 export const bosskillDetailSchema = bosskillDetailSchemaBase.transform(bosskillDetailTransform);
 export type BossKillDetail = z.infer<typeof bosskillDetailSchema>;
+
+const characterTransform = <T extends { id: string }>(item: T, ctx: z.RefinementCtx) => {
+	const guid = Number(item.id.replace(/^[0-9]+_/, ''));
+	if (isFinite(guid) === false) {
+		ctx.addIssue({
+			fatal: true,
+			code: z.ZodIssueCode.custom,
+			message: `Unable to parse guid from id ${item.id}`
+		});
+	}
+	return {
+		...item,
+		guid
+	};
+};
+export const characterSchema = z
+	.object({
+		/**
+		 * In format <REALM_ID>_<GUID>
+		 */
+		id: z.string().regex(/^[1-9]+[0-9]*_[1-9]+[0-9]*/),
+		name: z.string(),
+		race: raceSchema,
+		class: classSchema,
+		gender: genderSchema,
+		level: levelSchema,
+		realm: z.string()
+	})
+	.transform(characterTransform);
+export const charactersSchema = z.array(characterSchema);
+export type Character = z.infer<typeof characterSchema>;
+
+export const itemSchema = z.object({
+	id: z.number(),
+	name: z.string(),
+	iconUrl: z.string().nullable(),
+	quality: z.number()
+});
+export type Item = z.infer<typeof itemSchema>;
+export const itemSparseSchema = z.object({
+	Name: z.string(),
+	Quality: z.number()
+});
+export type ItemSparse = z.infer<typeof itemSparseSchema>;
+
+export const itemTooltipSchema = z.object({
+	/**
+	 * HTML string
+	 */
+	tooltip: z.string()
+});
+export type ItemTooltip = z.infer<typeof itemTooltipSchema>;

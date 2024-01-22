@@ -2,8 +2,9 @@
 	import arrowDown from '$lib/assets/icons/arrow-down.svg?raw';
 	import arrowUp from '$lib/assets/icons/arrow-up.svg?raw';
 	import { characterHps } from '$lib/metrics';
-	import type { BosskillCharacter } from '$lib/model';
+
 	import { formatNumber } from '$lib/number';
+	import type { BosskillCharacter } from '$lib/server/api/schema';
 	export let character: BosskillCharacter;
 	export let fightLength: number | undefined = undefined;
 	export let performance: { hps: number } | undefined | null = undefined;

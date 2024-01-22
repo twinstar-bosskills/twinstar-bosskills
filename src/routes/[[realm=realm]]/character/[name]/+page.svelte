@@ -36,16 +36,16 @@
 				return data.bossNameById[entry] ?? entry;
 			},
 			header: () => 'Boss',
-			cell: (info) =>
-				cellComponent(Boss, {
+			cell: (info) => {
+				const bossId = info.row.original.boss_kills?.entry ?? 0;
+				return cellComponent(Boss, {
 					realm: data.realm,
 					bosskill: {
 						...info.row.original.boss_kills,
-						creature_name:
-							data.bossNameById[info.row.original.boss_kills?.entry ?? 0] ??
-							info.row.original.boss_kills?.creature_name
+						creature_name: data.bossNameById[bossId] ?? bossId
 					}
-				})
+				});
+			}
 		},
 		{
 			id: 'difficulty',
@@ -58,6 +58,7 @@
 			cell: ({ row }) => {
 				const { original } = row;
 				return cellComponent(Spec, {
+					realm: data.realm,
 					character: original
 				});
 			},

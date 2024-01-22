@@ -1,12 +1,12 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
 import { prepareData, type PreparedData } from '$lib/components/echart/boxplot';
-import { mutateCharacter, type BosskillCharacter } from '$lib/model';
+
 import { REALM_HELIOS } from '$lib/realm';
 import { withCache } from '../cache';
 import { listAllLatestBossKills, type LatestBossKillQueryArgs } from './boss-kills';
 import { FilterOperator, queryString, type QueryArgs } from './filter';
 import { getRaids } from './raid';
-import type { Boss } from './schema';
+import { bosskillCharactersSchema, type Boss, type BosskillCharacter } from './schema';
 
 type GetBossArgs = { realm?: string; id: number };
 export const getBoss = async ({ id, realm = REALM_HELIOS }: GetBossArgs): Promise<Boss | null> => {
@@ -56,10 +56,10 @@ export const getBossStatsV2 = async (id: number, qa: BossStatsQueryArgs): Promis
 		const bySpec: BossStats['bySpec'] = {};
 		try {
 			const r = await fetch(url);
-			const data: BosskillCharacter[] = await r.json();
+			const json = await r.json();
+			const data = bosskillCharactersSchema.parse(json);
 
 			for (const character of data) {
-				mutateCharacter(q.realm, character);
 				// TODO: this eats memory
 				byClass[character.class] ??= [];
 				bySpec[character.talent_spec] ??= [];

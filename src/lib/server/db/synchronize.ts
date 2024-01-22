@@ -2,8 +2,8 @@ import { realmIsKnown, realmToExpansion, REALM_HELIOS } from '$lib/realm';
 import type {
 	Boss,
 	BossKill,
-	BosskillCharacter,
 	BosskillDeath,
+	BossKillDetail,
 	BosskillLoot,
 	BosskillTimeline,
 	Raid
@@ -351,7 +351,7 @@ const deleteBossKillPlayers = async ({ bosskillId }: DeleteByBosskillId) => {
 };
 type BossKillPlayerArgs = {
 	bosskillId: number;
-	players: (BosskillCharacter & { playerId: number })[];
+	players: (BossKillDetail['boss_kills_players'][0] & { playerId: number })[];
 };
 const createBossKillPlayers = async ({ bosskillId, players }: BossKillPlayerArgs) => {
 	if (players.length === 0) {

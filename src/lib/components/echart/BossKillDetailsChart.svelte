@@ -4,7 +4,8 @@
 	// import * as echarts from 'echarts';
 
 	// NOTE: if something breaks, just `import * as echarts from 'echarts';`
-	import type { BosskillCharacter } from '$lib/model';
+
+	import type { BosskillCharacter } from '$lib/server/api/schema';
 	import type { EChartsOption, TooltipComponentFormatterCallbackParams } from 'echarts';
 	import { LineChart, ScatterChart } from 'echarts/charts';
 	import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';

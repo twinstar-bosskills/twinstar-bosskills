@@ -1,10 +1,10 @@
-import type { Item, ItemTooltip } from '$lib/model';
+import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
 import { getBoss } from '$lib/server/api';
+import type { Item, ItemTooltip } from '$lib/server/api/schema';
 import { getLootChance, type LootChance } from '$lib/server/db/loot';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { REALM_HELIOS } from '$lib/realm';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const id = params.id;

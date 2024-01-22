@@ -2,8 +2,8 @@
 	import Link from '$lib/components/Link.svelte';
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import { links } from '$lib/links';
-	import type { BossKill } from '$lib/model';
 	import { REALM_HELIOS } from '$lib/realm';
+	import type { BossKill } from '$lib/server/api/schema';
 
 	export let realm: string = REALM_HELIOS;
 	export let bosskill: BossKill;

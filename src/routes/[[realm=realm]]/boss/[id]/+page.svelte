@@ -109,6 +109,7 @@
 				cell: ({ row }) => {
 					const { original } = row;
 					return cellComponent(Spec, {
+						realm: data.realm,
 						character: original.char
 					});
 				},
