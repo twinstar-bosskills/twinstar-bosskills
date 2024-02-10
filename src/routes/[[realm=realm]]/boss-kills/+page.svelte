@@ -7,7 +7,7 @@
 	import FightDetails from '$lib/components/table/column/FightDetails.column.svelte';
 	import Guild from '$lib/components/table/column/Guild.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
-	import { formatSecondsInterval } from '$lib/date';
+	import { formatSecondsInterval, fromServerTime } from '$lib/date';
 	import { links } from '$lib/links';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 	import type { ColumnDef } from '@tanstack/svelte-table';
@@ -64,7 +64,7 @@
 		{
 			id: 'killedAt',
 			header: () => 'Killed',
-			accessorFn: (row) => row.time,
+			accessorFn: (row) => fromServerTime(row.time),
 			cell: (info) => cellComponent(KilledAt, { bosskill: info.row.original })
 		},
 		{

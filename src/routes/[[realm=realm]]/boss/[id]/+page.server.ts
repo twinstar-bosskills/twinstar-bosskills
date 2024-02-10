@@ -1,13 +1,13 @@
 import { defaultDifficultyByExpansion } from '$lib/model';
+import { realmToExpansion, REALM_HELIOS } from '$lib/realm';
 import { getDifficultyFromUrl } from '$lib/search-params';
 import * as api from '$lib/server/api';
 import { getBossKillsWipesTimes } from '$lib/server/api';
+import { getBossTopSpecs } from '$lib/server/db/boss';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
-
-import { realmToExpansion, REALM_HELIOS } from '$lib/realm';
 import type { PageServerLoad } from './$types';
-const LIMIT = 200;
+
 export const load: PageServerLoad = async ({ url, params }) => {
 	const id = Number(params.id);
 	const boss = await api.getBoss({ realm: params.realm, id });
@@ -64,35 +64,50 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	}
 
 	const [byDPS, byHPS] = await Promise.all([
-		api.getBossStatsV2(id, {
+		getBossTopSpecs({
+			remoteId: id,
 			realm,
 			difficulty,
-			talentSpec,
-			pageSize: LIMIT,
-			sorter: {
-				column: 'dps',
-				order: 'desc'
-			}
+			metric: 'dps'
 		}),
-		api.getBossStatsV2(id, {
+		getBossTopSpecs({
+			remoteId: id,
 			realm,
 			difficulty,
-			talentSpec,
-			pageSize: LIMIT,
-			sorter: {
-				column: 'hps',
-				order: 'desc'
-			}
+			metric: 'hps'
 		})
 	]);
 
+	// const [byDPS, byHPS] = await Promise.all([
+	// 	api.getBossStatsV2(id, {
+	// 		realm,
+	// 		difficulty,
+	// 		talentSpec,
+	// 		pageSize: LIMIT,
+	// 		sorter: {
+	// 			column: 'dps',
+	// 			order: 'desc'
+	// 		}
+	// 	}),
+	// 	api.getBossStatsV2(id, {
+	// 		realm,
+	// 		difficulty,
+	// 		talentSpec,
+	// 		pageSize: LIMIT,
+	// 		sorter: {
+	// 			column: 'hps',
+	// 			order: 'desc'
+	// 		}
+	// 	})
+	// ]);
+
 	type Stats = {
-		char: (typeof byDPS)['bySpec'][number][0];
+		char: (typeof byDPS)[number][0];
 		amount: number;
 	};
 	let dmg: Stats[] = [];
 	let heal: Stats[] = [];
-	for (const bySpec of Object.values(byDPS.bySpec)) {
+	for (const bySpec of Object.values(byDPS)) {
 		for (const char of bySpec) {
 			const amount = Number(char.dmgDone);
 			if (isFinite(amount)) {
@@ -104,7 +119,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		}
 	}
 
-	for (const bySpec of Object.values(byHPS.bySpec)) {
+	for (const bySpec of Object.values(byHPS)) {
 		for (const char of bySpec) {
 			const amount = Number(char.healingDone);
 			if (isFinite(amount)) {
@@ -119,8 +134,8 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	return {
 		boss: { name: boss.name },
 		stats: [
-			{ type: STATS_TYPE_DMG, value: dmg.slice(0, LIMIT) },
-			{ type: STATS_TYPE_HEAL, value: heal.slice(0, LIMIT) }
+			{ type: STATS_TYPE_DMG, value: dmg },
+			{ type: STATS_TYPE_HEAL, value: heal }
 		],
 		kw,
 		aggregated: {

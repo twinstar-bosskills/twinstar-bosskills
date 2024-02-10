@@ -8,7 +8,7 @@
 	import FightDetails from '$lib/components/table/column/FightDetails.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
 	import Spec from '$lib/components/table/column/Spec.column.svelte';
-	import { formatSecondsInterval } from '$lib/date';
+	import { formatSecondsInterval, fromServerTime } from '$lib/date';
 
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
@@ -108,7 +108,7 @@
 		{
 			id: 'killedAt',
 			header: () => 'Killed',
-			accessorFn: (row) => row.boss_kills?.time,
+			accessorFn: (row) => fromServerTime(row.boss_kills!.time),
 			cell: (info) => cellComponent(KilledAt, { bosskill: info.row.original.boss_kills! })
 		},
 		{
