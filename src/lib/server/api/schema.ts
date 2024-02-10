@@ -49,7 +49,6 @@ const classSchema = z.number();
 const genderSchema = z.number();
 const levelSchema = z.number().gt(0);
 const bosskillCharacterSchemaBase = z.object({
-	// id: z.number(),
 	guid: z.number(),
 	talent_spec: z.number(),
 	avg_item_lvl: z.number(),
