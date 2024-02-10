@@ -65,15 +65,17 @@ export const load: PageServerLoad = async ({ url, params }) => {
 
 	const [byDPS, byHPS] = await Promise.all([
 		getBossTopSpecs({
-			remoteId: id,
 			realm,
 			difficulty,
+			talentSpec,
+			remoteId: id,
 			metric: 'dps'
 		}),
 		getBossTopSpecs({
-			remoteId: id,
 			realm,
 			difficulty,
+			talentSpec,
+			remoteId: id,
 			metric: 'hps'
 		})
 	]);
