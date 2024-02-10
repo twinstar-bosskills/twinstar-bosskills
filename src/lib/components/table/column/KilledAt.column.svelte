@@ -3,6 +3,7 @@
 	import type { BossKill } from '$lib/server/api/schema';
 
 	export let bosskill: BossKill;
+	$: time = bosskill.time;
 </script>
 
-<span title={formatTzLocalized(bosskill.time)}>{distanceTzNow(bosskill.time)}</span>
+<span title={formatTzLocalized(time)}>{distanceTzNow(time)}</span>

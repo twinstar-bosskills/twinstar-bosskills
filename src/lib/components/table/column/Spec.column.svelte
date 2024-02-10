@@ -8,8 +8,8 @@
 	export let realm: string;
 	export let character: BosskillCharacter;
 
-	const talentSpecIconUrl = getTalentSpecIconUrl(realm, character.talent_spec);
-	const talentSpecString = talentSpecToString(realmToExpansion(realm), character.talent_spec);
+	$: talentSpecIconUrl = getTalentSpecIconUrl(realm, character.talent_spec);
+	$: talentSpecString = talentSpecToString(realmToExpansion(realm), character.talent_spec);
 </script>
 
 <!-- TODO: API does not return class -->

@@ -49,7 +49,7 @@ const classSchema = z.number();
 const genderSchema = z.number();
 const levelSchema = z.number().gt(0);
 const bosskillCharacterSchemaBase = z.object({
-	id: z.number(),
+	// id: z.number(),
 	guid: z.number(),
 	talent_spec: z.number(),
 	avg_item_lvl: z.number(),
@@ -60,7 +60,6 @@ const bosskillCharacterSchemaBase = z.object({
 	dmgTaken: z.coerce.number(),
 	dmgAbsorbed: z.coerce.number(),
 	healingTaken: z.coerce.number(),
-	usefullTime: z.coerce.number(),
 	dispels: z.coerce.number(),
 	interrupts: z.coerce.number(),
 	name: z.string(),

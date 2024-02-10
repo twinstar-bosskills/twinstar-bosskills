@@ -13,7 +13,7 @@
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
 	import Spec from '$lib/components/table/column/Spec.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
-	import { formatSecondsInterval } from '$lib/date';
+	import { formatSecondsInterval, fromServerTime } from '$lib/date';
 	import { characterDps, characterHps } from '$lib/metrics';
 	import {
 		defaultDifficultyByExpansion,
@@ -141,7 +141,7 @@
 			{
 				id: 'killedAt',
 				header: () => 'Killed',
-				accessorFn: (row) => row.char.boss_kills?.time,
+				accessorFn: (row) => fromServerTime(row.char.boss_kills!.time),
 				cell: (info) => cellComponent(KilledAt, { bosskill: info.row.original.char.boss_kills! })
 			},
 			{

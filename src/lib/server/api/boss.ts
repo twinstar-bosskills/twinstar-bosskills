@@ -128,7 +128,7 @@ export const getBossKillsWipesTimes = async ({ realm, id, mode }: GetBossKillsWi
 		}
 		const pullsCount = killsCount + wipesCount;
 		const avgFightDuration = killsCount > 0 ? Math.ceil(totalDuration / killsCount) : 0;
-		const avgWipes = killsCount > 0 ? Math.ceil(wipesCount / killsCount) : 0;
+		const avgWipes = killsCount > 0 ? Math.round((100 * wipesCount) / killsCount) / 100 : 0;
 		const wipeChance = pullsCount === 0 ? 0 : Math.ceil(10000 * (wipesCount / pullsCount)) / 100;
 		const killChance = pullsCount === 0 ? 0 : Math.ceil(10000 * (killsCount / pullsCount)) / 100;
 
