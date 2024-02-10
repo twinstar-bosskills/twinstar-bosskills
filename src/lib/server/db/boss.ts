@@ -49,7 +49,12 @@ export const getBossTopSpecs = async ({
 			);
 
 		const sub = partitionQb.as('sub');
-		const topIdsQb = db.select({ id: sub.id }).from(sub).where(eq(sub.row_number, 1)).limit(200);
+		const topIdsQb = db
+			.select({ id: sub.id })
+			.from(sub)
+			.where(eq(sub.row_number, 1))
+			.limit(200)
+			.orderBy(desc(sub.metric));
 		const topRows = await topIdsQb.execute();
 		const topIds = topRows.map((row) => row.id);
 
