@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { createConnection } from '.';
 import { bosskillCharacterSchema, type BosskillCharacter } from '../api/schema';
 import { bosskillPlayerTable, dps, hps } from './schema/boss-kill-player.schema';
@@ -11,12 +11,14 @@ type BossTopSpecs = Record<number, BosskillCharacter[]>;
 type GetBossTopSpecsArgs = {
 	remoteId: number;
 	realm: string;
+	talentSpec?: number;
 	difficulty: number;
 	metric: 'hps' | 'dps';
 };
 export const getBossTopSpecs = async ({
 	remoteId,
 	realm,
+	talentSpec,
 	difficulty,
 	metric
 }: GetBossTopSpecsArgs): Promise<BossTopSpecs> => {
@@ -27,9 +29,11 @@ export const getBossTopSpecs = async ({
 		const partitionQb = db
 			.select({
 				id: bosskillPlayerTable.id,
-				row_number: sql`ROW_NUMBER() OVER (PARTITION BY ${
-					bosskillPlayerTable.guid
-				} ORDER BY ${sql`${metric === 'hps' ? hps : dps}`} DESC)`.as('row_number')
+				metric: sql`${metric === 'hps' ? hps : dps}`.as('metric'),
+				row_number:
+					sql`ROW_NUMBER() OVER (PARTITION BY ${bosskillPlayerTable.guid} ORDER BY metric DESC)`.as(
+						'row_number'
+					)
 			})
 			.from(bosskillPlayerTable)
 			.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
@@ -39,7 +43,8 @@ export const getBossTopSpecs = async ({
 				and(
 					eq(realmTable.name, realm),
 					eq(bosskillTable.mode, difficulty),
-					eq(bossTable.remoteId, remoteId)
+					eq(bossTable.remoteId, remoteId),
+					talentSpec ? eq(bosskillPlayerTable.talentSpec, talentSpec) : undefined
 				)
 			);
 
@@ -64,7 +69,8 @@ export const getBossTopSpecs = async ({
 			.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
 			.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
 			.innerJoin(raidTable, eq(raidTable.id, bosskillTable.raidId))
-			.where(and(inArray(bosskillPlayerTable.id, topIds)));
+			.where(and(inArray(bosskillPlayerTable.id, topIds)))
+			.orderBy(desc(sql`${metric === 'hps' ? hps : dps}`));
 
 		const rows = await qb.execute();
 		for (const row of rows) {
