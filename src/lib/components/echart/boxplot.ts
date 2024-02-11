@@ -7,7 +7,7 @@ export type PreparedData = {
 	outliers: [number, number][];
 };
 const prepareData = (values: number[][]): PreparedData => {
-	return prepareBoxplotData(values);
+	return prepareBoxplotData(values, { boundIQR: 'none' });
 };
 
 export type IndexToSpecId = Record<number, number>;
