@@ -1,9 +1,9 @@
 import { defaultDifficultyByExpansion } from '$lib/model';
-import { realmToExpansion, REALM_HELIOS } from '$lib/realm';
+import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 import { getDifficultyFromUrl } from '$lib/search-params';
 import * as api from '$lib/server/api';
 import { getBossKillsWipesTimes } from '$lib/server/api';
-import { getBossTopSpecs } from '$lib/server/db/boss';
+import { getBossAggregatedStats, getBossTopSpecs } from '$lib/server/db/boss';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
@@ -22,32 +22,9 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	const mode = getDifficultyFromUrl(url) ?? defaultDifficultyByExpansion(expansion);
 	const [kw, dpsPrepared, hpsPrepared] = await Promise.all([
 		getBossKillsWipesTimes({ realm, id, mode }),
-		api.getBossAggregatedStats({ realm, id, field: 'dps', mode }),
-		api.getBossAggregatedStats({ realm, id, field: 'hps', mode })
+		getBossAggregatedStats({ realm, remoteId: id, difficulty: mode, metric: 'dps' }),
+		getBossAggregatedStats({ realm, remoteId: id, difficulty: mode, metric: 'hps' })
 	]);
-
-	/*
-	const stats = await api.getBossStats(id);
-	for (const bySpec of Object.values(stats.bySpec)) {
-		for (const player of bySpec) {
-			const dmgDone = Number(player.dmgDone);
-			if (isFinite(dmgDone)) {
-				dmg.push({
-					player,
-					amount: dmgDone
-				});
-			}
-
-			const healingDone = Number(player.healingDone);
-			if (isFinite(healingDone)) {
-				heal.push({
-					player,
-					amount: healingDone
-				});
-			}
-		}
-	}
-	*/
 
 	const difficultyStr = url.searchParams.get('difficulty');
 	let difficulty: number | undefined = defaultDifficultyByExpansion(expansion);
@@ -79,29 +56,6 @@ export const load: PageServerLoad = async ({ url, params }) => {
 			metric: 'hps'
 		})
 	]);
-
-	// const [byDPS, byHPS] = await Promise.all([
-	// 	api.getBossStatsV2(id, {
-	// 		realm,
-	// 		difficulty,
-	// 		talentSpec,
-	// 		pageSize: LIMIT,
-	// 		sorter: {
-	// 			column: 'dps',
-	// 			order: 'desc'
-	// 		}
-	// 	}),
-	// 	api.getBossStatsV2(id, {
-	// 		realm,
-	// 		difficulty,
-	// 		talentSpec,
-	// 		pageSize: LIMIT,
-	// 		sorter: {
-	// 			column: 'hps',
-	// 			order: 'desc'
-	// 		}
-	// 	})
-	// ]);
 
 	type Stats = {
 		char: (typeof byDPS)[number][0];

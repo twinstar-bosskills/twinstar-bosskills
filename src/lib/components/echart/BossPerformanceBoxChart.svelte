@@ -6,14 +6,14 @@
 	import { SVGRenderer } from 'echarts/renderers';
 	import { talentSpecToClass, talentSpecToString } from '../../model';
 
-	import type { BossAggregatedStats } from '$lib/server/api';
+	import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 	import { getTalentSpecIconUrl } from '$lib/talent';
 	import Chart from './Chart.svelte';
-	import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
+	import type { AggregatedBySpecStats } from './boxplot';
 
 	export let realm: string = REALM_HELIOS;
 	export let width: number | undefined = undefined;
-	export let aggregated: BossAggregatedStats;
+	export let aggregated: AggregatedBySpecStats;
 	export let field = 'dps';
 
 	const expansion = realmToExpansion(realm);

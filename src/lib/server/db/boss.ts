@@ -1,6 +1,12 @@
+import {
+	aggregateBySpec,
+	type AggregatedBySpec,
+	type AggregatedBySpecStats
+} from '$lib/components/echart/boxplot';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { createConnection } from '.';
 import { bosskillCharacterSchema, type BosskillCharacter } from '../api/schema';
+import { withCache } from '../cache';
 import { bosskillPlayerTable, dps, hps } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
@@ -126,4 +132,81 @@ export const getBossTopSpecs = async ({
 		console.error(e);
 	}
 	return stats;
+};
+
+type GetBossAggregatedStatsArgs = {
+	realm: string;
+	remoteId: number;
+	metric: 'dps' | 'hps';
+	difficulty: number;
+};
+export const getBossAggregatedStats = async ({
+	realm,
+	remoteId,
+	metric,
+	difficulty
+}: GetBossAggregatedStatsArgs): Promise<AggregatedBySpecStats> => {
+	const fallback = async () => {
+		try {
+			const db = await createConnection();
+			const qb = db
+				.select({
+					spec: bosskillPlayerTable.talentSpec,
+					value: metric === 'hps' ? hps : dps
+				})
+				.from(bosskillPlayerTable)
+				.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
+				.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
+				.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
+				.where(
+					and(
+						eq(realmTable.name, realm),
+						eq(bosskillTable.mode, difficulty),
+						eq(bossTable.remoteId, remoteId)
+					)
+				);
+			const rows = await qb.execute();
+			const bySpec: AggregatedBySpec = {};
+			for (const item of rows) {
+				const value = item.value;
+				if (isFinite(value)) {
+					// do not care about 0 dps/hps/...
+					if (value <= 0) {
+						continue;
+					}
+
+					// safety borders, value this big is probably bug
+					if (metric === 'dps' && value > 1_000_000) {
+						continue;
+					}
+
+					// safety borders, value this big is probably bug
+					if (metric === 'hps' && value > 5_000_000) {
+						continue;
+					}
+
+					const spec = item.spec;
+					// Unknown spec
+					if (spec === 0) {
+						continue;
+					}
+
+					bySpec[spec] ??= [];
+					bySpec[spec]!.push(value);
+				}
+			}
+
+			return aggregateBySpec(bySpec);
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+	};
+
+	return withCache({
+		deps: ['db:getBossAggregatedStats', realm, remoteId, metric, difficulty],
+		fallback,
+		sliding: false,
+		defaultValue: { indexToSpecId: {}, prepared: { axisData: [], boxData: [], outliers: [] } }
+	});
 };

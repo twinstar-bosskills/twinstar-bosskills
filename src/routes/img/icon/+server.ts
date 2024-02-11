@@ -1,6 +1,6 @@
 import { getRemoteClassIconUrl } from '$lib/class';
 import { getRemoteRaceIconUrl } from '$lib/race';
-import { getRemotRaidIconUrl } from '$lib/raid';
+import { getRemoteRaidIconUrl } from '$lib/raid';
 import { REALM_HELIOS } from '$lib/realm';
 import { getRemoteItemIconUrl } from '$lib/server/api';
 import { withCache } from '$lib/server/cache';
@@ -56,7 +56,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	} else if (type === 'race') {
 		iconUrl = getRemoteRaceIconUrl(id as string);
 	} else if (type === 'raid') {
-		iconUrl = getRemotRaidIconUrl(decodeURIComponent(id as string));
+		iconUrl = getRemoteRaidIconUrl(decodeURIComponent(id as string));
 	}
 	if (iconUrl !== null) {
 		const blob = await getBlob(iconUrl);
