@@ -1,5 +1,9 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
-import { prepareData, type PreparedData } from '$lib/components/echart/boxplot';
+import {
+	aggregateBySpec,
+	type AggregatedBySpec,
+	type AggregatedBySpecStats
+} from '$lib/components/echart/boxplot';
 
 import { REALM_HELIOS } from '$lib/realm';
 import { withCache } from '../cache';
@@ -158,15 +162,13 @@ export const getBossKillsWipesTimes = async ({ realm, id, mode }: GetBossKillsWi
 	});
 };
 
-type IndexToSpecId = Record<number, number>;
 type GetBossAggregatedStatsArgs = { realm: string; id: number; field: 'dps' | 'hps'; mode: number };
-export type BossAggregatedStats = { indexToSpecId: IndexToSpecId; prepared: PreparedData };
 export const getBossAggregatedStats = async ({
 	realm,
 	id,
 	field,
 	mode
-}: GetBossAggregatedStatsArgs): Promise<BossAggregatedStats> => {
+}: GetBossAggregatedStatsArgs): Promise<AggregatedBySpecStats> => {
 	const fallback = async () => {
 		// const items: { value: number; spec: number; label: string }[] = [];
 		type Item = { spec: number; talent_spec: number; dps?: string; hps?: string };
@@ -182,7 +184,7 @@ export const getBossAggregatedStats = async ({
 				throw new Error(`data is not an array`);
 			}
 
-			const aggregatedBySpec: Record<number, number[]> = {};
+			const bySpec: AggregatedBySpec = {};
 			for (const item of data) {
 				const value = Number(item?.[field]);
 				if (isFinite(value)) {
@@ -207,51 +209,14 @@ export const getBossAggregatedStats = async ({
 						continue;
 					}
 
-					aggregatedBySpec[spec] ??= [];
-					aggregatedBySpec[spec]!.push(value);
+					bySpec[spec] ??= [];
+					bySpec[spec]!.push(value);
 				}
 			}
 
-			// remember which value index maps to specId
-			const keys = [];
-			const values = [];
-			for (const [key, value] of Object.entries(aggregatedBySpec)) {
-				keys.push(Number(key));
-				values.push(value);
-			}
-
-			const prepared = prepareData(values);
-
-			// add index dimension
-			const boxDataWithIndex: [(typeof prepared.boxData)[0], number][] = [];
-			for (let i = 0; i < prepared.boxData.length; ++i) {
-				boxDataWithIndex.push([prepared.boxData[i]!, i]);
-			}
-			boxDataWithIndex.sort((a, b) => {
-				// median
-				return a[0][2] - b[0][2];
-			});
-
-			// remove index dimension and round numbers
-			prepared.boxData = boxDataWithIndex.map(([d]) => {
-				d[0] = Math.round(100 * d[0]) / 100;
-				d[1] = Math.round(100 * d[1]) / 100;
-				d[2] = Math.round(100 * d[2]) / 100;
-				d[3] = Math.round(100 * d[3]) / 100;
-				d[4] = Math.round(100 * d[4]) / 100;
-
-				return d;
-			});
-
-			const indexToSpecId: IndexToSpecId = {};
-			for (let i = 0; i < boxDataWithIndex.length; i++) {
-				const keyIndex = boxDataWithIndex[i]![1];
-				indexToSpecId[i] = keys[keyIndex]!;
-			}
-
-			return { indexToSpecId, prepared };
+			return aggregateBySpec(bySpec);
 		} catch (e) {
-			console.log(e, url);
+			console.error(e, url);
 			throw e;
 		}
 	};

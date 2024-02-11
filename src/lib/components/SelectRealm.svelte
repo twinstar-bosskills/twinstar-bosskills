@@ -10,7 +10,7 @@
 	{#each realms as [name, label]}
 		<div class="realm" class:active={realm.toLowerCase() === name}>
 			<Link href="/{label}">
-				<img src="/logos/{name}.png" width="32" height="32" alt="Realm {label} icon" />
+				<img src="/logos/32x32/{name}.png" width="32" height="32" alt="Realm {label} icon" />
 			</Link>
 		</div>
 	{/each}
