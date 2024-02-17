@@ -1,19 +1,22 @@
-import { toArrayOfInf as toArrayOfInt, toArrayOfNonEmptyStrings } from '$lib/mapper';
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
+import { REALM_HELIOS } from '$lib/realm';
 import type { LatestBossKillQueryArgs } from '$lib/server/api';
 import * as api from '$lib/server/api';
 import { FilterOperator } from '$lib/server/api/filter';
 import type { Boss } from '$lib/server/api/schema';
+import { getFilterFormData } from '$lib/server/form/filter-form';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, params }) => {
 	const page = getPageFromURL(url);
 	const pageSize = getPageSizeFromURL(url);
+	const realm = params.realm ?? REALM_HELIOS;
+	const form = await getFilterFormData({ realm, url });
 
 	const filters: LatestBossKillQueryArgs['filters'] = [];
-	const bosses = toArrayOfInt(url.searchParams.getAll('boss'));
-	const raids = toArrayOfNonEmptyStrings(url.searchParams.getAll('raid'));
-	const difficulties = toArrayOfInt(url.searchParams.getAll('difficulty'));
+	const bosses = form.values.bosses;
+	const raids = form.values.raids;
+	const difficulties = form.values.difficulties;
 	if (bosses.length > 0) {
 		filters.push({
 			column: 'entry',
@@ -36,8 +39,6 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		});
 	}
 
-	const realm = params.realm;
-
 	const [latestData, raidData] = await Promise.all([
 		api.getLatestBossKills({
 			realm,
@@ -58,15 +59,6 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	return {
 		latest: latestData,
 		bossNameById,
-		form: {
-			data: {
-				raids: raidData
-			},
-			values: {
-				bosses,
-				raids,
-				difficulties
-			}
-		}
+		form
 	};
 };

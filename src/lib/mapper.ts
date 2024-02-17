@@ -1,4 +1,4 @@
-export const toArrayOfInf = (values: string[]): number[] => {
+export const toArrayOfInt = (values: string[]): number[] => {
 	const result = [];
 	for (const raw of values) {
 		const v = raw.trim();

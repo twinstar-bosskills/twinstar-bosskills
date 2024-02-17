@@ -1,4 +1,4 @@
-import { REALM_HELIOS, expansionIsCata, realmToExpansion, realmToId } from './realm';
+import { expansionIsCata, realmToExpansion, realmToId } from './realm';
 
 type SearchParams = {
 	difficulty?: number | string;
@@ -18,9 +18,10 @@ const withSearchParams = (url: string, query: SearchParams) => {
 
 const raids = (realm: string) => `/${realm}/raids`;
 const bossKills = (realm: string) => `/${realm}/boss-kills`;
-const character = (realm: string, name: string) => `/${realm}/character/${name}`;
+const character = (realm: string, name: string) =>
+	`/${realm}/character/${encodeURIComponent(name)}`;
 const characterPerformance = (realm: string, name: string) =>
-	`/${realm}/character/${name}/performance`;
+	`/${realm}/character/${encodeURIComponent(name)}/performance`;
 const boss = (realm: string, id: number, params: SearchParams = {}) => {
 	const url = `/${realm}/boss/${id}`;
 	return withSearchParams(url, params);

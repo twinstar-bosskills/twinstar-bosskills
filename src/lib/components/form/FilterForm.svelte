@@ -18,14 +18,18 @@
 
 <script lang="ts">
 	import { links } from '$lib/links';
+
 	import { difficultiesByExpansion, difficultyToString, isRaidDifficulty } from '$lib/model';
 	import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 	import type { Raid } from '$lib/server/api/schema';
 	import Link from '../Link.svelte';
 
+	export let action: string | undefined = undefined;
 	export let realm: string = REALM_HELIOS;
 	export let data: Data;
 	export let values: Values;
+
+	$: formAction = action ?? links.bossKills(realm);
 
 	const expansion = realmToExpansion(realm);
 	const diffByExp = Object.values(difficultiesByExpansion(expansion) ?? {});
@@ -60,7 +64,7 @@
 		}));
 </script>
 
-<form data-sveltekit-reload method="GET" action="/{realm}/boss-kills">
+<form data-sveltekit-reload method="GET" action={formAction}>
 	<div class="group">
 		<div class="item-container">
 			<div class="headline">Boss</div>
@@ -122,7 +126,7 @@
 	<div style="background: rgba(var(--color-primary), 0.5); height: 2px; width: 100%;" />
 	<div class="group">
 		<button type="submit">Submit</button>
-		<Link href={links.bossKills(realm)}>Reset</Link>
+		<Link href={formAction}>Reset</Link>
 	</div>
 </form>
 
