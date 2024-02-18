@@ -2,6 +2,7 @@
 	import Link from '$lib/components/Link.svelte';
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import CharacterPerformanceChart from '$lib/components/echart/CharacterPerformanceChart.svelte';
+	import FilterForm from '$lib/components/form/FilterForm.svelte';
 	import { links } from '$lib/links';
 	import { difficultyToString } from '$lib/model';
 	import { realmToExpansion } from '$lib/realm';
@@ -29,19 +30,25 @@
 		<LinkExternal href={links.twinstarArmory(realm, name)}>Armory</LinkExternal>
 	</div>
 </div>
+
+<FilterForm
+	data={data.form.data}
+	values={data.form.values}
+	realm={data.realm}
+	action={links.characterPerformance(data.realm, name)}
+/>
+
 {#if performanceLines.length === 0}
-	No performance records found yet
+	<h3>No performance records found yet</h3>
 {:else}
 	{#each performanceLines as [bossId, byMode]}
 		{#each Object.entries(byMode) as [mode, line]}
-			{#if line.length > 1}
-				{@const name = line[0]?.bossName ?? bossId}
-				{@const diff = difficultyToString(expansion, mode)}
-				<div>
-					<h3>Performance on {name} {diff}</h3>
-					<CharacterPerformanceChart data={line} />
-				</div>
-			{/if}
+			{@const name = line[0]?.bossName ?? bossId}
+			{@const diff = difficultyToString(expansion, mode)}
+			<div>
+				<h3>Performance on {name} {diff}</h3>
+				<CharacterPerformanceChart data={line} />
+			</div>
 		{/each}
 	{/each}
 {/if}

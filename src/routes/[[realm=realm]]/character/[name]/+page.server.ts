@@ -61,8 +61,8 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 				getCharacterPerformanceLine({
 					realm,
 					guid,
-					mode,
-					bossId
+					modes: [mode],
+					bossIds: [bossId]
 				})
 					.then((rows) => {
 						// show al least 2 points

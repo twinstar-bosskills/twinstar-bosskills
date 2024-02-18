@@ -7,6 +7,7 @@ import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
 import { realmTable } from './schema/realm.schema';
+import { raidTable } from './schema/raid.schema';
 
 type CharacterPerformanceTrendsArgs = {
 	realm: string;
@@ -102,13 +103,14 @@ export const getCharacterPerformanceTrends = async ({
 	return trends;
 };
 type GetCharacterPerformanceLineArgs = CharacterPerformanceArgs &
-	Required<Pick<CharacterPerformanceArgs, 'bossId' | 'mode'>>;
+	Required<Pick<CharacterPerformanceArgs, 'bossIds' | 'modes'>>;
 export type CharacterPerformanceLine = {
 	time: string;
 	dps: number;
 	hps: number;
 	bossId: number;
 	bossName: string;
+	talentSpec: number;
 	mode: number;
 }[];
 export const getCharacterPerformanceLine = async (
@@ -126,9 +128,8 @@ export const getCharacterPerformanceLine = async (
 	return [];
 };
 
-type GetCharacterPerformanceLineByBossArgs = Omit<CharacterPerformanceArgs, 'bossId'>;
-export const getCharacterPerformanceLineByBoss = async (
-	args: GetCharacterPerformanceLineByBossArgs
+export const getCharacterPerformanceLinesGrouped = async (
+	args: CharacterPerformanceArgs
 ): Promise<CharacterPerformanceLine> => {
 	try {
 		const db = await createConnection();
@@ -145,8 +146,9 @@ export const getCharacterPerformanceLineByBoss = async (
 type CharacterPerformanceArgs = {
 	realm: string;
 	guid: number;
-	mode?: number;
-	bossId?: number;
+	raids?: string[];
+	modes?: number[];
+	bossIds?: number[];
 	startDate?: Date;
 	endDate?: Date;
 };
@@ -155,8 +157,9 @@ const characterPerformanceQb = (
 	{
 		realm,
 		guid,
-		mode,
-		bossId,
+		modes,
+		raids,
+		bossIds,
 		startDate,
 		endDate,
 		groupByBossAndDiff = false
@@ -178,20 +181,23 @@ const characterPerformanceQb = (
 			),
 			mode: bosskillTable.mode,
 			bossId: bossTable.remoteId,
-			bossName: bossTable.name
+			bossName: bossTable.name,
+			talentSpec: bosskillPlayerTable.talentSpec
 		})
 		.from(bosskillPlayerTable)
 		.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
 		.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
 		.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
+		.innerJoin(raidTable, eq(raidTable.id, bosskillTable.raidId))
 		.where(
 			and(
 				eq(realmTable.name, realm),
 				eq(bosskillPlayerTable.guid, guid),
 				start ? gte(bosskillTable.time, start.toISOString()) : undefined,
 				lte(bosskillTable.time, end.toISOString()),
-				bossId && groupByBossAndDiff === false ? eq(bossTable.remoteId, bossId) : undefined,
-				mode && groupByBossAndDiff === false ? eq(bosskillTable.mode, mode) : undefined
+				raids && raids.length > 0 ? inArray(raidTable.name, raids) : undefined,
+				bossIds && bossIds.length > 0 ? inArray(bossTable.remoteId, bossIds) : undefined,
+				modes && modes.length > 0 ? inArray(bosskillTable.mode, modes) : undefined
 			)
 		)
 		.groupBy(bosskillTable.time)
