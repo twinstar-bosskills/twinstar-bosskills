@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { building, dev } from '$app/environment';
 	import { page } from '$app/stores';
 	import Link from '$lib/components/Link.svelte';
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
@@ -12,6 +13,15 @@
 	const raidsLink = links.raids(data.realm);
 </script>
 
+<svelte:head>
+	{#if !dev && !building}
+		<script
+			defer
+			src="https://eu.umami.is/script.js"
+			data-website-id="800b4377-90d9-48d2-adf8-a1b0cd7672bd"
+		></script>
+	{/if}
+</svelte:head>
 <div class="top">
 	<div class="select-realm">
 		<SelectRealm realm={data.realm} />
