@@ -48,10 +48,16 @@ export const load = async ({ params, parent, url }: Parameters<PageServerLoad>[0
 		spec = form.values.specs?.[0] ?? null;
 	}
 
+	type Medians = Awaited<ReturnType<typeof getBossStatsMedian>>;
+
 	const medianByBossId: Record<
 		number,
-		Record<number, Record<number, Record<'dps' | 'hps', number>>>
+		Record<number, Record<number, { dps?: number; hps?: number }>>
 	> = {};
+	const mediansByMetricAndBoss = {
+		dps: {} as Record<number, Medians>,
+		hps: {} as Record<number, Medians>
+	};
 	if (spec !== null) {
 		const medianPromises: Promise<void>[] = [];
 		for (const [bossId, byMode] of Object.entries(performanceLines)) {
@@ -67,18 +73,25 @@ export const load = async ({ params, parent, url }: Parameters<PageServerLoad>[0
 						metric: metric
 					})
 						.then((medians) => {
-							medianByBossId[remoteId] ??= {};
-							for (const median of medians) {
-								medianByBossId[remoteId]![median.mode] ??= {};
-								medianByBossId[remoteId]![median.mode]![median.spec] ??= { dps: 0, hps: 0 };
-								medianByBossId[remoteId]![median.mode]![median.spec]![metric] = median.value;
-							}
+							mediansByMetricAndBoss[metric][remoteId] = medians;
 						})
 						.catch(console.error)
 				);
 			}
 		}
 		await Promise.all(medianPromises);
+
+		for (const [metric, byRemoteId] of Object.entries(mediansByMetricAndBoss)) {
+			for (const [remoteId, medians] of Object.entries(byRemoteId)) {
+				const id = Number(remoteId);
+				medianByBossId[id] ??= {};
+				for (const median of medians) {
+					medianByBossId[id]![median.mode] ??= {};
+					medianByBossId[id]![median.mode]![median.spec] ??= {};
+					medianByBossId[id]![median.mode]![median.spec]![metric as 'dps' | 'hps'] = median.value;
+				}
+			}
+		}
 	}
 
 	return {
