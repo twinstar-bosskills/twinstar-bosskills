@@ -5,12 +5,14 @@
 		LegendComponentOption,
 		LineSeriesOption,
 		TooltipComponentFormatterCallbackParams,
-		TooltipComponentOption
+		TooltipComponentOption,
+		DefaultLabelFormatterCallbackParams
 	} from 'echarts';
 	import { LineChart } from 'echarts/charts';
 	import {
 		GridComponent,
 		LegendComponent,
+		MarkLineComponent,
 		TooltipComponent,
 		type GridComponentOption
 	} from 'echarts/components';
@@ -24,10 +26,18 @@
 		GridComponentOption | TooltipComponentOption | LineSeriesOption | LegendComponentOption
 	>;
 
-	echarts.use([GridComponent, TooltipComponent, LegendComponent, LineChart, SVGRenderer]);
+	echarts.use([
+		GridComponent,
+		LegendComponent,
+		MarkLineComponent,
+		TooltipComponent,
+		LineChart,
+		SVGRenderer
+	]);
 
 	export let width: number | undefined = undefined;
 	export let height: number | undefined = undefined;
+	export let median: { hps: number; dps: number } | undefined = undefined;
 	export let data: CharacterPerformanceLine = [];
 
 	type OptionData = {
@@ -41,6 +51,57 @@
 		xAxisData.push(formatTzLocalized(item.time));
 		dpsData.push({ value: item.dps, talentSpec: item.talentSpec });
 		hpsData.push({ value: item.hps, talentSpec: item.talentSpec });
+	}
+
+	const formatter = (d: number) => {
+		return d.toLocaleString(undefined, { notation: 'compact' });
+	};
+
+	let dpsMarkLine: LineSeriesOption['markLine'] = undefined;
+	let hpsMarkLine: LineSeriesOption['markLine'] = undefined;
+	if (typeof median?.dps === 'number') {
+		dpsMarkLine = {
+			symbol: 'none',
+			label: {
+				position: 'insideStartTop',
+				color: 'gold',
+				formatter: (params: DefaultLabelFormatterCallbackParams) => {
+					// @ts-expect-error
+					return `Median DPS: ${formatter(params.data.value)}`;
+				}
+			},
+			data: [
+				{
+					yAxis: median?.dps,
+					lineStyle: {
+						color: 'gold'
+					},
+					symbolSize: 0
+				}
+			]
+		};
+	}
+
+	if (typeof median?.hps === 'number') {
+		hpsMarkLine = {
+			symbol: 'none',
+			label: {
+				position: 'insideStartTop',
+				color: 'green',
+				formatter: (params: DefaultLabelFormatterCallbackParams) => {
+					// @ts-expect-error
+					return `Median HPS: ${formatter(params.data.value)}`;
+				}
+			},
+			data: [
+				{
+					yAxis: median?.hps,
+					lineStyle: {
+						color: 'green'
+					}
+				}
+			]
+		};
 	}
 
 	const options: EChartsOption = {
@@ -86,9 +147,7 @@
 		yAxis: {
 			type: 'value',
 			axisLabel: {
-				formatter: (d) => {
-					return d.toLocaleString(undefined, { notation: 'compact' });
-				}
+				formatter: formatter
 			}
 		},
 		series: [
@@ -96,13 +155,15 @@
 				name: 'DPS',
 				type: 'line',
 				color: 'gold',
-				data: dpsData
+				data: dpsData,
+				markLine: dpsMarkLine
 			},
 			{
 				name: 'HPS',
 				type: 'line',
 				color: 'green',
-				data: hpsData
+				data: hpsData,
+				markLine: hpsMarkLine
 			}
 		]
 	};

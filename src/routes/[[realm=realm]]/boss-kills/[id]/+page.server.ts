@@ -1,6 +1,6 @@
 import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
-import { getBoss } from '$lib/server/api';
+import { getBoss } from '$lib/server/model/boss.model';
 import type { Item, ItemTooltip } from '$lib/server/api/schema';
 import { getLootChance, type LootChance } from '$lib/server/db/loot';
 import { error } from '@sveltejs/kit';
@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		});
 	}
 
-	const boss = await getBoss({ realm, id: bosskill.entry });
+	const boss = await getBoss({ realm, remoteId: bosskill.entry });
 	if (!boss) {
 		throw error(404, {
 			message: `Boss ${id} not found`
@@ -45,7 +45,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			})
 		);
 		queue.push(
-			getLootChance({ itemId, bossRemoteId: boss.entry, mode: bosskill.mode }).then((v) => {
+			getLootChance({ itemId, bossRemoteId: boss.remoteId, mode: bosskill.mode }).then((v) => {
 				lootChance[itemId] = v;
 			})
 		);

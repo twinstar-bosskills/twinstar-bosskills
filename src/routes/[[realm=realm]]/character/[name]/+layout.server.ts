@@ -1,8 +1,9 @@
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
-import { REALM_HELIOS } from '$lib/realm';
+import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 import * as api from '$lib/server/api';
 import { error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
+import { talentSpecToClass } from '$lib/model';
 export const load: LayoutServerLoad = async ({ params, url }) => {
 	const realm = params.realm ?? REALM_HELIOS;
 	const name = params.name.charAt(0).toUpperCase() + params.name.slice(1);
@@ -31,7 +32,9 @@ export const load: LayoutServerLoad = async ({ params, url }) => {
 	return {
 		character: {
 			name,
-			guid: character.guid
+			guid: character.guid,
+			class: talentSpecToClass(realmToExpansion(realm), character.talent_spec),
+			spec: character.talent_spec
 		}
 	};
 };

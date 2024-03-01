@@ -3,6 +3,7 @@ import {
 	type AggregatedBySpec,
 	type AggregatedBySpecStats
 } from '$lib/components/echart/boxplot';
+import type { Boss } from '$lib/model/boss.model';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { createConnection } from '.';
 import { bosskillCharacterSchema, type BosskillCharacter } from '../api/schema';
@@ -12,6 +13,52 @@ import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
 import { raidTable } from './schema/raid.schema';
 import { realmTable } from './schema/realm.schema';
+
+// export const findByRealm = async ({ realm }: { realm: string }): Promise<Boss[]> => {
+// 	try {
+// 		const db = await createConnection();
+// 		const qb = db
+// 			.select()
+// 			.from(bossTable)
+// 			.innerJoin(
+// 				realmXRaidTable,
+// 				and(eq(realmTable.id, realmXRaidTable.realmId), eq(raidTable.id, realmXRaidTable.raidId))
+// 			)
+// 			.innerJoin(realmTable, eq(realmTable.id, realmXRaidTable.realmId))
+// 			.where(and(eq(realmTable.name, realm)));
+
+// 		const rows = await qb.execute();
+// 		return rows;
+// 	} catch (e) {
+// 		console.error(e);
+// 	}
+
+// 	return [];
+// };
+
+export const getByRemoteIdAndRealm = async ({
+	remoteId,
+	realm
+}: {
+	remoteId: number;
+	realm: string;
+}): Promise<Boss | null> => {
+	// TODO: connect boss and raid and realm
+	try {
+		const db = await createConnection();
+		const qb = db
+			.select()
+			.from(bossTable)
+			.where(and(eq(bossTable.remoteId, remoteId)));
+
+		const rows = await qb.execute();
+		return rows[0] ?? null;
+	} catch (e) {
+		console.error(e);
+	}
+
+	return null;
+};
 
 type BossTopSpecs = Record<number, BosskillCharacter[]>;
 type GetBossTopSpecsArgs = {
@@ -208,5 +255,68 @@ export const getBossAggregatedStats = async ({
 		fallback,
 		sliding: false,
 		defaultValue: { indexToSpecId: {}, prepared: { axisData: [], boxData: [], outliers: [] } }
+	});
+};
+
+type GetBossStatsMedianArgs = {
+	realm: string;
+	remoteId: number;
+	metric: 'dps' | 'hps';
+	difficulties: number[];
+	specs: number[];
+};
+// type GetBossStatsMedianResult = Record<number, Record<number, number>>;
+export const getBossStatsMedian = async ({
+	realm,
+	remoteId,
+	metric,
+	difficulties,
+	specs
+}: GetBossStatsMedianArgs) => {
+	const fallback = async () => {
+		try {
+			const db = await createConnection();
+			const qb = db
+				.select({
+					spec: sql`${bosskillPlayerTable.talentSpec}`.mapWith(Number).as('spec'),
+					mode: sql`${bosskillTable.mode}`.mapWith(Number).as('mode'),
+					value: sql`MEDIAN(${metric === 'hps' ? hps : dps}) OVER (PARTITION BY mode, spec)`
+						.mapWith(Number)
+						.as('value')
+				})
+				.from(bosskillPlayerTable)
+				.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
+				.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
+				.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
+				.where(
+					and(
+						eq(realmTable.name, realm),
+						eq(bossTable.remoteId, remoteId),
+						difficulties && difficulties.length
+							? inArray(bosskillTable.mode, difficulties)
+							: undefined,
+						specs && specs.length ? inArray(bosskillPlayerTable.talentSpec, specs) : undefined
+					)
+				)
+				.groupBy(sql`mode, spec`);
+
+			// const byModeBySpec: GetBossStatsMedianResult = {};
+			const rows = await qb.execute();
+			return rows;
+			// for (const row of rows) {
+			// 	byModeBySpec[row.mode] ??= {};
+			// 	byModeBySpec[row.mode]![row.spec] = row.value;
+			// }
+			// return byModeBySpec;
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+	};
+
+	return withCache({
+		deps: ['db:getBossStatsMedian', realm, remoteId, metric, difficulties],
+		fallback,
+		defaultValue: []
 	});
 };

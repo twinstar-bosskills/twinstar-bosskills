@@ -1,9 +1,9 @@
-import { realmIsKnown, realmToExpansion, REALM_HELIOS } from '$lib/realm';
+import { REALM_HELIOS, realmIsKnown, realmToExpansion } from '$lib/realm';
 import type {
 	Boss,
 	BossKill,
-	BosskillDeath,
 	BossKillDetail,
+	BosskillDeath,
 	BosskillLoot,
 	BosskillTimeline,
 	Raid
@@ -27,6 +27,7 @@ import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
 import { playerTable } from './schema/player.schema';
 import { raidTable } from './schema/raid.schema';
+import { realmXRaidTable } from './schema/realm-x-raid.schema';
 import { realmTable } from './schema/realm.schema';
 
 type Args = {
@@ -65,7 +66,7 @@ export const synchronize = async ({
 	for (const raid of raids) {
 		safeGC();
 		onLog(`Processing raid: ${raid.map}`);
-		const raidEnt = await getOrCreateRaid(raid);
+		const raidEnt = await getOrCreateRaid({ raid, realmId: realmEnt.id });
 
 		for (const boss of raid.bosses) {
 			safeGC();
@@ -218,7 +219,7 @@ const getOrCreateRealm = async ({ name, expansion }: { name: string; expansion: 
 	return ent;
 };
 
-const getOrCreateRaid = async (raid: Raid) => {
+const getOrCreateRaid = async ({ raid, realmId }: { raid: Raid; realmId: number }) => {
 	const db = await createConnection();
 	const result = await db.select().from(raidTable).where(eq(raidTable.name, raid.map)).execute();
 	let ent = result[0] ?? null;
@@ -233,6 +234,12 @@ const getOrCreateRaid = async (raid: Raid) => {
 	if (ent === null) {
 		throw new Error(`Raid entity not found nor created`);
 	}
+	await db.transaction((tx) => {
+		return tx
+			.insert(realmXRaidTable)
+			.ignore()
+			.values([{ realmId, raidId: ent!.id }]);
+	});
 	return ent;
 };
 
