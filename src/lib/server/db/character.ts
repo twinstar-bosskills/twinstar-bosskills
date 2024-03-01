@@ -3,7 +3,7 @@ import { getPerformaceDifficultiesByExpansion } from '$lib/model';
 import { realmToExpansion } from '$lib/realm';
 import { and, asc, desc, eq, gte, inArray, lt, lte, sql } from 'drizzle-orm';
 import { createConnection, type DbConnection } from '.';
-import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
+import { bosskillPlayerTable, dps, hps } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
 import { realmTable } from './schema/realm.schema';
@@ -146,6 +146,7 @@ export const getCharacterPerformanceLinesGrouped = async (
 type CharacterPerformanceArgs = {
 	realm: string;
 	guid: number;
+	specs?: number[];
 	raids?: string[];
 	modes?: number[];
 	bossIds?: number[];
@@ -158,6 +159,7 @@ const characterPerformanceQb = (
 		realm,
 		guid,
 		modes,
+		specs,
 		raids,
 		bossIds,
 		startDate,
@@ -173,12 +175,8 @@ const characterPerformanceQb = (
 	const qb = db
 		.select({
 			time: bosskillTable.time,
-			dps: sql<number>`ROUND(IF(${bosskillTable.length} = 0, 0, ${bosskillPlayerTable.dmgDone}/(${bosskillTable.length}/1000)))`.mapWith(
-				Number
-			),
-			hps: sql<number>`ROUND(IF(${bosskillTable.length} = 0, 0, (${bosskillPlayerTable.healingDone} + ${bosskillPlayerTable.absorbDone})/(${bosskillTable.length}/1000)))`.mapWith(
-				Number
-			),
+			dps: dps,
+			hps: hps,
 			mode: bosskillTable.mode,
 			bossId: bossTable.remoteId,
 			bossName: bossTable.name,
@@ -195,6 +193,7 @@ const characterPerformanceQb = (
 				eq(bosskillPlayerTable.guid, guid),
 				start ? gte(bosskillTable.time, start.toISOString()) : undefined,
 				lte(bosskillTable.time, end.toISOString()),
+				specs && specs.length > 0 ? inArray(bosskillPlayerTable.talentSpec, specs) : undefined,
 				raids && raids.length > 0 ? inArray(raidTable.name, raids) : undefined,
 				bossIds && bossIds.length > 0 ? inArray(bossTable.remoteId, bossIds) : undefined,
 				modes && modes.length > 0 ? inArray(bosskillTable.mode, modes) : undefined

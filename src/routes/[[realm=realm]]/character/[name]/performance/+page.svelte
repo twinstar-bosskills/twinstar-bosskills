@@ -4,7 +4,7 @@
 	import CharacterPerformanceChart from '$lib/components/echart/CharacterPerformanceChart.svelte';
 	import FilterForm from '$lib/components/form/FilterForm.svelte';
 	import { links } from '$lib/links';
-	import { difficultyToString } from '$lib/model';
+	import { difficultyToString, talentSpecsByClass } from '$lib/model';
 	import { realmToExpansion } from '$lib/realm';
 	import type { PageData } from './$types';
 
@@ -13,6 +13,7 @@
 	const expansion = realmToExpansion(data.realm);
 	const name = data.character.name;
 	const performanceLines = Object.entries(data.performanceLines);
+	const spec = data.spec;
 </script>
 
 <svelte:head>
@@ -45,9 +46,11 @@
 		{#each Object.entries(byMode) as [mode, line]}
 			{@const name = line[0]?.bossName ?? bossId}
 			{@const diff = difficultyToString(expansion, mode)}
+			{@const median =
+				spec !== null ? data.medianByBossId?.[Number(bossId)]?.[Number(mode)]?.[spec] : undefined}
 			<div>
 				<h3>Performance on {name} {diff}</h3>
-				<CharacterPerformanceChart data={line} />
+				<CharacterPerformanceChart data={line} {median} />
 			</div>
 		{/each}
 	{/each}

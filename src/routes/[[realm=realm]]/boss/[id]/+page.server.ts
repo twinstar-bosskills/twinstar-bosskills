@@ -1,16 +1,16 @@
 import { defaultDifficultyByExpansion } from '$lib/model';
 import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 import { getDifficultyFromUrl } from '$lib/search-params';
-import * as api from '$lib/server/api';
 import { getBossKillsWipesTimes } from '$lib/server/api';
 import { getBossAggregatedStats, getBossTopSpecs } from '$lib/server/db/boss';
+import { getBoss } from '$lib/server/model/boss.model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, params }) => {
 	const id = Number(params.id);
-	const boss = await api.getBoss({ realm: params.realm, id });
+	const boss = await getBoss({ realm: params.realm!, remoteId: id });
 	if (!boss) {
 		throw error(404, {
 			message: 'Not found'

@@ -1,7 +1,7 @@
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
-import { getBoss } from '$lib/server/api';
+import { getBoss } from '$lib/server/model/boss.model';
 import type { Boss } from '$lib/server/api/schema';
 import {
 	getCharacterPerformanceLine,
@@ -79,9 +79,9 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 	const bossNameById: Record<Boss['entry'], string> = {};
 	await Promise.all(
 		Object.values(bossIds).map((id) => {
-			return getBoss({ realm, id }).then((boss) => {
+			return getBoss({ realm, remoteId: id }).then((boss) => {
 				if (boss) {
-					bossNameById[boss.entry] = boss.name;
+					bossNameById[boss.remoteId] = boss.name;
 				}
 			});
 		})

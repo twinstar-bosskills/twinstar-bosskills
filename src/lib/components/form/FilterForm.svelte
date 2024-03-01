@@ -1,28 +1,37 @@
 <script lang="ts" context="module">
-	export type Option = {
+	type OptionBaseValue = string | number;
+	export type Option<TValue extends OptionBaseValue = OptionBaseValue> = {
 		label: string;
-		value: string | number;
+		value: TValue;
 		selected?: boolean;
 		disabled?: boolean;
 	};
-	export type Options = Option[];
+	export type Options<TValue extends OptionBaseValue = OptionBaseValue> = Option<TValue>[];
 	export type Data = {
 		raids: Raid[];
+		specs?: number[];
 	};
 	export type Values = {
 		bosses: number[];
 		raids: string[];
 		difficulties: number[];
+		specs?: number[];
 	};
 </script>
 
 <script lang="ts">
 	import { links } from '$lib/links';
 
-	import { difficultiesByExpansion, difficultyToString, isRaidDifficulty } from '$lib/model';
+	import {
+		difficultiesByExpansion,
+		difficultyToString,
+		isRaidDifficulty,
+		talentSpecToString
+	} from '$lib/model';
 	import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 	import type { Raid } from '$lib/server/api/schema';
 	import Link from '../Link.svelte';
+	import SpecIcon from '../icon/SpecIcon.svelte';
 
 	export let action: string | undefined = undefined;
 	export let realm: string = REALM_HELIOS;
@@ -55,13 +64,20 @@
 		}
 	}
 
-	const difficulties: Options = diffByExp
+	const difficulties: Options<number> = diffByExp
 		.filter((diff) => isRaidDifficulty(expansion, diff))
 		.map((diff) => ({
 			label: difficultyToString(expansion, diff),
 			value: diff,
 			selected: values.difficulties.includes(diff)
 		}));
+
+	const specs: Options<number> =
+		data.specs?.map((spec) => ({
+			label: talentSpecToString(expansion, spec),
+			value: spec,
+			selected: values.specs?.includes(spec)
+		})) ?? [];
 </script>
 
 <form data-sveltekit-reload method="GET" action={formAction}>
@@ -122,6 +138,29 @@
 				{/each}
 			</div>
 		</div>
+
+		{#if specs.length}
+			<div class="item-container">
+				<div class="headline">Spec</div>
+				<div class="item difficulty">
+					{#each specs as spec}
+						<label for="spec_{spec.value}" class="item-group">
+							<input
+								type="checkbox"
+								id="spec_{spec.value}"
+								name="spec"
+								value={spec.value}
+								checked={spec.selected}
+								disabled={spec.disabled}
+							/>
+							<div>
+								<SpecIcon {realm} talentSpec={spec.value} />
+							</div>
+						</label>
+					{/each}
+				</div>
+			</div>
+		{/if}
 	</div>
 	<div style="background: rgba(var(--color-primary), 0.5); height: 2px; width: 100%;" />
 	<div class="group">

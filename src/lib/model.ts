@@ -541,3 +541,29 @@ export const talentSpecToClassString = (expansion: number, spec: number): string
 	}
 	return classToString(cls);
 };
+
+const invert = (obj: typeof TALENT_SPEC_CATA_TO_CLASS | typeof TALENT_SPEC_MOP_TO_CLASS) =>
+	Object.entries(obj).reduce((acc, [k, v]) => {
+		acc[v] ??= [];
+		acc[v]!.push(Number(k));
+		return acc;
+	}, {} as Record<number, number[]>);
+
+const TALENT_SPEC_MOP_BY_CLASS = invert(TALENT_SPEC_MOP_TO_CLASS);
+const TALENT_SPEC_CATA_BY_CLASS = invert(TALENT_SPEC_CATA_TO_CLASS);
+
+export const talentSpecsByClass = (expansion: number, cls: number | null): number[] => {
+	if (cls === null) {
+		return [];
+	}
+
+	if (expansionIsMoP(expansion)) {
+		return TALENT_SPEC_MOP_BY_CLASS[cls] ?? [];
+	}
+
+	if (expansionIsCata(expansion)) {
+		return TALENT_SPEC_CATA_BY_CLASS[cls] ?? [];
+	}
+
+	return [];
+};
