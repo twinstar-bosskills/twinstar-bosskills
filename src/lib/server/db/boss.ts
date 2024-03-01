@@ -265,7 +265,6 @@ type GetBossStatsMedianArgs = {
 	difficulties: number[];
 	specs: number[];
 };
-// type GetBossStatsMedianResult = Record<number, Record<number, number>>;
 export const getBossStatsMedian = async ({
 	realm,
 	remoteId,
@@ -300,14 +299,8 @@ export const getBossStatsMedian = async ({
 				)
 				.groupBy(sql`mode, spec`);
 
-			// const byModeBySpec: GetBossStatsMedianResult = {};
 			const rows = await qb.execute();
 			return rows;
-			// for (const row of rows) {
-			// 	byModeBySpec[row.mode] ??= {};
-			// 	byModeBySpec[row.mode]![row.spec] = row.value;
-			// }
-			// return byModeBySpec;
 		} catch (e) {
 			console.error(e);
 			throw e;
@@ -315,7 +308,7 @@ export const getBossStatsMedian = async ({
 	};
 
 	return withCache({
-		deps: ['db:getBossStatsMedian', realm, remoteId, metric, difficulties],
+		deps: ['db:getBossStatsMedian', realm, remoteId, metric, difficulties, specs],
 		fallback,
 		defaultValue: []
 	});
