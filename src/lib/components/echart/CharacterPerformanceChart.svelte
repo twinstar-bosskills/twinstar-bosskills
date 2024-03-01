@@ -37,7 +37,7 @@
 
 	export let width: number | undefined = undefined;
 	export let height: number | undefined = undefined;
-	export let median: { hps: number; dps: number } | undefined = undefined;
+	export let median: { hps?: number; dps?: number } | undefined = undefined;
 	export let data: CharacterPerformanceLine = [];
 
 	type OptionData = {
@@ -72,7 +72,7 @@
 			},
 			data: [
 				{
-					yAxis: median?.dps,
+					yAxis: median.dps,
 					lineStyle: {
 						color: 'gold'
 					},
@@ -95,7 +95,7 @@
 			},
 			data: [
 				{
-					yAxis: median?.hps,
+					yAxis: median.hps,
 					lineStyle: {
 						color: 'green'
 					}
