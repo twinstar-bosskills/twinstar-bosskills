@@ -152,6 +152,8 @@ type CharacterPerformanceArgs = {
 	bossIds?: number[];
 	startDate?: Date;
 	endDate?: Date;
+	ilvlMin?: number;
+	ilvlMax?: number;
 };
 const characterPerformanceQb = (
 	db: DbConnection,
@@ -164,6 +166,8 @@ const characterPerformanceQb = (
 		bossIds,
 		startDate,
 		endDate,
+		ilvlMin = 0,
+		ilvlMax = 0,
 		groupByBossAndDiff = false
 	}: CharacterPerformanceArgs & { groupByBossAndDiff?: boolean }
 ) => {
@@ -196,7 +200,9 @@ const characterPerformanceQb = (
 				specs && specs.length > 0 ? inArray(bosskillPlayerTable.talentSpec, specs) : undefined,
 				raids && raids.length > 0 ? inArray(raidTable.name, raids) : undefined,
 				bossIds && bossIds.length > 0 ? inArray(bossTable.remoteId, bossIds) : undefined,
-				modes && modes.length > 0 ? inArray(bosskillTable.mode, modes) : undefined
+				modes && modes.length > 0 ? inArray(bosskillTable.mode, modes) : undefined,
+				ilvlMin > 0 ? gte(bosskillPlayerTable.avgItemLvl, ilvlMin) : undefined,
+				ilvlMax > 0 ? lte(bosskillPlayerTable.avgItemLvl, ilvlMax) : undefined
 			)
 		)
 		.groupBy(bosskillTable.time)
