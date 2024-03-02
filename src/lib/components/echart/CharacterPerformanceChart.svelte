@@ -35,14 +35,16 @@
 		SVGRenderer
 	]);
 
+	export let realm: string;
+	export let data: CharacterPerformanceLine = [];
 	export let width: number | undefined = undefined;
 	export let height: number | undefined = undefined;
 	export let median: { hps?: number; dps?: number } | undefined = undefined;
-	export let data: CharacterPerformanceLine = [];
 
 	type OptionData = {
 		value: number;
 		talentSpec: number;
+		ilvl: number;
 	};
 	let yAxisMax = 0;
 	const xAxisData = [];
@@ -50,8 +52,8 @@
 	const hpsData: OptionData[] = [];
 	for (const item of data) {
 		xAxisData.push(formatTzLocalized(item.time));
-		dpsData.push({ value: item.dps, talentSpec: item.talentSpec });
-		hpsData.push({ value: item.hps, talentSpec: item.talentSpec });
+		dpsData.push({ value: item.dps, talentSpec: item.talentSpec, ilvl: item.avgItemLvl });
+		hpsData.push({ value: item.hps, talentSpec: item.talentSpec, ilvl: item.avgItemLvl });
 		yAxisMax = Math.max(yAxisMax, item.dps, item.hps);
 	}
 
@@ -118,10 +120,16 @@
 				if (Array.isArray(params) && params.length > 0) {
 					html +=
 						'<div style="display: grid; grid-template-columns: max-content max-content max-content; gap: 0.25rem">';
+					let first = true;
 					for (const value of params) {
 						const data = value.data as OptionData;
+						if (first) {
+							html += `<div style="grid-column: span 2;">Item lvl:</div>`;
+							html += `<div style="display: flex; font-weight: bold; justify-content: flex-end;">${data.ilvl}</div>`;
+							first = false;
+						}
 						const specHTML = renderComponentToHtml(SpecIcon, {
-							realm: 'Helios',
+							realm,
 							talentSpec: data.talentSpec
 						});
 						html += `<div style="display: flex; align-items: center;">${specHTML}</div>`;

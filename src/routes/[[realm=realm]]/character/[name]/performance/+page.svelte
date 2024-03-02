@@ -55,7 +55,7 @@
 					Performance on
 					<Link href={links.boss(realm, bossIdNum, { difficulty: mode })}>{name} ({diff})</Link>
 				</h3>
-				<CharacterPerformanceChart data={line} {median} />
+				<CharacterPerformanceChart data={line} {realm} {median} />
 			</div>
 		{/each}
 	{/each}
