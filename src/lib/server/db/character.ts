@@ -111,6 +111,7 @@ export type CharacterPerformanceLine = {
 	bossId: number;
 	bossName: string;
 	talentSpec: number;
+	avgItemLvl: number;
 	mode: number;
 }[];
 export const getCharacterPerformanceLine = async (
@@ -184,7 +185,8 @@ const characterPerformanceQb = (
 			mode: bosskillTable.mode,
 			bossId: bossTable.remoteId,
 			bossName: bossTable.name,
-			talentSpec: bosskillPlayerTable.talentSpec
+			talentSpec: bosskillPlayerTable.talentSpec,
+			avgItemLvl: bosskillPlayerTable.avgItemLvl
 		})
 		.from(bosskillPlayerTable)
 		.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
