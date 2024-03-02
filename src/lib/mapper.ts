@@ -23,3 +23,18 @@ export const toArrayOfNonEmptyStrings = (values: string[]): string[] => {
 
 	return result;
 };
+
+export const toIntOrUndefined = (value: string | null | undefined): number | undefined => {
+	if (typeof value !== 'string') {
+		return undefined;
+	}
+
+	const v = value.trim();
+	if (v !== '') {
+		const n = Number(v);
+		if (isFinite(n)) {
+			return n;
+		}
+	}
+	return undefined;
+};

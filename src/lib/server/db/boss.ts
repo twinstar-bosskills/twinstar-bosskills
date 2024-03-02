@@ -4,7 +4,7 @@ import {
 	type AggregatedBySpecStats
 } from '$lib/components/echart/boxplot';
 import type { Boss } from '$lib/model/boss.model';
-import { and, desc, eq, gte, inArray, ne, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, lte, ne, sql } from 'drizzle-orm';
 import { createConnection } from '.';
 import { bosskillCharacterSchema, type BosskillCharacter } from '../api/schema';
 import { withCache } from '../cache';
@@ -245,13 +245,17 @@ type GetBossStatsMedianArgs = {
 	metric: 'dps' | 'hps';
 	difficulties: number[];
 	specs: number[];
+	ilvlMin?: number;
+	ilvlMax?: number;
 };
 export const getBossStatsMedian = async ({
 	realm,
 	remoteId,
 	metric,
 	difficulties,
-	specs
+	specs,
+	ilvlMin = 0,
+	ilvlMax = 0
 }: GetBossStatsMedianArgs) => {
 	const fallback = async () => {
 		try {
@@ -276,7 +280,9 @@ export const getBossStatsMedian = async ({
 						difficulties && difficulties.length
 							? inArray(bosskillTable.mode, difficulties)
 							: undefined,
-						specs && specs.length ? inArray(bosskillPlayerTable.talentSpec, specs) : undefined
+						specs && specs.length ? inArray(bosskillPlayerTable.talentSpec, specs) : undefined,
+						ilvlMin > 0 ? gte(bosskillPlayerTable.avgItemLvl, ilvlMin) : undefined,
+						ilvlMax > 0 ? lte(bosskillPlayerTable.avgItemLvl, ilvlMax) : undefined
 					)
 				);
 
@@ -295,7 +301,7 @@ export const getBossStatsMedian = async ({
 	};
 
 	return withCache({
-		deps: ['db:getBossStatsMedian', realm, remoteId, metric, difficulties, specs],
+		deps: ['db:getBossStatsMedian', realm, remoteId, metric, difficulties, specs, ilvlMin, ilvlMax],
 		fallback,
 		defaultValue: []
 	});

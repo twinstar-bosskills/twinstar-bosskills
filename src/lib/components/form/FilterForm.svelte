@@ -10,12 +10,15 @@
 	export type Data = {
 		raids: Raid[];
 		specs?: number[];
+		ilvl?: boolean;
 	};
 	export type Values = {
 		bosses: number[];
 		raids: string[];
 		difficulties: number[];
 		specs?: number[];
+		ilvlMin?: number;
+		ilvlMax?: number;
 	};
 </script>
 
@@ -142,7 +145,7 @@
 		{#if specs.length}
 			<div class="item-container">
 				<div class="headline">Spec</div>
-				<div class="item difficulty">
+				<div class="item spec">
 					{#each specs as spec}
 						<label for="spec_{spec.value}" class="item-group">
 							<input
@@ -158,6 +161,35 @@
 							</div>
 						</label>
 					{/each}
+				</div>
+			</div>
+		{/if}
+		{#if data.ilvl}
+			<div class="item-container">
+				<div class="headline">Ilvl</div>
+				<div class="item">
+					<label for="ilvl_min" class="item-group">
+						<input
+							type="number"
+							min="0"
+							max="600"
+							id="ilvl_min"
+							name="ilvl_min"
+							value={values.ilvlMin ?? ''}
+						/>
+						Min
+					</label>
+					<label for="ilvl_max" class="item-group">
+						<input
+							type="number"
+							min="0"
+							max="600"
+							id="ilvl_max"
+							name="ilvl_max"
+							value={values.ilvlMax ?? ''}
+						/>
+						Max
+					</label>
 				</div>
 			</div>
 		{/if}
@@ -188,7 +220,8 @@
 		overflow-y: auto;
 		/* border: 2px solid rgba(var(--color-primary), 0.5); */
 	}
-	.item.difficulty {
+	.item.difficulty,
+	.item.spec {
 		display: grid;
 		grid-template-columns: max-content max-content;
 	}
