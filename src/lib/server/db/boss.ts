@@ -4,7 +4,7 @@ import {
 	type AggregatedBySpecStats
 } from '$lib/components/echart/boxplot';
 import type { Boss } from '$lib/model/boss.model';
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, ne, sql } from 'drizzle-orm';
 import { createConnection } from '.';
 import { bosskillCharacterSchema, type BosskillCharacter } from '../api/schema';
 import { withCache } from '../cache';
@@ -199,7 +199,7 @@ export const getBossAggregatedStats = async ({
 			const qb = db
 				.select({
 					spec: bosskillPlayerTable.talentSpec,
-					value: metric === 'hps' ? hps : dps
+					value: (metric === 'hps' ? hps : dps).as('value')
 				})
 				.from(bosskillPlayerTable)
 				.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
@@ -209,38 +209,19 @@ export const getBossAggregatedStats = async ({
 					and(
 						eq(realmTable.name, realm),
 						eq(bosskillTable.mode, difficulty),
-						eq(bossTable.remoteId, remoteId)
+						eq(bossTable.remoteId, remoteId),
+						ne(bosskillPlayerTable.talentSpec, 0)
 					)
-				);
+				)
+				.having(and(gte(sql`value`, 0), metric === 'hps' ? sql`value < 5000000` : undefined));
+
 			const rows = await qb.execute();
 			const bySpec: AggregatedBySpec = {};
 			for (const item of rows) {
 				const value = item.value;
-				if (isFinite(value)) {
-					// do not care about 0 dps/hps/...
-					if (value <= 0) {
-						continue;
-					}
-
-					// safety borders, value this big is probably bug
-					if (metric === 'dps' && value > 1_000_000) {
-						continue;
-					}
-
-					// safety borders, value this big is probably bug
-					if (metric === 'hps' && value > 5_000_000) {
-						continue;
-					}
-
-					const spec = item.spec;
-					// Unknown spec
-					if (spec === 0) {
-						continue;
-					}
-
-					bySpec[spec] ??= [];
-					bySpec[spec]!.push(value);
-				}
+				const spec = item.spec;
+				bySpec[spec] ??= [];
+				bySpec[spec]!.push(value);
 			}
 
 			return aggregateBySpec(bySpec);
@@ -291,15 +272,21 @@ export const getBossStatsMedian = async ({
 					and(
 						eq(realmTable.name, realm),
 						eq(bossTable.remoteId, remoteId),
+						ne(bosskillPlayerTable.talentSpec, 0),
 						difficulties && difficulties.length
 							? inArray(bosskillTable.mode, difficulties)
 							: undefined,
 						specs && specs.length ? inArray(bosskillPlayerTable.talentSpec, specs) : undefined
 					)
-				)
-				.groupBy(sql`mode, spec`);
+				);
 
-			const rows = await qb.execute();
+			const qb2 = db
+				.select()
+				.from(qb.as('sub'))
+				.where(and(gte(sql`value`, 0), metric === 'hps' ? sql`value < 5000000` : undefined))
+				.orderBy(sql`value`);
+
+			const rows = await qb2.execute();
 			return rows;
 		} catch (e) {
 			console.error(e);

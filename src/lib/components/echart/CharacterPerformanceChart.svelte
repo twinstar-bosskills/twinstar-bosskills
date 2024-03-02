@@ -44,6 +44,7 @@
 		value: number;
 		talentSpec: number;
 	};
+	let yAxisMax = 0;
 	const xAxisData = [];
 	const dpsData: OptionData[] = [];
 	const hpsData: OptionData[] = [];
@@ -51,6 +52,7 @@
 		xAxisData.push(formatTzLocalized(item.time));
 		dpsData.push({ value: item.dps, talentSpec: item.talentSpec });
 		hpsData.push({ value: item.hps, talentSpec: item.talentSpec });
+		yAxisMax = Math.max(yAxisMax, item.dps, item.hps);
 	}
 
 	const formatter = (d: number) => {
@@ -80,6 +82,7 @@
 				}
 			]
 		};
+		yAxisMax = Math.max(yAxisMax, median.dps);
 	}
 
 	if (typeof median?.hps === 'number') {
@@ -102,6 +105,7 @@
 				}
 			]
 		};
+		yAxisMax = Math.max(yAxisMax, median.hps);
 	}
 
 	const options: EChartsOption = {
@@ -148,7 +152,9 @@
 			type: 'value',
 			axisLabel: {
 				formatter: formatter
-			}
+			},
+			min: 0,
+			max: yAxisMax
 		},
 		series: [
 			{
