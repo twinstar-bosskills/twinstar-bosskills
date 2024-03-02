@@ -6,6 +6,7 @@
 	import { links } from '$lib/links';
 	import { difficultyToString, talentSpecsByClass } from '$lib/model';
 	import { realmToExpansion } from '$lib/realm';
+	import { number } from 'zod';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -45,11 +46,15 @@
 	{#each performanceLines as [bossId, byMode]}
 		{#each Object.entries(byMode) as [mode, line]}
 			{@const name = line[0]?.bossName ?? bossId}
+			{@const bossIdNum = Number(bossId)}
 			{@const diff = difficultyToString(expansion, mode)}
 			{@const median =
-				spec !== null ? data.medianByBossId?.[Number(bossId)]?.[Number(mode)]?.[spec] : undefined}
+				spec !== null ? data.medianByBossId?.[bossIdNum]?.[Number(mode)]?.[spec] : undefined}
 			<div>
-				<h3>Performance on {name} {diff}</h3>
+				<h3>
+					Performance on
+					<Link href={links.boss(realm, bossIdNum, { difficulty: mode })}>{name} ({diff})</Link>
+				</h3>
 				<CharacterPerformanceChart data={line} {median} />
 			</div>
 		{/each}
