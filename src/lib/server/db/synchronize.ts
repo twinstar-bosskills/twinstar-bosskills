@@ -63,11 +63,21 @@ export const synchronize = async ({
 	const playerIdByGUID: Record<number, number> = {};
 	const raids = await getRaids({ realm });
 	let isLimited = false;
+
+	// fast create raids and bosses
+	for (const raid of raids) {
+		onLog(`Assert raid: ${raid.map}`);
+		const raidEnt = await getOrCreateRaid({ raid, realmId: realmEnt.id });
+		for (const boss of raid.bosses) {
+			onLog(`  Assert boss: ${boss.name}`);
+			await getOrCreateBoss({ boss, raidId: raidEnt.id });
+		}
+	}
+
 	for (const raid of raids) {
 		safeGC();
 		onLog(`Processing raid: ${raid.map}`);
 		const raidEnt = await getOrCreateRaid({ raid, realmId: realmEnt.id });
-
 		for (const boss of raid.bosses) {
 			safeGC();
 			onLog(`Processing boss: ${boss.name}`);
@@ -113,6 +123,9 @@ export const synchronize = async ({
 			const bkLength = bosskills.length;
 			let timeSum = 0;
 			for (let i = 0; i < bkLength; ++i) {
+				if (i % 100 === 0) {
+					safeGC();
+				}
 				const start = performance.now();
 				const bk = bosskills[i]!;
 				const xOfY = `(${i}/${bkLength})`;
