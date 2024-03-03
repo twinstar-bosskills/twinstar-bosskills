@@ -17,12 +17,12 @@
 <h1>Raids</h1>
 <ul class="raids">
 	{#each data.raids as raid}
-		{@const byDifficulty = Object.entries(data.bosskillsByRaidByDifficulty[raid.map] ?? {})}
+		{@const byDifficulty = Object.entries(data.bosskillsByRaidByDifficulty[raid.remoteId] ?? {})}
 		<li class="raid">
-			<div class="bg" style="--background-image: url({getRaidIconUrl(raid.map)})">
+			<div class="bg" style="--background-image: url({getRaidIconUrl(raid.remoteId)})">
 				<div class="kills-count" title="Number of killed bosses during current raid lock">
 					<TextColorSuccess>
-						{data.bosskillsByRaid[raid.map] ?? 0}
+						{data.bosskillsByRaid[raid.remoteId] ?? 0}
 					</TextColorSuccess>
 					kills this raid lock
 					<div style="border-top: 1px solid rgba(var(--color-primary), 1); padding-top: 0.25rem;">
@@ -38,20 +38,20 @@
 				</div>
 			</div>
 			<div class="content">
-				<h2>{raid.map}</h2>
+				<h2>{raid.remoteId}</h2>
 				<div class="bosses">
 					<ol>
-						{#each raid.bosses as boss}
+						{#each data.bossesByRaidId[raid.id] ?? [] as boss}
 							{@const byDifficulty = Object.entries(
-								data.bosskillsByBossByDifficulty[boss.entry] ?? {}
+								data.bosskillsByBossByDifficulty[boss.remoteId] ?? {}
 							)}
 							<li style="list-style-type: decimal; margin-top: 0.25rem;">
-								<Link href={links.boss(data.realm, boss.entry)} style="font-size: 1.25rem"
+								<Link href={links.boss(data.realm, boss.remoteId)} style="font-size: 1.25rem"
 									>{boss.name}</Link
 								>
 								<span title="Number of kills during current raid lock">
 									<TextColorSuccess>
-										{data.bosskillsByBoss[boss.entry] ?? 0}
+										{data.bosskillsByBoss[boss.remoteId] ?? 0}
 									</TextColorSuccess>
 									kills
 								</span>

@@ -13,24 +13,24 @@
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
+	export let data: PageData;
+
 	let pageSize = getPageSizeFromURL($page.url);
 	let page_ = getPageFromURL($page.url);
-
-	export let data: PageData;
+	const bosses = data.bossNameByRemoteId;
 
 	type T = (typeof data.latest.data)[0];
 	const columns: ColumnDef<T>[] = [
 		{
 			id: 'boss',
-			accessorFn: (row) => data.bossNameById[row.entry] ?? row.creature_name ?? row.entry,
+			accessorFn: (row) => bosses[row.entry] ?? row.creature_name ?? row.entry,
 			header: () => 'Boss',
 			cell: (info) =>
 				cellComponent(Boss, {
 					realm: data.realm,
 					bosskill: {
 						...info.row.original,
-						creature_name:
-							data.bossNameById[info.row.original.entry] ?? info.row.original.creature_name
+						creature_name: bosses[info.row.original.entry] ?? info.row.original.creature_name
 					}
 				})
 		},

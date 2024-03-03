@@ -71,7 +71,7 @@ export const synchronize = async ({
 		for (const boss of raid.bosses) {
 			safeGC();
 			onLog(`Processing boss: ${boss.name}`);
-			const bossEnt = await getOrCreateBoss(boss);
+			const bossEnt = await getOrCreateBoss({ boss, raidId: raidEnt.id });
 
 			const query: LatestBossKillQueryArgs = {
 				cache: false,
@@ -243,17 +243,20 @@ const getOrCreateRaid = async ({ raid, realmId }: { raid: Raid; realmId: number 
 	return ent;
 };
 
-const getOrCreateBoss = async (boss: Boss) => {
+const getOrCreateBoss = async ({ boss, raidId }: { boss: Boss; raidId: number }) => {
 	const db = await createConnection();
 	const result = await db
 		.select()
 		.from(bossTable)
-		.where(eq(bossTable.remoteId, boss.entry))
+		.where(and(eq(bossTable.remoteId, boss.entry), eq(bossTable.raidId, raidId)))
 		.execute();
 	let ent = result[0] ?? null;
 	if (ent === null) {
 		const result = await db.transaction((tx) => {
-			return tx.insert(bossTable).ignore().values({ remoteId: boss.entry, name: boss.name });
+			return tx
+				.insert(bossTable)
+				.ignore()
+				.values({ remoteId: boss.entry, name: boss.name, raidId });
 		});
 		const id = result[0].insertId;
 		const refetch = await db.select().from(bossTable).where(eq(bossTable.id, id));
