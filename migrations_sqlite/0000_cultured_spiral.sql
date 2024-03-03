@@ -74,7 +74,9 @@ CREATE TABLE `boss_kill` (
 CREATE TABLE `boss` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`remote_id` integer NOT NULL,
-	`name` text NOT NULL
+	`name` text NOT NULL,
+	`raid_id` integer NOT NULL,
+	FOREIGN KEY (`raid_id`) REFERENCES `raid`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `player` (
@@ -90,6 +92,13 @@ CREATE TABLE `raid` (
 	`name` text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE `realm_x_raid` (
+	`realm_id` integer NOT NULL,
+	`raid_id` integer NOT NULL,
+	FOREIGN KEY (`realm_id`) REFERENCES `realm`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`raid_id`) REFERENCES `raid`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
 CREATE TABLE `realm` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
@@ -100,4 +109,5 @@ CREATE UNIQUE INDEX `boss_kill_death_remote_id_unique` ON `boss_kill_death` (`re
 CREATE UNIQUE INDEX `boss_kill_remote_id_unique` ON `boss_kill` (`remote_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `boss_remote_id_unique` ON `boss` (`remote_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `raid_name_unique` ON `raid` (`name`);--> statement-breakpoint
-CREATE UNIQUE INDEX `realm_name_unique` ON `realm` (`name`);
+CREATE UNIQUE INDEX `realm_name_unique` ON `realm` (`name`);--> statement-breakpoint
+CREATE UNIQUE INDEX `realm_x_raid_unique` ON `realm_x_raid` (`realm_id`, `raid_id`);

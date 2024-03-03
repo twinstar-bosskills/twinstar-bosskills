@@ -7,19 +7,6 @@
 		disabled?: boolean;
 	};
 	export type Options<TValue extends OptionBaseValue = OptionBaseValue> = Option<TValue>[];
-	export type Data = {
-		raids: Raid[];
-		specs?: number[];
-		ilvl?: boolean;
-	};
-	export type Values = {
-		bosses: number[];
-		raids: string[];
-		difficulties: number[];
-		specs?: number[];
-		ilvlMin?: number;
-		ilvlMax?: number;
-	};
 </script>
 
 <script lang="ts">
@@ -32,7 +19,7 @@
 		talentSpecToString
 	} from '$lib/model';
 	import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
-	import type { Raid } from '$lib/server/api/schema';
+	import type { Data, Values } from '$lib/server/form/filter-form';
 	import Link from '../Link.svelte';
 	import SpecIcon from '../icon/SpecIcon.svelte';
 
@@ -46,25 +33,23 @@
 	const expansion = realmToExpansion(realm);
 	const diffByExp = Object.values(difficultiesByExpansion(expansion) ?? {});
 
-	const bossByRaid: Record<string, Data['raids'][0]['bosses']> = {};
 	const raids: Options = [];
 	const bosses: Options = [];
 
+	for (const boss of data.bosses) {
+		bosses.push({
+			label: boss.name,
+			value: boss.remoteId,
+			selected: values.bosses.includes(boss.remoteId)
+		});
+	}
+
 	for (const raid of data.raids) {
 		raids.push({
-			label: raid.map,
-			value: raid.map,
-			selected: values.raids.includes(raid.map)
+			label: raid.remoteId,
+			value: raid.remoteId,
+			selected: values.raids.includes(raid.remoteId)
 		});
-		for (const boss of raid.bosses) {
-			bossByRaid[raid.map] ??= [];
-			bossByRaid[raid.map]!.push(boss);
-			bosses.push({
-				label: boss.name,
-				value: boss.entry,
-				selected: values.bosses.includes(boss.entry)
-			});
-		}
 	}
 
 	const difficulties: Options<number> = diffByExp

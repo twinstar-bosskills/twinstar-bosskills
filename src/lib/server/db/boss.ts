@@ -5,36 +5,51 @@ import {
 } from '$lib/components/echart/boxplot';
 import type { Boss } from '$lib/model/boss.model';
 import { and, desc, eq, gte, inArray, lte, ne, sql } from 'drizzle-orm';
-import { createConnection } from '.';
+import { createConnection, type DbConnection } from '.';
 import { bosskillCharacterSchema, type BosskillCharacter } from '../api/schema';
 import { withCache } from '../cache';
 import { bosskillPlayerTable, dps, hps } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
 import { raidTable } from './schema/raid.schema';
+import { realmXRaidTable } from './schema/realm-x-raid.schema';
 import { realmTable } from './schema/realm.schema';
 
-// export const findByRealm = async ({ realm }: { realm: string }): Promise<Boss[]> => {
-// 	try {
-// 		const db = await createConnection();
-// 		const qb = db
-// 			.select()
-// 			.from(bossTable)
-// 			.innerJoin(
-// 				realmXRaidTable,
-// 				and(eq(realmTable.id, realmXRaidTable.realmId), eq(raidTable.id, realmXRaidTable.raidId))
-// 			)
-// 			.innerJoin(realmTable, eq(realmTable.id, realmXRaidTable.realmId))
-// 			.where(and(eq(realmTable.name, realm)));
+type BuilderArgs = { realm: string; id?: number | undefined; remoteId?: number | undefined };
+const builder = (db: DbConnection, { realm, id, remoteId }: BuilderArgs) => {
+	const qb = db
+		.select({
+			id: bossTable.id,
+			remoteId: bossTable.remoteId,
+			name: bossTable.name,
+			raidId: raidTable.id
+		})
+		.from(bossTable)
+		.innerJoin(raidTable, eq(raidTable.id, bossTable.raidId))
+		.innerJoin(realmXRaidTable, eq(realmXRaidTable.raidId, raidTable.id))
+		.innerJoin(realmTable, eq(realmTable.id, realmXRaidTable.realmId))
+		.where(
+			and(
+				eq(realmTable.name, realm),
+				typeof remoteId === 'number' ? eq(bossTable.remoteId, remoteId) : undefined,
+				typeof id === 'number' ? eq(bossTable.id, id) : undefined
+			)
+		);
+	return qb;
+};
 
-// 		const rows = await qb.execute();
-// 		return rows;
-// 	} catch (e) {
-// 		console.error(e);
-// 	}
+export const findByRealm = async ({ realm }: { realm: string }): Promise<Boss[]> => {
+	try {
+		const db = await createConnection();
+		const qb = builder(db, { realm });
+		const rows = await qb.execute();
+		return rows;
+	} catch (e) {
+		console.error(e);
+	}
 
-// 	return [];
-// };
+	return [];
+};
 
 export const getByRemoteIdAndRealm = async ({
 	remoteId,
@@ -43,14 +58,9 @@ export const getByRemoteIdAndRealm = async ({
 	remoteId: number;
 	realm: string;
 }): Promise<Boss | null> => {
-	// TODO: connect boss and raid and realm
 	try {
 		const db = await createConnection();
-		const qb = db
-			.select()
-			.from(bossTable)
-			.where(and(eq(bossTable.remoteId, remoteId)));
-
+		const qb = builder(db, { realm, remoteId });
 		const rows = await qb.execute();
 		return rows[0] ?? null;
 	} catch (e) {
@@ -244,7 +254,7 @@ type GetBossStatsMedianArgs = {
 	remoteId: number;
 	metric: 'dps' | 'hps';
 	difficulties: number[];
-	specs: number[];
+	specs?: number[];
 	ilvlMin?: number;
 	ilvlMax?: number;
 };

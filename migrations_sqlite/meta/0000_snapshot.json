@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "3581123e-caf2-45f6-bb45-558ea4267116",
+  "id": "7b589b7b-42b6-4cf6-8d82-93ff6199c07d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "boss_kill_death": {
@@ -553,6 +553,13 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "raid_id": {
+          "name": "raid_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -564,7 +571,21 @@
           "isUnique": true
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "boss_raid_id_raid_id_fk": {
+          "name": "boss_raid_id_raid_id_fk",
+          "tableFrom": "boss",
+          "tableTo": "raid",
+          "columnsFrom": [
+            "raid_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -647,6 +668,56 @@
         }
       },
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "realm_x_raid": {
+      "name": "realm_x_raid",
+      "columns": {
+        "realm_id": {
+          "name": "realm_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "raid_id": {
+          "name": "raid_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "realm_x_raid_realm_id_realm_id_fk": {
+          "name": "realm_x_raid_realm_id_realm_id_fk",
+          "tableFrom": "realm_x_raid",
+          "tableTo": "realm",
+          "columnsFrom": [
+            "realm_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "realm_x_raid_raid_id_raid_id_fk": {
+          "name": "realm_x_raid_raid_id_raid_id_fk",
+          "tableFrom": "realm_x_raid",
+          "tableTo": "raid",
+          "columnsFrom": [
+            "raid_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },

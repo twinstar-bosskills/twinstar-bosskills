@@ -5,6 +5,7 @@ import * as api from '$lib/server/api';
 import { FilterOperator } from '$lib/server/api/filter';
 import type { Boss } from '$lib/server/api/schema';
 import { getFilterFormData } from '$lib/server/form/filter-form';
+import { getBosses } from '$lib/server/model/boss.model';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, params }) => {
@@ -39,26 +40,24 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		});
 	}
 
-	const [latestData, raidData] = await Promise.all([
+	const [latestData, bossesData] = await Promise.all([
 		api.getLatestBossKills({
 			realm,
 			page,
 			pageSize,
 			filters
 		}),
-		api.getRaids({ realm })
+		getBosses({ realm })
 	]);
 
-	const bossNameById: Record<Boss['entry'], string> = {};
-	for (const raid of raidData) {
-		for (const boss of raid.bosses) {
-			bossNameById[boss.entry] = boss.name;
-		}
+	const bossNameByRemoteId: Record<Boss['entry'], string> = {};
+	for (const boss of bossesData) {
+		bossNameByRemoteId[boss.remoteId] = boss.name;
 	}
 
 	return {
 		latest: latestData,
-		bossNameById,
+		bossNameByRemoteId,
 		form
 	};
 };
