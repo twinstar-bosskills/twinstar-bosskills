@@ -1,3 +1,4 @@
+import { METRIC_TYPE, type MetricType } from '$lib/metrics';
 import { talentSpecsByClass } from '$lib/model';
 import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 import type { Boss } from '$lib/server/api/schema';
@@ -65,7 +66,7 @@ export const load = async ({ params, parent, url }: Parameters<PageServerLoad>[0
 		for (const [bossId, byMode] of Object.entries(performanceLines)) {
 			const modes = Object.keys(byMode).map(Number);
 			const remoteId = Number(bossId);
-			for (const metric of ['dps', 'hps'] as const) {
+			for (const metric of [METRIC_TYPE.DPS, METRIC_TYPE.HPS] as const) {
 				medianPromises.push(
 					getBossStatsMedian({
 						realm,
@@ -92,7 +93,7 @@ export const load = async ({ params, parent, url }: Parameters<PageServerLoad>[0
 				for (const median of medians) {
 					medianByBossId[id]![median.mode] ??= {};
 					medianByBossId[id]![median.mode]![median.spec] ??= {};
-					medianByBossId[id]![median.mode]![median.spec]![metric as 'dps' | 'hps'] = median.value;
+					medianByBossId[id]![median.mode]![median.spec]![metric as MetricType] = median.value;
 				}
 			}
 		}
