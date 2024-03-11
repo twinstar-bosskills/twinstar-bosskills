@@ -16,6 +16,7 @@ const withSearchParams = (url: string, query: SearchParams) => {
 	return ps !== '' ? url + '?' + p.toString() : url;
 };
 
+const changelog = () => `/changelog`;
 const raids = (realm: string) => `/${realm}/raids`;
 const bossKills = (realm: string) => `/${realm}/boss-kills`;
 const character = (realm: string, name: string) =>
@@ -49,6 +50,7 @@ export const twinstarGuild = (realm: string, guild: string) => {
 	}-twinhead.twinstar.cz/?guild=${encodeURIComponent(guild)}&realm=${realm}`;
 };
 export const links = {
+	changelog,
 	raids,
 	bossKills,
 	character,
