@@ -67,7 +67,7 @@
 <svelte:head>
 	<title>Twinstar Bosskills</title>
 </svelte:head>
-<h1>Welcome to Twinstar Bosskills</h1>
+<h1>Twinstar Bosskills</h1>
 
 {#if current.first && current.last}
 	<h2>Current raid lockout bosskills</h2>

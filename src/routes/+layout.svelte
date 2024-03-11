@@ -54,10 +54,13 @@
 </main>
 
 <footer>
-	Made by hop and hopefully some others, maybe you?
-	<LinkExternal href="https://github.com/twinstar-bosskills/twinstar-bosskills">
-		We are open source
-	</LinkExternal>
+	<Link href={links.changelog()}>🗒️ Changelog</Link>
+	<div>
+		Made by hop and hopefully some others, maybe you?
+		<LinkExternal href="https://github.com/twinstar-bosskills/twinstar-bosskills">
+			We are open source
+		</LinkExternal>
+	</div>
 </footer>
 
 <style>
@@ -243,9 +246,12 @@
 	}
 
 	footer {
+		display: flex;
+		justify-content: space-between;
 		padding: 0.5rem;
 		text-align: center;
-		font-size: 75%;
+		font-size: 80%;
+		gap: 0.25rem;
 	}
 
 	@media (max-width: 540px) {
@@ -254,6 +260,12 @@
 		}
 		nav {
 			justify-self: flex-end;
+		}
+	}
+	@media (max-width: 464px) {
+		footer {
+			flex-direction: column;
+			align-items: center;
 		}
 	}
 	@media (max-width: 330px) {
