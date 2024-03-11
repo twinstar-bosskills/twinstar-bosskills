@@ -7,6 +7,7 @@ import { getBoss } from '$lib/server/model/boss.model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { METRIC_TYPE } from '$lib/metrics';
 
 export const load: PageServerLoad = async ({ url, params }) => {
 	const id = Number(params.id);
@@ -22,8 +23,8 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	const mode = getDifficultyFromUrl(url) ?? defaultDifficultyByExpansion(expansion);
 	const [kw, dpsPrepared, hpsPrepared] = await Promise.all([
 		getBossKillsWipesTimes({ realm, id, mode }),
-		getBossAggregatedStats({ realm, remoteId: id, difficulty: mode, metric: 'dps' }),
-		getBossAggregatedStats({ realm, remoteId: id, difficulty: mode, metric: 'hps' })
+		getBossAggregatedStats({ realm, remoteId: id, difficulty: mode, metric: METRIC_TYPE.DPS }),
+		getBossAggregatedStats({ realm, remoteId: id, difficulty: mode, metric: METRIC_TYPE.HPS })
 	]);
 
 	const difficultyStr = url.searchParams.get('difficulty');
@@ -46,14 +47,14 @@ export const load: PageServerLoad = async ({ url, params }) => {
 			difficulty,
 			talentSpec,
 			remoteId: id,
-			metric: 'dps'
+			metric: METRIC_TYPE.DPS
 		}),
 		getBossTopSpecs({
 			realm,
 			difficulty,
 			talentSpec,
 			remoteId: id,
-			metric: 'hps'
+			metric: METRIC_TYPE.HPS
 		})
 	]);
 

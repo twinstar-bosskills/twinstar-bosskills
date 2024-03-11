@@ -18,6 +18,7 @@
 	import type { Item } from '$lib/server/api/schema';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
+	import Percentile from '$lib/components/table/column/Percentile.column.svelte';
 
 	export let data: PageData;
 
@@ -91,7 +92,14 @@
 			cell: (info) =>
 				cellComponent(CharacterName, { realm: data.realm, character: info.row.original })
 		},
-
+		{
+			id: 'percentil',
+			accessorFn: (row) => row.name,
+			header: () => '%ile',
+			cell: (info) =>
+				cellComponent(Percentile, { percentiles: data.percentiles, guid: info.row.original.guid }),
+			enableSorting: false
+		},
 		{
 			id: 'class',
 			accessorFn: (row) => row.class,

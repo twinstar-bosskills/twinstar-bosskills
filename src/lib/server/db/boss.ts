@@ -3,6 +3,7 @@ import {
 	type AggregatedBySpec,
 	type AggregatedBySpecStats
 } from '$lib/components/echart/boxplot';
+import { METRIC_TYPE, type MetricType } from '$lib/metrics';
 import type { Boss } from '$lib/model/boss.model';
 import { and, desc, eq, gte, inArray, lte, ne, sql } from 'drizzle-orm';
 import { createConnection, type DbConnection } from '.';
@@ -76,7 +77,7 @@ type GetBossTopSpecsArgs = {
 	realm: string;
 	talentSpec?: number;
 	difficulty: number;
-	metric: 'hps' | 'dps';
+	metric: MetricType;
 };
 export const getBossTopSpecs = async ({
 	remoteId,
@@ -92,7 +93,7 @@ export const getBossTopSpecs = async ({
 		const partitionQb = db
 			.select({
 				id: bosskillPlayerTable.id,
-				metric: sql`${metric === 'hps' ? hps : dps}`.as('metric'),
+				metric: sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.as('metric'),
 				row_number:
 					sql`ROW_NUMBER() OVER (PARTITION BY ${bosskillPlayerTable.guid} ORDER BY metric DESC)`.as(
 						'row_number'
@@ -138,7 +139,7 @@ export const getBossTopSpecs = async ({
 			.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
 			.innerJoin(raidTable, eq(raidTable.id, bosskillTable.raidId))
 			.where(and(inArray(bosskillPlayerTable.id, topIds)))
-			.orderBy(desc(sql`${metric === 'hps' ? hps : dps}`));
+			.orderBy(desc(sql`${metric === METRIC_TYPE.HPS ? hps : dps}`));
 
 		const rows = await qb.execute();
 		for (const row of rows) {
@@ -194,7 +195,7 @@ export const getBossTopSpecs = async ({
 type GetBossAggregatedStatsArgs = {
 	realm: string;
 	remoteId: number;
-	metric: 'dps' | 'hps';
+	metric: MetricType;
 	difficulty: number;
 };
 export const getBossAggregatedStats = async ({
@@ -209,7 +210,7 @@ export const getBossAggregatedStats = async ({
 			const qb = db
 				.select({
 					spec: bosskillPlayerTable.talentSpec,
-					value: (metric === 'hps' ? hps : dps).as('value')
+					value: (metric === METRIC_TYPE.HPS ? hps : dps).as('value')
 				})
 				.from(bosskillPlayerTable)
 				.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
@@ -223,7 +224,9 @@ export const getBossAggregatedStats = async ({
 						ne(bosskillPlayerTable.talentSpec, 0)
 					)
 				)
-				.having(and(gte(sql`value`, 0), metric === 'hps' ? sql`value < 5000000` : undefined));
+				.having(
+					and(gte(sql`value`, 0), metric === METRIC_TYPE.HPS ? sql`value < 5000000` : undefined)
+				);
 
 			const rows = await qb.execute();
 			const bySpec: AggregatedBySpec = {};
@@ -252,7 +255,7 @@ export const getBossAggregatedStats = async ({
 type GetBossStatsMedianArgs = {
 	realm: string;
 	remoteId: number;
-	metric: 'dps' | 'hps';
+	metric: MetricType;
 	difficulties: number[];
 	specs?: number[];
 	ilvlMin?: number;
@@ -274,7 +277,9 @@ export const getBossStatsMedian = async ({
 				.select({
 					spec: sql`${bosskillPlayerTable.talentSpec}`.mapWith(Number).as('spec'),
 					mode: sql`${bosskillTable.mode}`.mapWith(Number).as('mode'),
-					value: sql`MEDIAN(${metric === 'hps' ? hps : dps}) OVER (PARTITION BY mode, spec)`
+					value: sql`MEDIAN(${
+						metric === METRIC_TYPE.HPS ? hps : dps
+					}) OVER (PARTITION BY mode, spec)`
 						.mapWith(Number)
 						.as('value')
 				})
@@ -299,7 +304,9 @@ export const getBossStatsMedian = async ({
 			const qb2 = db
 				.select()
 				.from(qb.as('sub'))
-				.where(and(gte(sql`value`, 0), metric === 'hps' ? sql`value < 5000000` : undefined))
+				.where(
+					and(gte(sql`value`, 0), metric === METRIC_TYPE.HPS ? sql`value < 5000000` : undefined)
+				)
 				.orderBy(sql`value`);
 
 			const rows = await qb2.execute();
@@ -315,4 +322,72 @@ export const getBossStatsMedian = async ({
 		fallback,
 		defaultValue: []
 	});
+};
+
+type GetBossPercentilesArgs = {
+	realm: string;
+	bossId: Boss['id'];
+	difficulty: number;
+	talentSpec: number;
+	metric: MetricType;
+	targetValue: number;
+};
+export const getBossPercentiles = async ({
+	realm,
+	bossId,
+	difficulty,
+	talentSpec,
+	metric,
+	targetValue
+}: GetBossPercentilesArgs): Promise<number | null> => {
+	try {
+		const db = await createConnection();
+		const rankedQb = db.$with('ranked').as(
+			db
+				.select({
+					spec: bosskillPlayerTable.talentSpec,
+					value: sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.mapWith(Number).as('value'),
+					percentile_rank:
+						sql`100 * ROUND(PERCENT_RANK() OVER (PARTITION BY ${bosskillPlayerTable.talentSpec} ORDER BY value), 2)`.as(
+							'percentile_rank'
+						)
+				})
+				.from(bosskillTable)
+				.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
+				.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
+				.innerJoin(bosskillPlayerTable, eq(bosskillPlayerTable.bosskillId, bosskillTable.id))
+				.where(
+					and(
+						eq(realmTable.name, realm),
+						eq(bossTable.id, bossId),
+						eq(bosskillTable.mode, difficulty),
+						eq(bosskillPlayerTable.talentSpec, talentSpec)
+					)
+				)
+		);
+
+		// selects the entry whose DPS is closest to $targetValue
+		// by minimizing the absolute difference between the DPS values and $targetValue.
+		// if multiple entries are equally close, it orders by the smallest absolute difference
+		const qb = db
+			.with(rankedQb)
+			.select({
+				percentile_rank: rankedQb.percentile_rank
+			})
+			.from(rankedQb)
+			.where(
+				sql`ABS(value - ${targetValue}) = (SELECT MIN(ABS(value - ${targetValue})) FROM ranked)`
+			)
+			.orderBy(sql`ABS(value - ${targetValue}), percentile_rank DESC`)
+			.limit(1);
+		const rows = await qb.execute();
+		const r1 = rows[0]?.percentile_rank ?? null;
+		if (r1 !== null) {
+			return Number(r1);
+		}
+		return null;
+	} catch (e) {
+		console.error(e);
+	}
+	return null;
 };
