@@ -1,7 +1,7 @@
 import { toArrayOfInt, toArrayOfNonEmptyStrings, toIntOrUndefined } from '$lib/mapper';
 import type { Boss } from '$lib/model/boss.model';
 import type { Raid } from '$lib/model/raid.model';
-import { getBosses } from '../model/boss.model';
+import { findBosses } from '../model/boss.model';
 import { getRaids } from '../model/raid.model';
 export type Data = {
 	raids: Raid[];
@@ -31,7 +31,7 @@ export const getFilterFormData = async ({
 	const ilvlMin = toIntOrUndefined(url.searchParams.get('ilvl_min'));
 	const ilvlMax = toIntOrUndefined(url.searchParams.get('ilvl_max'));
 	const raidData = await getRaids({ realm });
-	const bossData = await getBosses({ realm });
+	const bossData = await findBosses({ realm });
 
 	return {
 		data: {

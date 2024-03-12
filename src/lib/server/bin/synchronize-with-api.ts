@@ -2,7 +2,7 @@ import { raidLock } from '$lib/date';
 import { program } from 'commander';
 import { synchronize } from '../db/synchronize';
 
-import { integerGte, listOfIntegers, realmString } from './parse-args';
+import { integerGte, listOfIntegers, listOfStrings, realmString, ymd } from './parse-args';
 
 const gteZero = integerGte(0);
 program.option(
@@ -15,10 +15,12 @@ program.option('--boss-ids <items>', 'comma separated list of boss ids', listOfI
 program.option('--page <number>', 'Page number', gteZero);
 program.option('--page-size <number>', 'Page size', gteZero);
 program.option('--realm <string>', 'Realm', realmString);
+program.option('--realms <items>', 'Realms', listOfStrings);
+program.option('--from-date <string>', 'Starting date in YYYY-MM-DD format', ymd);
 program.parse();
 
 console.log(program.opts());
-const { offset, bosskillIds, bossIds, page, pageSize, realm } = program.opts();
+const { offset, bosskillIds, bossIds, page, pageSize, realm, realms, fromDate } = program.opts();
 
 let startsAt: Date | undefined = undefined;
 let endsAt: Date | undefined = undefined;
@@ -28,16 +30,34 @@ if (typeof offset !== 'undefined') {
 	startsAt = start;
 	endsAt = end;
 }
-console.log({ realm, startsAt, endsAt });
 
-await synchronize({
-	onLog: console.log,
-	realm,
-	startsAt,
-	endsAt,
-	bosskillIds,
-	bossIds,
-	page,
-	pageSize
-});
-process.exit(0);
+if (typeof fromDate !== 'undefined') {
+	console.log(`--from-date given, ignoring raid lock start and end`);
+	startsAt = fromDate;
+	endsAt = undefined;
+}
+
+console.log({ realm, realms, startsAt, endsAt });
+try {
+	const realmsToSync = Array.isArray(realms) ? realms : [realm];
+	await Promise.all(
+		realmsToSync.map((realm) => {
+			return synchronize({
+				onLog: console.log,
+				realm,
+				startsAt,
+				endsAt,
+				bosskillIds,
+				bossIds,
+				page,
+				pageSize
+			});
+		})
+	);
+
+	console.log('Done');
+	process.exit(0);
+} catch (e) {
+	console.error(e);
+	process.exit(1);
+}

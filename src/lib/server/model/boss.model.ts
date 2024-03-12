@@ -1,10 +1,10 @@
 import { METRIC_TYPE, type PlayerPercentile, type PlayerPercentiles } from '$lib/metrics';
 import { withCache } from '../cache';
 import { findByRealm, getBossPercentiles, getByRemoteIdAndRealm } from '../db/boss';
-export const getBosses = async (args: { realm: string }) => {
+export const findBosses = async (args: { realm: string }) => {
 	const fallback = () => findByRealm(args);
 	return withCache<Awaited<ReturnType<typeof fallback>>>({
-		deps: ['model/boss/getBosses', args],
+		deps: ['model/boss/findBosses', args],
 		fallback,
 		defaultValue: []
 	});
@@ -67,7 +67,7 @@ export const getBossPercentilesPerPlayer = async (
 	};
 
 	return withCache<PlayerPercentiles>({
-		deps: [args],
+		deps: ['model/boss/getBossPercentilesPerPlayer', args],
 		fallback,
 		defaultValue: {
 			[METRIC_TYPE.DPS]: {},

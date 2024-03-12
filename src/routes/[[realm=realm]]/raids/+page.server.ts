@@ -3,7 +3,7 @@ import type { Boss } from '$lib/model/boss.model';
 
 import { listAllLatestBossKills } from '$lib/server/api';
 import { FilterOperator } from '$lib/server/api/filter';
-import { getBosses } from '$lib/server/model/boss.model';
+import { findBosses } from '$lib/server/model/boss.model';
 import { getRaids } from '$lib/server/model/raid.model';
 import type { PageServerLoad } from './$types';
 
@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 	const [raids, bosses, bosskills] = await Promise.all([
 		getRaids({ realm: params.realm! }),
-		getBosses({ realm: params.realm! }),
+		findBosses({ realm: params.realm! }),
 		listAllLatestBossKills({
 			realm: params.realm,
 			pageSize: 10_000,

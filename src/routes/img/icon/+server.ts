@@ -3,11 +3,10 @@ import { getRemoteRaceIconUrl } from '$lib/race';
 import { getRemoteRaidIconUrl } from '$lib/raid';
 import { REALM_HELIOS } from '$lib/realm';
 import { getRemoteItemIconUrl } from '$lib/server/api';
-import { withCache } from '$lib/server/cache';
+import { blobCacheGet, blobCacheSet } from '$lib/server/cache';
 import { getRemoteTalentSpecIconUrl } from '$lib/talent';
 import { error, redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-
 const getBlob = async (url: string): Promise<Blob | null> => {
 	const fallback = async () => {
 		try {
@@ -25,7 +24,8 @@ const getBlob = async (url: string): Promise<Blob | null> => {
 			throw new Error(`Invalid blob type: ${blob.type}`);
 		} catch (e) {
 			console.error(e);
-			throw e;
+			// throw e;
+			return null;
 		}
 	};
 
@@ -57,13 +57,30 @@ export const GET: RequestHandler = async ({ url }) => {
 		iconUrl = getRemoteRaidIconUrl(decodeURIComponent(id as string));
 	}
 	if (iconUrl !== null) {
-		const blob = await getBlob(iconUrl);
+		const cached = await blobCacheGet(iconUrl);
+		let blob = null;
+		let blobType = undefined;
+		if (cached === null) {
+			blob = await getBlob(iconUrl);
+			if (blob != null) {
+				blobType = blob.type;
+				await blobCacheSet(iconUrl, blob);
+			}
+		} else {
+			blob = Buffer.from(cached.value, 'binary');
+			blobType = cached.type;
+		}
+
 		if (blob !== null) {
+			const headers: HeadersInit = {
+				// 14 days
+				'Cache-Control': 'max-age=1209600, s-maxage=1209600'
+			};
+			if (blobType) {
+				headers['Content-Type'] = blobType;
+			}
 			return new Response(blob, {
-				headers: {
-					// 14 days
-					'Cache-Control': 'max-age=1209600, s-maxage=1209600'
-				}
+				headers
 			});
 		}
 
