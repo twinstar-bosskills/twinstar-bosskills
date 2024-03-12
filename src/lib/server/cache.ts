@@ -122,3 +122,31 @@ const dragonfly = async <T = unknown>({
 export const withCache = async <T = unknown>(args: Args<T>): Promise<T> => {
 	return dragonfly<T>(args);
 };
+
+type BlobCacheItem = { type: Blob['type']; value: string } | null;
+export const blobCacheGet = async (key: string): Promise<BlobCacheItem> => {
+	const v = await df.hget('blob-cache', key);
+	if (v !== null) {
+		try {
+			const item = JSON.parse(v);
+			if (typeof item?.type !== 'string' || typeof item?.value !== 'string') {
+				throw new Error(`Invalid item: ${v}`);
+			}
+		} catch (e) {
+			// ignore
+		}
+	}
+	return null;
+};
+
+export const blobCacheSet = async (key: string, blob: Blob): Promise<BlobCacheItem> => {
+	try {
+		const value = Buffer.from(await blob.arrayBuffer()).toString('binary');
+		const item = { type: blob.type, value };
+		await df.hset('blob-cache', { [key]: JSON.stringify(item) });
+		return item;
+	} catch (e) {
+		// ignore
+	}
+	return null;
+};

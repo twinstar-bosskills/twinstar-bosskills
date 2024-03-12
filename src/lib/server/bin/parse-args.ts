@@ -30,6 +30,9 @@ export const integerGte =
 export const listOfIntegers = (v: string): number[] => {
 	return v.split(',').map(integer);
 };
+export const listOfStrings = (v: string): string[] => {
+	return v.split(',');
+};
 
 export const ymd = (v: string) => {
 	const date = parse(v, 'yyyy-MM-dd', new Date());

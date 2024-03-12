@@ -5,7 +5,7 @@ import * as api from '$lib/server/api';
 import { FilterOperator } from '$lib/server/api/filter';
 import type { Boss } from '$lib/server/api/schema';
 import { getFilterFormData } from '$lib/server/form/filter-form';
-import { getBosses } from '$lib/server/model/boss.model';
+import { findBosses } from '$lib/server/model/boss.model';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, params }) => {
@@ -47,7 +47,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 			pageSize,
 			filters
 		}),
-		getBosses({ realm })
+		findBosses({ realm })
 	]);
 
 	const bossNameByRemoteId: Record<Boss['entry'], string> = {};

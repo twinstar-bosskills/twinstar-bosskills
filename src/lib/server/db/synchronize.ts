@@ -1,9 +1,9 @@
-import { REALM_HELIOS, realmIsKnown, realmToExpansion } from '$lib/realm';
+import { realmIsKnown, realmToExpansion, REALM_HELIOS } from '$lib/realm';
 import type {
 	Boss,
 	BossKill,
-	BossKillDetail,
 	BosskillDeath,
+	BossKillDetail,
 	BosskillLoot,
 	BosskillTimeline,
 	Raid
@@ -53,7 +53,7 @@ export const synchronize = async ({
 	// TODO: better log
 
 	if (realmIsKnown(realm) === false) {
-		onLog(`unknown realm ${realm}`);
+		onLog(`Unknown realm ${realm}`);
 		return;
 	}
 	onLog('start');

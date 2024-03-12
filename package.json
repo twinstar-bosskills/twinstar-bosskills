@@ -17,12 +17,9 @@
 		"migrations:sqlite:continue": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/migrate.sqlite.ts",
 		"migrations:mysql:continue": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/migrate.mysql.ts",
 		"cli:synchronize-with-api": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/synchronize-with-api.ts",
+		"cli:synchronize-with-api:today": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/synchronize-with-api.ts --realms=Helios,Athena,Apollo --from-date=`date +'%Y-%m-%d'`",
 		"cli:clean-db": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/clean-db.ts",
-		"cli:clean-cache": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/clean-cache.ts",
-		"synchronize-with-api": "curl http://localhost:5173/synchronize",
-		"synchronize-with-api:current": "curl http://localhost:5173/synchronize?raidLockOffset=0",
-		"synchronize-with-api:previous": "curl http://localhost:5173/synchronize?raidLockOffset=1",
-		"synchronize-with-api:offset": "curl http://localhost:5173/synchronize?raidLockOffset=$OFFSET"
+		"cli:clean-cache": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/clean-cache.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.1.0",
