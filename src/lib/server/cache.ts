@@ -1,3 +1,5 @@
+import { createDragonflyClient } from './cache/dragonfly';
+
 const CACHE: Record<string, unknown> = {};
 const TIMERS: Record<string, number | NodeJS.Timeout> = {};
 /**
@@ -9,18 +11,6 @@ async function sha256(str: string) {
 		.call(new Uint8Array(buf), (x) => ('00' + x.toString(16)).slice(-2))
 		.join('');
 }
-
-const setupTimer = (key: string, expire: number) => {
-	try {
-		if (typeof TIMERS[key] !== 'undefined') {
-			clearTimeout(TIMERS[key]);
-		}
-
-		TIMERS[key] = setTimeout(() => {
-			delete CACHE[key];
-		}, 1000 * expire);
-	} catch (e) {}
-};
 
 type Args<T> = {
 	deps: unknown[];
@@ -37,7 +27,19 @@ type Args<T> = {
 	defaultValue?: T;
 };
 
-export const withCache = async <T = unknown>({
+const setupTimer = (key: string, expire: number) => {
+	try {
+		if (typeof TIMERS[key] !== 'undefined') {
+			clearTimeout(TIMERS[key]);
+		}
+
+		TIMERS[key] = setTimeout(() => {
+			delete CACHE[key];
+		}, 1000 * expire);
+	} catch (e) {}
+};
+
+const memory = async <T = unknown>({
 	deps,
 	fallback,
 	expire = 5 * 60,
@@ -45,22 +47,78 @@ export const withCache = async <T = unknown>({
 	defaultValue = undefined
 }: Args<T>): Promise<T> => {
 	const key = await sha256(JSON.stringify(deps));
-	if (typeof CACHE[key] === 'undefined') {
-		// console.log(`cache-miss, key: ${key}`);
+	const item = CACHE[key];
+	if (typeof item === 'undefined') {
 		try {
-			CACHE[key] = await fallback();
+			const data = await fallback();
+			CACHE[key] = data;
 			setupTimer(key, expire);
+			return data;
 		} catch (e) {
 			// ignore
 			return defaultValue as T;
 		}
 	} else {
-		// console.log(`cache-hit, key: ${key}`, CACHE[key]);
 		// refresh timer on cache hit
 		if (sliding) {
 			setupTimer(key, expire);
 		}
+
+		return item as T;
 	}
 
-	return CACHE[key] as T;
+	// @ts-ignore
+	return defaultValue as T;
+};
+
+type DelayArgs<T> = {
+	timeout?: number;
+	value?: T;
+};
+const delay = <T = unknown>(
+	{ timeout, value }: DelayArgs<T> = {
+		timeout: 1000,
+		value: undefined
+	}
+) => new Promise<T>((res) => setTimeout(() => res(value as T), timeout));
+const df = createDragonflyClient();
+const dragonfly = async <T = unknown>({
+	deps,
+	fallback,
+	expire = 5 * 60,
+	sliding = true,
+	defaultValue = undefined
+}: Args<T>): Promise<T> => {
+	const key = await sha256(JSON.stringify(deps));
+	const item = await Promise.race([df.get(key), delay({ value: null })]);
+	if (item === null) {
+		try {
+			const data = await fallback();
+			await df.set(key, JSON.stringify(data));
+			df.expire(key, expire).catch(() => {});
+			return data;
+		} catch (e) {
+			// ignore
+			return defaultValue as T;
+		}
+	} else {
+		// refresh timer on cache hit
+		if (sliding) {
+			df.expire(key, expire).catch(() => {});
+		}
+
+		try {
+			return JSON.parse(item) as T;
+		} catch (e) {
+			// ignore
+			return defaultValue as T;
+		}
+	}
+
+	// @ts-ignore
+	return defaultValue as T;
+};
+
+export const withCache = async <T = unknown>(args: Args<T>): Promise<T> => {
+	return dragonfly<T>(args);
 };

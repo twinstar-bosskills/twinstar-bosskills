@@ -2,18 +2,11 @@ import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
 import type { Item, ItemTooltip } from '$lib/server/api/schema';
 import { getLootChance, type LootChance } from '$lib/server/db/loot';
-import { getBoss } from '$lib/server/model/boss.model';
+import { getBoss, getBossPercentilesPerPlayer } from '$lib/server/model/boss.model';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-import {
-	METRIC_TYPE,
-	characterDps,
-	characterHps,
-	type PlayerPercentiles,
-	type PlayerPercentile
-} from '$lib/metrics';
-import { getBossPercentiles } from '$lib/server/db/boss';
+import { characterDps, characterHps } from '$lib/metrics';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const id = params.id;
@@ -70,38 +63,18 @@ export const load: PageServerLoad = async ({ params }) => {
 		avgItemLvl = Math.round(avgItemLvl * 100) / 100;
 	}
 
-	const percentiles = new Promise<PlayerPercentiles>(async (resolve) => {
-		const promises = [];
-		const dps: PlayerPercentile = {};
-		const hps: PlayerPercentile = {};
-		for (const bkp of bosskill.boss_kills_players ?? []) {
-			promises.push(
-				getBossPercentiles({
-					realm,
-					bossId: boss.id,
-					difficulty: bosskill.mode,
-					talentSpec: bkp.talent_spec,
-					metric: METRIC_TYPE.DPS,
-					targetValue: characterDps(bkp, bosskill.length)
-				}).then((value) => {
-					dps[bkp.guid] = value;
-				})
-			);
-			promises.push(
-				getBossPercentiles({
-					realm,
-					bossId: boss.id,
-					difficulty: bosskill.mode,
-					talentSpec: bkp.talent_spec,
-					metric: METRIC_TYPE.HPS,
-					targetValue: characterHps(bkp, bosskill.length)
-				}).then((value) => {
-					hps[bkp.guid] = value;
-				})
-			);
-		}
-		await Promise.all(promises);
-		resolve({ [METRIC_TYPE.DPS]: dps, [METRIC_TYPE.HPS]: hps });
+	const percentiles = await getBossPercentilesPerPlayer({
+		realm,
+		bossId: boss.id,
+		difficulty: bosskill.mode,
+		players: (bosskill.boss_kills_players ?? []).map((bkp) => {
+			return {
+				guid: bkp.guid,
+				dps: characterDps(bkp, bosskill.length),
+				hps: characterHps(bkp, bosskill.length),
+				spec: bkp.talent_spec
+			};
+		})
 	});
 
 	return {

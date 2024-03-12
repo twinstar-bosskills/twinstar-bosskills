@@ -28,11 +28,9 @@ const getBlob = async (url: string): Promise<Blob | null> => {
 			throw e;
 		}
 	};
-	return withCache({
-		deps: [`img-icon-blob`, url],
-		fallback,
-		defaultValue: null
-	});
+
+	// not using withCache(), cos blob was causing problem when serializing
+	return fallback();
 };
 
 export const GET: RequestHandler = async ({ url }) => {
