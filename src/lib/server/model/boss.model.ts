@@ -54,7 +54,7 @@ export const getBossPercentilesPerPlayer = async (
 						difficulty,
 						talentSpec: bkp.spec,
 						metric: METRIC_TYPE.HPS,
-						targetValue: bkp.dps
+						targetValue: bkp.hps
 					}).then((value) => {
 						hps[bkp.guid] = value;
 					})
