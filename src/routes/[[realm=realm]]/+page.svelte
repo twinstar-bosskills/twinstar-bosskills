@@ -48,7 +48,7 @@
 				return cellComponent(Boss, {
 					realm: data.realm,
 					bosskill: {
-						entry: bk.bossId,
+						entry: bk.bossRemoteId,
 						mode: bk.mode,
 						creature_name: bk.bossName
 					}
@@ -69,77 +69,78 @@
 </svelte:head>
 <h1>Twinstar Bosskills</h1>
 
+<h2>Current raid lockout bosskills</h2>
 {#if current.first && current.last}
-	<h2>Current raid lockout bosskills</h2>
 	<div style="margin-left: 1rem; margin-top: -1rem; font-size: 80%;">
 		between {formatTzLocalized(current.first.time)} and {formatTzLocalized(current.last.time)}
 	</div>
-	<div class="by-boss">
-		<div>
-			<h3>Most kills - total <TextColorSuccess>{current.kills}</TextColorSuccess></h3>
-			<h4 style="margin-left: 0.5rem; margin-top: -1rem;">
-				Last raid lockout - total <TextColorSuccess>{previous.kills}</TextColorSuccess>
-			</h4>
-			<div class="tc">
-				<Table
-					data={current.killsByBoss}
-					columns={byBossColumnsUnknown}
-					sorting={[{ id: 'count', desc: true }]}
-				/>
-			</div>
-		</div>
-		<div>
-			<h3>
-				Most wipes - total <TextColorError>{current.wipes}</TextColorError>, wipe chance
-				<TextColorError>{current.wipePercentage}%</TextColorError>
-			</h3>
-			<h4 style="margin-left: 0.5rem; margin-top: -1rem;">
-				Last raid lockout - total <TextColorError>{previous.wipes}</TextColorError>, wipe chance
-				<TextColorError>{previous.wipePercentage}%</TextColorError>
-			</h4>
-			<div class="tc">
-				<Table
-					data={current.wipesByBoss}
-					columns={byBossColumnsUnknown}
-					sorting={[{ id: 'count', desc: true }]}
-				/>
-			</div>
-		</div>
-	</div>
-
-	<h3>Number of bosskills grouped by day of week</h3>
-
-	<div>
-		<div>
-			{#if topDay}
-				<div class="top-raid">
-					<span style="font-weight: bold;">{topDay.key}</span>
-					is top raiding day
-				</div>
-			{/if}
-			<BossKillsByTimeBarChart
-				xAxisData={byWeekDay.map((d) => d.key)}
-				series={byWeekDay.map((d) => d.value)}
-				height={Math.min(data.windowInnerHeight ?? 300, 600)}
-			/>
-		</div>
-	</div>
-	<h3>Number of bosskills grouped by hour</h3>
-	<div>
-		<div>
-			{#if topHour}
-				<div class="top-raid">
-					<span style="font-weight: bold;">{topHour.key}</span> is top raiding hour
-				</div>
-			{/if}
-			<BossKillsByTimeBarChart
-				width={data.windowInnerWidth}
-				xAxisData={byHour.map((d) => d.key)}
-				series={byHour.map((d) => d.value)}
-			/>
-		</div>
-	</div>
 {/if}
+<div class="by-boss">
+	<div>
+		<h3>Most kills - total <TextColorSuccess>{current.kills}</TextColorSuccess></h3>
+		<h4 style="margin-left: 0.5rem; margin-top: -1rem;">
+			Last raid lockout - total <TextColorSuccess>{previous.kills}</TextColorSuccess>
+		</h4>
+		<div class="tc">
+			<Table
+				data={current.killsByBoss}
+				columns={byBossColumnsUnknown}
+				sorting={[{ id: 'count', desc: true }]}
+			/>
+		</div>
+	</div>
+	<div>
+		<h3>
+			Most wipes - total <TextColorError>{current.wipes}</TextColorError>, wipe chance
+			<TextColorError>{current.wipePercentage}%</TextColorError>
+		</h3>
+		<h4 style="margin-left: 0.5rem; margin-top: -1rem;">
+			Last raid lockout - total <TextColorError>{previous.wipes}</TextColorError>, wipe chance
+			<TextColorError>{previous.wipePercentage}%</TextColorError>
+		</h4>
+		<div class="tc">
+			<Table
+				data={current.wipesByBoss}
+				columns={byBossColumnsUnknown}
+				sorting={[{ id: 'count', desc: true }]}
+			/>
+		</div>
+	</div>
+</div>
+
+<h3>Number of bosskills grouped by day of week</h3>
+
+<div>
+	<div>
+		{#if topDay}
+			<div class="top-raid">
+				<span style="font-weight: bold;">{topDay.key}</span>
+				is top raiding day
+			</div>
+		{/if}
+		<BossKillsByTimeBarChart
+			xAxisData={byWeekDay.map((d) => d.key)}
+			series={byWeekDay.map((d) => d.value)}
+			height={Math.min(data.windowInnerHeight ?? 300, 600)}
+		/>
+	</div>
+</div>
+<h3>Number of bosskills grouped by hour</h3>
+<div>
+	<div>
+		{#if topHour}
+			<div class="top-raid">
+				<span style="font-weight: bold;">{topHour.key}</span> is top raiding hour
+			</div>
+		{/if}
+		<BossKillsByTimeBarChart
+			width={data.windowInnerWidth}
+			xAxisData={byHour.map((d) => d.key)}
+			series={byHour.map((d) => d.value)}
+		/>
+	</div>
+</div>
+
 <h2>Info</h2>
 <h3>DPS and HPS</h3>
 <p>DPS and HPS numbers might be slightly different from the ones you can see on Twinhead.</p>

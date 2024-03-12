@@ -25,7 +25,7 @@ type ByTime = Record<string, number>;
 type ByBoss = {
 	count: number;
 	bossName: string;
-	bossId: number;
+	bossRemoteId: number;
 	mode: number;
 	difficulty: string;
 };
@@ -66,11 +66,11 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 		const expansion = realmToExpansion(realm);
 
 		const bosses = await findBosses({ realm });
-		type BossNameById = Record<(typeof bosses)[0]['id'], (typeof bosses)[0]['name']>;
-		const bossNameById = bosses.reduce((acc, boss) => {
-			acc[boss.id] = boss.name;
+		type BossById = Record<(typeof bosses)[0]['id'], (typeof bosses)[0]>;
+		const bossById = bosses.reduce((acc, boss) => {
+			acc[boss.id] = boss;
 			return acc;
-		}, {} as BossNameById);
+		}, {} as BossById);
 		const toStats = (data: BossKill[]): RaidLockData => {
 			const byHour: Record<string, number> = {};
 			for (let i = 0; i < 24; i++) {
@@ -93,9 +93,19 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 			let wipes = 0;
 
 			// because lastest bosskills are ordered by time DESC
+			// sort in place
+			data.sort((a, b) => {
+				try {
+					return new Date(b.time).getTime() - new Date(a.time).getTime();
+				} catch (e) {}
+
+				return 0;
+			});
 			const last = data[0] ?? null;
 			const first = data[data.length - 1] ?? null;
 			for (const bk of data) {
+				const bossRemoteId = bossById[bk.bossId]?.remoteId ?? 0;
+				const bossName = bossById[bk.bossId]?.name ?? 'N/A';
 				const date = fromServerTime(bk.time);
 				try {
 					const weekDayKey = format(date, 'EEEE');
@@ -114,8 +124,8 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 					wipes++;
 					wipesByBoss[bkey] ??= {
 						count: 1,
-						bossId: bk.bossId,
-						bossName: bossNameById[bk.bossId] ?? 'N/A',
+						bossRemoteId,
+						bossName,
 						mode: bk.mode,
 						difficulty: difficultyToString(expansion, bk.mode)
 					};
@@ -125,8 +135,8 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 				kills++;
 				killsByBoss[bkey] ??= {
 					count: 1,
-					bossId: bk.bossId,
-					bossName: bossNameById[bk.bossId] ?? 'N/A',
+					bossRemoteId,
+					bossName,
 					mode: bk.mode,
 					difficulty: difficultyToString(expansion, bk.mode)
 				};
