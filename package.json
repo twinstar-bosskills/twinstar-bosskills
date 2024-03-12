@@ -18,6 +18,7 @@
 		"migrations:mysql:continue": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/migrate.mysql.ts",
 		"cli:synchronize-with-api": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/synchronize-with-api.ts",
 		"cli:clean-db": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/clean-db.ts",
+		"cli:clean-cache": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/clean-cache.ts",
 		"synchronize-with-api": "curl http://localhost:5173/synchronize",
 		"synchronize-with-api:current": "curl http://localhost:5173/synchronize?raidLockOffset=0",
 		"synchronize-with-api:previous": "curl http://localhost:5173/synchronize?raidLockOffset=1",
