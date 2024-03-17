@@ -116,12 +116,6 @@
 				header: () => 'Spec'
 			},
 			{
-				id: 'amount',
-				accessorFn: (row) => row.amount,
-				cell: formatCell,
-				header: () => (isDmg ? 'Dmg Done' : 'Healing Done')
-			},
-			{
 				id: 'amountPerSecond',
 				accessorFn: (row) => (isDmg ? characterDps(row.char) : characterHps(row.char)),
 				cell: (info) => {
@@ -131,6 +125,12 @@
 				},
 
 				header: () => (isDmg ? 'DPS' : 'HPS')
+			},
+			{
+				id: 'amount',
+				accessorFn: (row) => row.amount,
+				cell: formatCell,
+				header: () => (isDmg ? 'Dmg Done' : 'Healing Done')
 			},
 			{
 				id: 'fightLength',
@@ -223,7 +223,7 @@
 		{/each}
 	</ul>
 </div>
-<div class="flex">
+<div class="stats">
 	{#each data.stats as stat}
 		<div>
 			{#if stat.value.length > 0}
@@ -271,19 +271,25 @@
 	ul li {
 		margin-right: 0.25rem;
 	}
-	.flex {
-		display: flex;
-		flex-wrap: wrap;
+	.stats {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
 	}
-	.flex div {
+	.stats div {
 		margin-right: 1rem;
 		overflow: auto;
 	}
-	:global(.flex table) {
+	:global(.stats table) {
 		max-height: 75vh;
 	}
+	@media (max-width: 900px) {
+		.stats {
+			display: flex;
+			flex-wrap: wrap;
+		}
+	}
 	@media (max-width: 720px) {
-		:global(.flex table) {
+		:global(.stats table) {
 			max-height: 500px;
 		}
 	}

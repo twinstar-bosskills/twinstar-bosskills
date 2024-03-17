@@ -29,6 +29,16 @@ type ByBoss = {
 	mode: number;
 	difficulty: string;
 };
+type KeyValue = {
+	key: string;
+	value: number;
+};
+type TopKeyValue = {
+	byWeekDay: KeyValue[];
+	topDay: KeyValue | null;
+	byHour: KeyValue[];
+	topHour: KeyValue | null;
+};
 type RaidLockData = {
 	first: BossKill | null;
 	last: BossKill | null;
@@ -40,6 +50,8 @@ type RaidLockData = {
 	kills: number;
 	wipes: number;
 	wipePercentage: number;
+
+	top: TopKeyValue;
 };
 const EMPTY_RAID_LOCK_DATA: RaidLockData = {
 	first: null,
@@ -51,8 +63,15 @@ const EMPTY_RAID_LOCK_DATA: RaidLockData = {
 	wipesByBoss: [],
 	kills: 0,
 	wipes: 0,
-	wipePercentage: 0
+	wipePercentage: 0,
+	top: {
+		byWeekDay: [],
+		topDay: null,
+		byHour: [],
+		topHour: null
+	}
 };
+
 export type RaidLockStats = {
 	previous: RaidLockData;
 	current: RaidLockData;
@@ -71,6 +90,27 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 			acc[boss.id] = boss;
 			return acc;
 		}, {} as BossById);
+		const topKeyValue = (item: RaidLockData): TopKeyValue => {
+			const byWeekDay: KeyValue[] = [];
+			for (const [key, value] of Object.entries(item.byWeekDay)) {
+				byWeekDay.push({ key, value });
+			}
+			// byWeekDay.sort((a, b) => b.value - a.value);
+			const topDay = byWeekDay.slice().sort((a, b) => b.value - a.value)[0] ?? null;
+
+			const byHour: KeyValue[] = [];
+			for (const [key, value] of Object.entries(item.byHour)) {
+				byHour.push({ key, value });
+			}
+			// byHour.sort((a, b) => b.value - a.value);
+			const topHour = byHour.slice().sort((a, b) => b.value - a.value)[0] ?? null;
+			return {
+				byWeekDay,
+				topDay,
+				byHour,
+				topHour
+			};
+		};
 		const toStats = (data: BossKill[]): RaidLockData => {
 			const byHour: Record<string, number> = {};
 			for (let i = 0; i < 24; i++) {
@@ -144,7 +184,8 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 			}
 			const wipePercentage = kills > 0 ? Math.round(10000 * (wipes / kills)) / 100 : 0;
 
-			return {
+			const item = {
+				...EMPTY_RAID_LOCK_DATA,
 				first,
 				last,
 				byHour,
@@ -155,6 +196,10 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 				kills,
 				wipes,
 				wipePercentage
+			};
+			return {
+				...item,
+				top: topKeyValue(item)
 			};
 		};
 

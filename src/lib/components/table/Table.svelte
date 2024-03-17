@@ -162,8 +162,8 @@
 	}
 	table {
 		display: grid;
-		grid-template-columns: repeat(var(--columns), max-content);
-		/* grid-template-columns: repeat(var(--columns), minmax(max-content, 1fr)); */
+		/* grid-template-columns: repeat(var(--columns), max-content); */
+		grid-template-columns: repeat(var(--columns), minmax(max-content, 1fr));
 	}
 	thead,
 	tbody,
