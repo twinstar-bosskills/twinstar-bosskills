@@ -1,9 +1,9 @@
-import { realmIsKnown, realmToExpansion, REALM_HELIOS } from '$lib/realm';
+import { REALM_HELIOS, realmIsKnown, realmToExpansion } from '$lib/realm';
 import type {
 	Boss,
 	BossKill,
-	BosskillDeath,
 	BossKillDetail,
+	BosskillDeath,
 	BosskillLoot,
 	BosskillTimeline,
 	Raid
@@ -156,14 +156,17 @@ export const synchronize = async ({
 							const playerEnt = await getOrCreatePlayer({
 								guid: player.guid,
 								name: player.name,
-								realmId: realmEnt.id
+								realmId: realmEnt.id,
+								onLog
 							});
 							playerIdByGUID[player.guid] = playerEnt.id;
 							players.push({ ...player, playerId: playerEnt.id });
 						}
 						await createBossKillPlayers({
 							bosskillId,
-							players
+							players,
+							realmId: realmEnt.id,
+							onLog
 						});
 					}
 
@@ -292,11 +295,13 @@ const getOrCreateBoss = async ({ boss, raidId }: { boss: Boss; raidId: number })
 const getOrCreatePlayer = async ({
 	guid,
 	name,
-	realmId
+	realmId,
+	onLog
 }: {
 	guid: number;
 	name: string;
 	realmId: number;
+	onLog: Args['onLog'];
 }) => {
 	const db = await createConnection();
 	const result = await db
@@ -312,6 +317,17 @@ const getOrCreatePlayer = async ({
 		const id = result[0].insertId;
 		const refetch = await db.select().from(playerTable).where(eq(playerTable.id, id));
 		ent = refetch[0] ?? null;
+	} else {
+		// player might be renamed, update name according to the last known one
+		if (ent.name !== name) {
+			onLog(`Renaming player (realm: ${realmId}) from ${ent.name} to ${name}`);
+			const id = ent.id;
+			await db.transaction((tx) => {
+				return tx.update(playerTable).set({ name: name }).where(eq(playerTable.id, id));
+			});
+			const refetch = await db.select().from(playerTable).where(eq(playerTable.id, id));
+			ent = refetch[0] ?? null;
+		}
 	}
 
 	if (ent === null) {
@@ -375,8 +391,15 @@ const deleteBossKillPlayers = async ({ bosskillId }: DeleteByBosskillId) => {
 type BossKillPlayerArgs = {
 	bosskillId: number;
 	players: (BossKillDetail['boss_kills_players'][0] & { playerId: number })[];
+	onLog: Args['onLog'];
+	realmId: number;
 };
-const createBossKillPlayers = async ({ bosskillId, players }: BossKillPlayerArgs) => {
+const createBossKillPlayers = async ({
+	bosskillId,
+	players,
+	realmId,
+	onLog
+}: BossKillPlayerArgs) => {
 	if (players.length === 0) {
 		return;
 	}
@@ -412,6 +435,40 @@ const createBossKillPlayers = async ({ bosskillId, players }: BossKillPlayerArgs
 			)
 			.execute();
 	});
+
+	// also update bosskills where name differs (because thery were synchronized before the player rename)
+	// WARNING: caused performance problems, skip
+	/*
+	for (const player of players) {
+		const nameNext = player.name;
+		const bosskillsPlayers = await db
+			.select({
+				id: bosskillPlayerTable.id
+			})
+			.from(bosskillPlayerTable)
+			.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
+			.where(
+				and(
+					eq(bosskillTable.realmId, realmId),
+					eq(bosskillPlayerTable.guid, player.guid),
+					not(eq(bosskillPlayerTable.name, nameNext))
+				)
+			);
+
+		const bosskillsPlayersIds = bosskillsPlayers.map((v) => v.id);
+		const bosskillsPlayersCount = bosskillsPlayersIds.length;
+		if (bosskillsPlayersCount > 0) {
+			onLog(`Found ${bosskillsPlayersCount} rows to be renamed to ${nameNext}`);
+			await db.transaction(async () => {
+				await db
+					.update(bosskillPlayerTable)
+					.set({ name: nameNext })
+					.where(inArray(bosskillPlayerTable.id, bosskillsPlayersIds));
+			});
+		}
+	
+	}
+	*/
 };
 
 const deleteBossKillLoot = async ({ bosskillId }: DeleteByBosskillId) => {
