@@ -8,7 +8,64 @@ import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
 import { realmTable } from './schema/realm.schema';
 import { raidTable } from './schema/raid.schema';
+import { METRIC_TYPE, type MetricType } from '$lib/metrics';
 
+type CharacterBossPerformanceRankingsArgs = {
+	realm: string;
+	guid: number;
+	metric: MetricType;
+};
+type CharacterBossPerformanceRankingStats = {
+	[bosskillRemoteId in string]: {
+		[mode in number]: { value: number; rank: number; bosskillRemoteId: string };
+	};
+};
+export const getCharacterBossRankings = async ({
+	guid,
+	realm,
+	metric
+}: CharacterBossPerformanceRankingsArgs): Promise<CharacterBossPerformanceRankingStats> => {
+	const stats: CharacterBossPerformanceRankingStats = {};
+	try {
+		const db = await createConnection();
+		const partitionQb = db
+			.select({
+				// .as to prevent duplicate column err
+				bosskillRemoteId: sql`${bosskillTable.remoteId}`.mapWith(String).as('bosskillRemoteId'),
+				bossId: bossTable.id,
+				bossRemoteId: bossTable.remoteId,
+				mode: bosskillTable.mode,
+				metric: sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.mapWith(Number).as('metric'),
+				rank: sql`ROW_NUMBER() OVER (PARTITION BY ${bosskillPlayerTable.guid} ORDER BY metric DESC)`
+					.mapWith(Number)
+					.as('rank')
+			})
+			.from(bosskillPlayerTable)
+			.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
+			.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
+			.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
+			.where(and(eq(realmTable.name, realm), eq(bosskillPlayerTable.guid, guid)))
+			.groupBy(bossTable.id, bosskillTable.mode);
+
+		const sub = partitionQb.as('sub');
+		const topQb = db.select().from(sub).orderBy(asc(sub.rank));
+		const topRows = await topQb.execute();
+
+		for (const row of topRows) {
+			stats[row.bossRemoteId] ??= {};
+			stats[row.bossRemoteId]![row.mode] = {
+				value: row.metric,
+				rank: row.rank,
+				bosskillRemoteId: row.bosskillRemoteId
+			};
+		}
+		return stats;
+	} catch (e) {
+		console.error(e);
+	}
+
+	return {};
+};
 type CharacterPerformanceTrendsArgs = {
 	realm: string;
 	guid: number;

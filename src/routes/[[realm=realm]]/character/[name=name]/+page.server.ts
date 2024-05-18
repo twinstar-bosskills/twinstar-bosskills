@@ -1,13 +1,15 @@
+import { METRIC_TYPE } from '$lib/metrics';
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
-import { getBoss } from '$lib/server/model/boss.model';
 import type { Boss } from '$lib/server/api/schema';
 import {
+	getCharacterBossRankings,
 	getCharacterPerformanceLine,
 	getCharacterPerformanceTrends,
 	type CharacterPerformanceLine
 } from '$lib/server/db/character';
+import { findBosses, getBoss } from '$lib/server/model/boss.model';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, url, parent }) => {
@@ -76,16 +78,15 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 		}
 	}
 
-	const bossNameById: Record<Boss['entry'], string> = {};
-	await Promise.all(
-		Object.values(bossIds).map((id) => {
-			return getBoss({ realm, remoteId: id }).then((boss) => {
-				if (boss) {
-					bossNameById[boss.remoteId] = boss.name;
-				}
-			});
+	type BossNameByRemoteId = Record<Boss['entry'], string>;
+	const bossNameById: BossNameByRemoteId = await findBosses({ realm })
+		.then((bosses) => {
+			return bosses.reduce((acc, boss) => {
+				acc[boss.remoteId] = boss.name;
+				return acc;
+			}, {} as BossNameByRemoteId);
 		})
-	);
+		.catch(() => ({}));
 
 	await Promise.all(performanceLinesWaiting);
 	const performanceTrends = await getCharacterPerformanceTrends({
@@ -94,6 +95,12 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 		startDate,
 		endDate
 	});
+
+	const [bossRankingsDPS, bossRankingsHPS] = await Promise.all([
+		getCharacterBossRankings({ guid, realm, metric: METRIC_TYPE.DPS }),
+		getCharacterBossRankings({ guid, realm, metric: METRIC_TYPE.HPS })
+	]);
+	const bossRankings = { [METRIC_TYPE.DPS]: bossRankingsDPS, [METRIC_TYPE.HPS]: bossRankingsHPS };
 
 	return {
 		bossNameById,
@@ -104,6 +111,8 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 
 		name,
 		performanceTrends,
-		performanceLines
+		performanceLines,
+
+		bossRankings
 	};
 };

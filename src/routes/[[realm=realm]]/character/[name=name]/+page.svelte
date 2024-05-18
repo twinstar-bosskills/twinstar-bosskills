@@ -13,11 +13,14 @@
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { links } from '$lib/links';
-	import { characterDps, characterHps } from '$lib/metrics';
+	import { METRIC_TYPE, characterDps, characterHps } from '$lib/metrics';
 	import { formatAvgItemLvl } from '$lib/number';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
+	import { difficultyToString } from '$lib/model';
+	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
+	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
 
 	let pageSize = getPageSizeFromURL($page.url, 20);
 	let page_ = getPageFromURL($page.url);
@@ -123,12 +126,12 @@
 </script>
 
 <svelte:head>
-	<title>{name}'s recent kills time</title>
+	<title>Character {name}</title>
 </svelte:head>
 
 <div class="title">
 	<h1>
-		{name}'s recent kills
+		Character {name}
 	</h1>
 	<div>
 		<Link href={links.characterPerformance(data.realm, name)}>Performance</Link>
@@ -138,6 +141,40 @@
 	</div>
 </div>
 
+<h2>Ranking by DPS and HPS</h2>
+<div class="rankings">
+	{#each Object.entries(data.bossRankings) as [type, rankings]}
+		<div>
+			<h3 style="margin: 0">{type.toUpperCase()}</h3>
+			{#each Object.entries(rankings) as [bossRemoteId, byMode]}
+				{@const bossIdNum = Number(bossRemoteId)}
+				{@const bossName = data.bossNameById[bossIdNum] ?? bossRemoteId}
+				<div>
+					<div>{bossName}</div>
+					<div>
+						{#each Object.entries(byMode) as [mode, item]}
+							{@const diff = difficultyToString(data.expansion, mode)}
+							<div style="margin-left: 0.25rem;">
+								{diff}
+								{#if item.rank <= 10}
+									<TextColorSuccess>#{item.rank}</TextColorSuccess>
+								{:else if item.rank <= 50}
+									<TextColorWarning>#{item.rank}</TextColorWarning>
+								{:else}
+									#{item.rank}
+								{/if}
+								<Link href={links.bossKill(data.realm, item.bosskillRemoteId)}>detail</Link>,
+								{item.value.toLocaleString()}
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/each}
+		</div>
+	{/each}
+</div>
+
+<h2>Recent kills</h2>
 <div class="table">
 	<Table data={bosskills} columns={columnsUnknown} sorting={[{ id: 'killedAt', desc: true }]}>
 		<svelte:fragment slot="pagination">
@@ -153,6 +190,10 @@
 </div>
 
 <style>
+	.rankings {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+	}
 	.title {
 		margin: 1rem 0;
 		display: flex;
