@@ -167,6 +167,9 @@
 										{item.value.toLocaleString()}
 									</Link>
 								</div>
+								<div>
+									{item.ilvl}ilvl
+								</div>
 							{/each}
 						</div>
 					</div>
@@ -200,18 +203,21 @@
 	.rankings .by-bosses {
 		margin-top: 0.5rem;
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
 		gap: 0.25rem;
 	}
 	.rankings .by-boss {
 		border: 1px solid rgba(var(--color-primary), 0.75);
 		padding: 0.25rem;
+		/* display: flex;
+		flex-direction: column;
+		flex-basis: 25%; */
 	}
 	.rankings .by-diffs {
 		margin-left: 0.5rem;
 		display: grid;
 		align-items: center;
-		grid-template-columns: repeat(3, max-content);
+		grid-template-columns: repeat(4, max-content);
 		gap: 0.25rem;
 		padding: 0.25rem 0;
 	}

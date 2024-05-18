@@ -17,7 +17,13 @@ export type GetCharacterBossPerformanceRankingsArgs = {
 };
 type CharacterBossPerformanceRankingStats = {
 	[bosskillRemoteId in string]: {
-		[mode in number]: { value: number; rank: number; spec: number; bosskillRemoteId: string };
+		[mode in number]: {
+			value: number;
+			rank: number;
+			spec: number;
+			ilvl: number;
+			bosskillRemoteId: string;
+		};
 	};
 };
 export const getCharacterBossRankings = async ({
@@ -36,6 +42,7 @@ export const getCharacterBossRankings = async ({
 				bossRemoteId: bossTable.remoteId,
 				guid: bosskillPlayerTable.guid,
 				spec: bosskillPlayerTable.talentSpec,
+				ilvl: bosskillPlayerTable.avgItemLvl,
 				mode: bosskillTable.mode,
 				metric: sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.mapWith(Number).as('metric'),
 				rank: sql`ROW_NUMBER() OVER (PARTITION BY ${bossTable.id}, ${bosskillTable.mode} ORDER BY metric DESC)`
@@ -63,6 +70,7 @@ export const getCharacterBossRankings = async ({
 				value: row.metric,
 				rank: row.rank,
 				spec: row.spec,
+				ilvl: row.ilvl,
 				bosskillRemoteId: row.bosskillRemoteId
 			};
 		}
