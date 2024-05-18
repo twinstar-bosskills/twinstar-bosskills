@@ -5,7 +5,7 @@ import type { Boss } from '$lib/server/api/schema';
 import { getBossStatsMedian } from '$lib/server/db/boss';
 import {
 	getCharacterPerformanceLinesGrouped,
-	type CharacterPerformanceLine
+	type CharacterPerformanceLines
 } from '$lib/server/db/character';
 import { getFilterFormData } from '$lib/server/form/filter-form';
 import type { PageServerLoad } from './$types';
@@ -17,7 +17,7 @@ export const load = async ({ params, parent, url }: Parameters<PageServerLoad>[0
 	const characterSpecs = talentSpecsByClass(expansion, character.class);
 	const form = await getFilterFormData({ realm, url, specs: characterSpecs, ilvl: true });
 	const guid = character.guid;
-	const performanceLines: Record<Boss['entry'], Record<number, CharacterPerformanceLine>> = {};
+	const performanceLines: Record<Boss['entry'], Record<number, CharacterPerformanceLines>> = {};
 
 	await getCharacterPerformanceLinesGrouped({
 		realm,

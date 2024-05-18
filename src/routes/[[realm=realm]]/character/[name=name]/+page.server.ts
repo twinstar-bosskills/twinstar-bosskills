@@ -3,13 +3,12 @@ import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
 import type { Boss } from '$lib/server/api/schema';
+import { findBosses } from '$lib/server/model/boss.model';
 import {
 	getCharacterBossRankings,
-	getCharacterPerformanceLine,
-	getCharacterPerformanceTrends,
-	type CharacterPerformanceLine
-} from '$lib/server/db/character';
-import { findBosses, getBoss } from '$lib/server/model/boss.model';
+	getCharacterPerformanceLines,
+	getCharacterPerformanceTrends
+} from '$lib/server/model/character.model';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, url, parent }) => {
@@ -18,15 +17,13 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 	const page = getPageFromURL(url);
 	const pageSize = getPageSizeFromURL(url, 20);
 	const { name, guid } = character;
-	const [data, total] = await Promise.all([
-		api.getCharacterBossKills({
-			realm,
-			name,
-			page,
-			pageSize
-		}),
-		api.getCharacterTotalBossKills({ realm, name })
-	]);
+	const totalPromise = api.getCharacterTotalBossKills({ realm, name });
+	const data = await api.getCharacterBossKills({
+		realm,
+		name,
+		page,
+		pageSize
+	});
 
 	// sort by time desc
 	data.sort((a, b) => {
@@ -50,7 +47,8 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 		endDate = endTime ? new Date(endTime) : undefined;
 	} catch (e) {}
 
-	const performanceLines: Record<Boss['entry'], Record<number, CharacterPerformanceLine>> = {};
+	type PerfLine = Awaited<ReturnType<typeof getCharacterPerformanceLines>>;
+	const performanceLines: Record<Boss['entry'], Record<number, PerfLine>> = {};
 	const performanceLinesWaiting = [];
 	const bossIds: Record<Boss['entry'], Boss['entry']> = {};
 	for (const characterBk of data) {
@@ -60,7 +58,7 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 			bossIds[bossId] = bossId;
 
 			performanceLinesWaiting.push(
-				getCharacterPerformanceLine({
+				getCharacterPerformanceLines({
 					realm,
 					guid,
 					modes: [mode],
@@ -106,7 +104,7 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 		bossNameById,
 		bosskills: {
 			data: data,
-			total
+			total: await totalPromise.catch(() => 0)
 		},
 
 		name,

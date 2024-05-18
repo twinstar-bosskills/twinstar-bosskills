@@ -12,15 +12,15 @@
 
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
+	import Rank from '$lib/components/Rank.svelte';
+	import SpecIcon from '$lib/components/icon/SpecIcon.svelte';
 	import { links } from '$lib/links';
-	import { METRIC_TYPE, characterDps, characterHps } from '$lib/metrics';
+	import { characterDps, characterHps } from '$lib/metrics';
+	import { difficultyToString } from '$lib/model';
 	import { formatAvgItemLvl } from '$lib/number';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
-	import { difficultyToString } from '$lib/model';
-	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
-	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
 
 	let pageSize = getPageSizeFromURL($page.url, 20);
 	let page_ = getPageFromURL($page.url);
@@ -141,35 +141,37 @@
 	</div>
 </div>
 
-<h2>Ranking by DPS and HPS</h2>
+<h2>Overall rankings by DPS and HPS</h2>
 <div class="rankings">
 	{#each Object.entries(data.bossRankings) as [type, rankings]}
 		<div>
-			<h3 style="margin: 0">{type.toUpperCase()}</h3>
-			{#each Object.entries(rankings) as [bossRemoteId, byMode]}
-				{@const bossIdNum = Number(bossRemoteId)}
-				{@const bossName = data.bossNameById[bossIdNum] ?? bossRemoteId}
-				<div>
-					<div>{bossName}</div>
-					<div>
-						{#each Object.entries(byMode) as [mode, item]}
-							{@const diff = difficultyToString(data.expansion, mode)}
-							<div style="margin-left: 0.25rem;">
-								{diff}
-								{#if item.rank <= 10}
-									<TextColorSuccess>#{item.rank}</TextColorSuccess>
-								{:else if item.rank <= 50}
-									<TextColorWarning>#{item.rank}</TextColorWarning>
-								{:else}
-									#{item.rank}
-								{/if}
-								<Link href={links.bossKill(data.realm, item.bosskillRemoteId)}>detail</Link>,
-								{item.value.toLocaleString()}
-							</div>
-						{/each}
+			<h3 style="margin: 0;">{type.toUpperCase()}</h3>
+			<div class="by-bosses">
+				{#each Object.entries(rankings) as [bossRemoteId, byMode]}
+					{@const bossId = Number(bossRemoteId)}
+					{@const bossName = data.bossNameById[bossId] ?? bossRemoteId}
+					<div class="by-boss">
+						<div style="font-weight: bold;">
+							<Link href={links.boss(data.realm, bossId)}>{bossName}</Link>
+						</div>
+						<div class="by-diffs">
+							{#each Object.entries(byMode) as [mode, item]}
+								{@const diff = difficultyToString(data.expansion, mode)}
+								<div>
+									<Rank rank={item.rank} />
+								</div>
+								<div>{diff}</div>
+								<div style="display: flex; align-items: center; gap: 0.125rem;">
+									<SpecIcon realm={data.realm} talentSpec={item.spec} />
+									<Link href={links.bossKill(data.realm, item.bosskillRemoteId)}>
+										{item.value.toLocaleString()}
+									</Link>
+								</div>
+							{/each}
+						</div>
 					</div>
-				</div>
-			{/each}
+				{/each}
+			</div>
 		</div>
 	{/each}
 </div>
@@ -192,7 +194,26 @@
 <style>
 	.rankings {
 		display: grid;
+		gap: 0.5rem;
 		grid-template-columns: 1fr 1fr;
+	}
+	.rankings .by-bosses {
+		margin-top: 0.5rem;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+		gap: 0.25rem;
+	}
+	.rankings .by-boss {
+		border: 1px solid rgba(var(--color-primary), 0.75);
+		padding: 0.25rem;
+	}
+	.rankings .by-diffs {
+		margin-left: 0.5rem;
+		display: grid;
+		align-items: center;
+		grid-template-columns: repeat(3, max-content);
+		gap: 0.25rem;
+		padding: 0.25rem 0;
 	}
 	.title {
 		margin: 1rem 0;
@@ -204,5 +225,10 @@
 	}
 	.title h1 {
 		margin: 0;
+	}
+	@media screen and (max-width: 440px) {
+		.rankings {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

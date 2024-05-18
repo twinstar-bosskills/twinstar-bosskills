@@ -34,9 +34,11 @@ export const getCharacterBossKills = async (
 		}
 	};
 
-	return (
-		withCache<BosskillCharacterPartial[]>({ deps: [`character-bosskills`, q], fallback }) ?? []
-	);
+	return withCache<BosskillCharacterPartial[]>({
+		deps: [`character-bosskills`, q],
+		fallback,
+		defaultValue: []
+	});
 };
 
 type CharacterTotalBossKillsArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'>;
@@ -91,7 +93,7 @@ export const getCharacterTotalBossKills = async (q: {
 		}
 	};
 
-	return withCache<number>({ deps: [`character-total-bosskills`, q], fallback }) ?? 0;
+	return withCache<number>({ deps: [`character-total-bosskills`, q], fallback, defaultValue: 0 });
 };
 type CharacterByNameArgs = Pick<QueryArgs, 'page' | 'pageSize'> &
 	Required<Pick<QueryArgs, 'name' | 'realm'>>;

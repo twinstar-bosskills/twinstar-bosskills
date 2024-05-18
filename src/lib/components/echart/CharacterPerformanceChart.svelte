@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { formatTzLocalized } from '$lib/date';
-	import type { CharacterPerformanceLine } from '$lib/server/db/character';
+	import type { CharacterPerformanceLines } from '$lib/server/db/character';
 	import type {
 		LegendComponentOption,
 		LineSeriesOption,
@@ -36,7 +36,7 @@
 	]);
 
 	export let realm: string;
-	export let data: CharacterPerformanceLine = [];
+	export let data: CharacterPerformanceLines = [];
 	export let width: number | undefined = undefined;
 	export let height: number | undefined = undefined;
 	export let median: { hps?: number; dps?: number } | undefined = undefined;

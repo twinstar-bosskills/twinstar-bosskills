@@ -10,6 +10,18 @@
 <h1>Changelog (YYYY-MM-DD)</h1>
 <div class="changelog">
 	<section>
+		<h2>2024-05-18 - Character details with overall rankings</h2>
+		<p>
+			Overall DPS and HPS rankings are now available in character detail. Talent spec and link to
+			the bosskill detail is also there.
+		</p>
+		<div class="explanation">
+			<p class="content">
+				You will get 🔥 if you rank is under 200, ⚠️ if under 1000 and 🥦 otherwise.
+			</p>
+		</div>
+	</section>
+	<section>
 		<h2>2024-03-17 - More detailed landing page</h2>
 		<p>Previous raid lock charts added to landing page</p>
 	</section>
