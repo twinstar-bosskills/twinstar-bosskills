@@ -19,7 +19,8 @@
 		"cli:synchronize-with-api": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/synchronize-with-api.ts",
 		"cli:synchronize-with-api:today": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/synchronize-with-api.ts --realms=Helios,Athena,Apollo --from-date=`date +'%Y-%m-%d'`",
 		"cli:clean-db": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/clean-db.ts",
-		"cli:clean-cache": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/clean-cache.ts"
+		"cli:clean-cache": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/clean-cache.ts",
+		"cli:cache-character-boss-rankings": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/cache-character-boss-rankings.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.1.0",
