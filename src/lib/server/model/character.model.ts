@@ -3,12 +3,12 @@ import {
 	getCharacterPerformanceLines as lines,
 	getCharacterBossRankings as rankings,
 	getCharacterPerformanceTrends as trends,
-	type GetCharacterBossPerformanceRankingsArgs,
+	type GetCharacterBossRankingsArgs,
 	type GetCharacterPerformanceLinesArgs,
 	type GetCharacterPerformanceTrendsArgs
 } from '../db/character';
 
-export const getCharacterBossRankings = async (args: GetCharacterBossPerformanceRankingsArgs) => {
+export const getCharacterBossRankings = async (args: GetCharacterBossRankingsArgs) => {
 	const fallback = () => rankings(args);
 	return withCache<Awaited<ReturnType<typeof fallback>>>({
 		deps: ['model/character/getCharacterBossRankings', args],

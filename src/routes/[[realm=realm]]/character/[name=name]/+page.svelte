@@ -16,9 +16,10 @@
 	import SpecIcon from '$lib/components/icon/SpecIcon.svelte';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
-	import { difficultyToString } from '$lib/model';
+	import { difficultyToString, talentSpecsByClass } from '$lib/model';
 	import { formatAvgItemLvl } from '$lib/number';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
+	import { getSpecsFromUrl } from '$lib/search-params';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
@@ -27,6 +28,8 @@
 
 	export let data: PageData;
 
+	const characterSpecs = talentSpecsByClass(data.expansion, data.character.class);
+	const specs = getSpecsFromUrl($page.url, characterSpecs);
 	const name = data.name;
 	type T = (typeof bosskills)[0];
 	const bosskills = data.bosskills.data.filter((v) => !!v.boss_kills);
@@ -141,7 +144,15 @@
 	</div>
 </div>
 
-<h2>Overall rankings by DPS and HPS</h2>
+<h2 style="margin-bottom: 0;">Overall rankings by DPS and HPS</h2>
+<div style="display: flex;">
+	<Link href={specs.reset} style="padding-right: 0.25rem;">Reset</Link>
+	{#each specs.items as spec}
+		<Link href={spec.href} style="padding: 0.25rem;">
+			<SpecIcon realm={data.realm} talentSpec={spec.id} />
+		</Link>
+	{/each}
+</div>
 <div class="rankings">
 	{#each Object.entries(data.bossRankings) as [type, rankings]}
 		<div>

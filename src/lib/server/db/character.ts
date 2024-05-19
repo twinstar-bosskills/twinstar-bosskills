@@ -10,12 +10,13 @@ import { bossTable } from './schema/boss.schema';
 import { raidTable } from './schema/raid.schema';
 import { realmTable } from './schema/realm.schema';
 
-export type GetCharacterBossPerformanceRankingsArgs = {
+export type GetCharacterBossRankingsArgs = {
 	realm: string;
 	guid: number;
 	metric: MetricType;
+	spec?: number | null;
 };
-type CharacterBossPerformanceRankingStats = {
+type CharacterBossRankingStats = {
 	[bosskillRemoteId in string]: {
 		[mode in number]: {
 			value: number;
@@ -29,9 +30,10 @@ type CharacterBossPerformanceRankingStats = {
 export const getCharacterBossRankings = async ({
 	guid,
 	realm,
-	metric
-}: GetCharacterBossPerformanceRankingsArgs): Promise<CharacterBossPerformanceRankingStats> => {
-	const stats: CharacterBossPerformanceRankingStats = {};
+	metric,
+	spec
+}: GetCharacterBossRankingsArgs): Promise<CharacterBossRankingStats> => {
+	const stats: CharacterBossRankingStats = {};
 	try {
 		const db = await createConnection();
 		const partitionQb = db
@@ -53,7 +55,9 @@ export const getCharacterBossRankings = async ({
 			.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
 			.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
 			.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
-			.where(and(eq(realmTable.name, realm)));
+			.where(
+				and(eq(realmTable.name, realm), spec ? eq(bosskillPlayerTable.talentSpec, spec) : undefined)
+			);
 
 		const sub = partitionQb.as('sub');
 		const topQb = db

@@ -4,9 +4,8 @@
 	import CharacterPerformanceChart from '$lib/components/echart/CharacterPerformanceChart.svelte';
 	import FilterForm from '$lib/components/form/FilterForm.svelte';
 	import { links } from '$lib/links';
-	import { difficultyToString, talentSpecsByClass } from '$lib/model';
+	import { difficultyToString } from '$lib/model';
 	import { realmToExpansion } from '$lib/realm';
-	import { number } from 'zod';
 	import type { PageData } from './$types';
 
 	export let data: PageData;

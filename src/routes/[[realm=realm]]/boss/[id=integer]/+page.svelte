@@ -212,11 +212,7 @@
 			<li class:active={isActive}>
 				<div class:active={isActive}>
 					<Link data-sveltekit-reload style="display: flex;" {href}>
-						<Icon
-							src={iconUrl}
-							label={talentSpecToString(expansion, id)}
-							style="width: 24px; height: 24px;"
-						/>
+						<Icon src={iconUrl} label={talentSpecToString(expansion, id)} />
 					</Link>
 				</div>
 			</li>

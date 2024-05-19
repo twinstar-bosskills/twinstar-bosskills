@@ -1,6 +1,7 @@
 import { METRIC_TYPE } from '$lib/metrics';
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import { REALM_HELIOS } from '$lib/realm';
+import { getSpecFromUrl } from '$lib/search-params';
 import * as api from '$lib/server/api';
 import type { Boss } from '$lib/server/api/schema';
 import { findBosses } from '$lib/server/model/boss.model';
@@ -16,6 +17,7 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 	const realm = params.realm ?? REALM_HELIOS;
 	const page = getPageFromURL(url);
 	const pageSize = getPageSizeFromURL(url, 20);
+	const spec = getSpecFromUrl(url);
 	const { name, guid } = character;
 	const totalPromise = api.getCharacterTotalBossKills({ realm, name });
 	const data = await api.getCharacterBossKills({
@@ -95,8 +97,8 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 	});
 
 	const [bossRankingsDPS, bossRankingsHPS] = await Promise.all([
-		getCharacterBossRankings({ guid, realm, metric: METRIC_TYPE.DPS }),
-		getCharacterBossRankings({ guid, realm, metric: METRIC_TYPE.HPS })
+		getCharacterBossRankings({ guid, realm, metric: METRIC_TYPE.DPS, spec }),
+		getCharacterBossRankings({ guid, realm, metric: METRIC_TYPE.HPS, spec })
 	]);
 	const bossRankings = { [METRIC_TYPE.DPS]: bossRankingsDPS, [METRIC_TYPE.HPS]: bossRankingsHPS };
 
