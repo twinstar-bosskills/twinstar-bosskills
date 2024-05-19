@@ -12,10 +12,14 @@
 
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
+	import Rank from '$lib/components/Rank.svelte';
+	import SpecIcon from '$lib/components/icon/SpecIcon.svelte';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '$lib/metrics';
+	import { difficultyToString, talentSpecsByClass } from '$lib/model';
 	import { formatAvgItemLvl } from '$lib/number';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
+	import { getSpecsFromUrl } from '$lib/search-params';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 
@@ -24,6 +28,8 @@
 
 	export let data: PageData;
 
+	const characterSpecs = talentSpecsByClass(data.expansion, data.character.class);
+	const specs = getSpecsFromUrl($page.url, characterSpecs);
 	const name = data.name;
 	type T = (typeof bosskills)[0];
 	const bosskills = data.bosskills.data.filter((v) => !!v.boss_kills);
@@ -123,12 +129,12 @@
 </script>
 
 <svelte:head>
-	<title>{name}'s recent kills time</title>
+	<title>Character {name}</title>
 </svelte:head>
 
 <div class="title">
 	<h1>
-		{name}'s recent kills
+		Character {name}
 	</h1>
 	<div>
 		<Link href={links.characterPerformance(data.realm, name)}>Performance</Link>
@@ -138,6 +144,53 @@
 	</div>
 </div>
 
+<h2 style="margin-bottom: 0;">Overall rankings by DPS and HPS</h2>
+<div style="display: flex;">
+	<Link href={specs.reset} style="padding-right: 0.25rem;">Reset</Link>
+	{#each specs.items as spec}
+		<Link href={spec.href} style="padding: 0.25rem;">
+			<SpecIcon realm={data.realm} talentSpec={spec.id} />
+		</Link>
+	{/each}
+</div>
+<div class="rankings">
+	{#each Object.entries(data.bossRankings) as [type, rankings]}
+		<div>
+			<h3 style="margin: 0;">{type.toUpperCase()}</h3>
+			<div class="by-bosses">
+				{#each Object.entries(rankings) as [bossRemoteId, byMode]}
+					{@const bossId = Number(bossRemoteId)}
+					{@const bossName = data.bossNameById[bossId] ?? bossRemoteId}
+					<div class="by-boss">
+						<div style="font-weight: bold;">
+							<Link href={links.boss(data.realm, bossId)}>{bossName}</Link>
+						</div>
+						<div class="by-diffs">
+							{#each Object.entries(byMode) as [mode, item]}
+								{@const diff = difficultyToString(data.expansion, mode)}
+								<div>
+									<Rank rank={item.rank} />
+								</div>
+								<div>{diff}</div>
+								<div style="display: flex; align-items: center; gap: 0.125rem;">
+									<SpecIcon realm={data.realm} talentSpec={item.spec} />
+									<Link href={links.bossKill(data.realm, item.bosskillRemoteId)}>
+										{item.value.toLocaleString()}
+									</Link>
+								</div>
+								<div>
+									{item.ilvl}ilvl
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/each}
+</div>
+
+<h2>Recent kills</h2>
 <div class="table">
 	<Table data={bosskills} columns={columnsUnknown} sorting={[{ id: 'killedAt', desc: true }]}>
 		<svelte:fragment slot="pagination">
@@ -153,6 +206,32 @@
 </div>
 
 <style>
+	.rankings {
+		display: grid;
+		gap: 0.5rem;
+		grid-template-columns: 1fr 1fr;
+	}
+	.rankings .by-bosses {
+		margin-top: 0.5rem;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+		gap: 0.25rem;
+	}
+	.rankings .by-boss {
+		border: 1px solid rgba(var(--color-primary), 0.75);
+		padding: 0.25rem;
+		/* display: flex;
+		flex-direction: column;
+		flex-basis: 25%; */
+	}
+	.rankings .by-diffs {
+		margin-left: 0.5rem;
+		display: grid;
+		align-items: center;
+		grid-template-columns: repeat(4, max-content);
+		gap: 0.25rem;
+		padding: 0.25rem 0;
+	}
 	.title {
 		margin: 1rem 0;
 		display: flex;
@@ -163,5 +242,10 @@
 	}
 	.title h1 {
 		margin: 0;
+	}
+	@media screen and (max-width: 440px) {
+		.rankings {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

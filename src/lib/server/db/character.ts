@@ -1,4 +1,5 @@
 import { raidLock } from '$lib/date';
+import { METRIC_TYPE, type MetricType } from '$lib/metrics';
 import { getPerformaceDifficultiesByExpansion } from '$lib/model';
 import { realmToExpansion } from '$lib/realm';
 import { and, asc, desc, eq, gte, inArray, lt, lte, sql } from 'drizzle-orm';
@@ -6,10 +7,85 @@ import { createConnection, type DbConnection } from '.';
 import { bosskillPlayerTable, dps, hps } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
-import { realmTable } from './schema/realm.schema';
 import { raidTable } from './schema/raid.schema';
+import { realmTable } from './schema/realm.schema';
 
-type CharacterPerformanceTrendsArgs = {
+export type GetCharacterBossRankingsArgs = {
+	realm: string;
+	guid: number;
+	metric: MetricType;
+	spec?: number | null;
+};
+type CharacterBossRankingStats = {
+	[bosskillRemoteId in string]: {
+		[mode in number]: {
+			value: number;
+			rank: number;
+			spec: number;
+			ilvl: number;
+			bosskillRemoteId: string;
+		};
+	};
+};
+export const getCharacterBossRankings = async ({
+	guid,
+	realm,
+	metric,
+	spec
+}: GetCharacterBossRankingsArgs): Promise<CharacterBossRankingStats> => {
+	const stats: CharacterBossRankingStats = {};
+	try {
+		const db = await createConnection();
+		const partitionQb = db
+			.select({
+				// .as to prevent duplicate column err
+				bosskillRemoteId: sql`${bosskillTable.remoteId}`.mapWith(String).as('bosskillRemoteId'),
+				bossId: bossTable.id,
+				bossRemoteId: bossTable.remoteId,
+				guid: bosskillPlayerTable.guid,
+				spec: bosskillPlayerTable.talentSpec,
+				ilvl: bosskillPlayerTable.avgItemLvl,
+				mode: bosskillTable.mode,
+				metric: sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.mapWith(Number).as('metric'),
+				rank: sql`ROW_NUMBER() OVER (PARTITION BY ${bossTable.id}, ${bosskillTable.mode} ORDER BY metric DESC)`
+					.mapWith(Number)
+					.as('rank')
+			})
+			.from(bosskillPlayerTable)
+			.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
+			.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
+			.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
+			.where(
+				and(eq(realmTable.name, realm), spec ? eq(bosskillPlayerTable.talentSpec, spec) : undefined)
+			);
+
+		const sub = partitionQb.as('sub');
+		const topQb = db
+			.select()
+			.from(sub)
+			.where(eq(sub.guid, guid))
+			.groupBy(sub.bossId, sub.mode)
+			.orderBy(asc(sub.rank));
+		const topRows = await topQb.execute();
+
+		for (const row of topRows) {
+			stats[row.bossRemoteId] ??= {};
+			stats[row.bossRemoteId]![row.mode] = {
+				value: row.metric,
+				rank: row.rank,
+				spec: row.spec,
+				ilvl: row.ilvl,
+				bosskillRemoteId: row.bosskillRemoteId
+			};
+		}
+		return stats;
+	} catch (e) {
+		console.error(e);
+	}
+
+	return {};
+};
+export type GetCharacterPerformanceTrendsArgs = {
 	realm: string;
 	guid: number;
 	startDate?: Date;
@@ -22,7 +98,7 @@ export const getCharacterPerformanceTrends = async ({
 	guid,
 	startDate,
 	endDate
-}: CharacterPerformanceTrendsArgs) => {
+}: GetCharacterPerformanceTrendsArgs) => {
 	const trends: CharacterPerformanceTrends = {};
 	const now = new Date();
 	const currentRaidLock = raidLock(now);
@@ -102,9 +178,9 @@ export const getCharacterPerformanceTrends = async ({
 
 	return trends;
 };
-type GetCharacterPerformanceLineArgs = CharacterPerformanceArgs &
+export type GetCharacterPerformanceLinesArgs = CharacterPerformanceArgs &
 	Required<Pick<CharacterPerformanceArgs, 'bossIds' | 'modes'>>;
-export type CharacterPerformanceLine = {
+export type CharacterPerformanceLines = {
 	time: string;
 	dps: number;
 	hps: number;
@@ -114,9 +190,9 @@ export type CharacterPerformanceLine = {
 	avgItemLvl: number;
 	mode: number;
 }[];
-export const getCharacterPerformanceLine = async (
-	args: GetCharacterPerformanceLineArgs
-): Promise<CharacterPerformanceLine> => {
+export const getCharacterPerformanceLines = async (
+	args: GetCharacterPerformanceLinesArgs
+): Promise<CharacterPerformanceLines> => {
 	try {
 		const db = await createConnection();
 		const qb = characterPerformanceQb(db, args);
@@ -131,7 +207,7 @@ export const getCharacterPerformanceLine = async (
 
 export const getCharacterPerformanceLinesGrouped = async (
 	args: CharacterPerformanceArgs
-): Promise<CharacterPerformanceLine> => {
+): Promise<CharacterPerformanceLines> => {
 	try {
 		const db = await createConnection();
 		const qb = characterPerformanceQb(db, { ...args, groupByBossAndDiff: true });

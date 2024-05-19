@@ -4,11 +4,11 @@
 	export let alt: string = `${label} icon`;
 </script>
 
-<img {...$$restProps} {src} aria-label={label} title={label} {alt} />
+<img {src} aria-label={label} title={label} {alt} />
 
 <style>
 	img {
-		width: 24px;
-		height: 24px;
+		width: 1.5rem;
+		height: 1.5rem;
 	}
 </style>

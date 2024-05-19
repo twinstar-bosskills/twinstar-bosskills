@@ -6,7 +6,7 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const character = String(form.get('character') ?? '').trim();
 
-		cookies.set('character', character);
+		cookies.set('character', character, { path: '/' });
 
 		/*
 		const redirectUrl = String(form.get('redirectUrl') ?? '').trim();
