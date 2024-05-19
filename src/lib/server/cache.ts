@@ -14,7 +14,7 @@ async function sha256(str: string) {
 
 type Args<T> = {
 	deps: unknown[];
-	fallback: () => Promise<T>;
+	fallback: () => Promise<T> | T;
 	/**
 	 * In seconds
 	 * Default: 5 * 60 = 5 min
@@ -75,12 +75,8 @@ type DelayArgs<T> = {
 	timeout?: number;
 	value?: T;
 };
-const delay = <T = unknown>(
-	{ timeout, value }: DelayArgs<T> = {
-		timeout: 1000,
-		value: undefined
-	}
-) => new Promise<T>((res) => setTimeout(() => res(value as T), timeout));
+const delay = <T = unknown>({ timeout = 1000, value = undefined }: DelayArgs<T> = {}) =>
+	new Promise<T>((res) => setTimeout(() => res(value as T), timeout));
 const df = createDragonflyClient();
 const dragonfly = async <T = unknown>({
 	deps,
