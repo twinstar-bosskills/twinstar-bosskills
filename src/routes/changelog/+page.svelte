@@ -10,6 +10,13 @@
 <h1>Changelog (YYYY-MM-DD)</h1>
 <div class="changelog">
 	<section>
+		<h2>2024-05-19 - Cache expiration increased to 30 minutes for stats in character detail</h2>
+		<div class="explanation">
+			<h3 class="hint">But why?!</h3>
+			<p class="content">Skill issues and sever went crazy 🔥.</p>
+		</div>
+	</section>
+	<section>
 		<h2>2024-05-18 - Character details with overall rankings</h2>
 		<p>
 			Overall DPS and HPS rankings are now available in character detail. Talent spec and link to
