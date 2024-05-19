@@ -13,7 +13,8 @@ export const getCharacterBossRankings = async (args: GetCharacterBossRankingsArg
 	return withCache<Awaited<ReturnType<typeof fallback>>>({
 		deps: ['model/character/getCharacterBossRankings', args],
 		fallback,
-		defaultValue: {}
+		defaultValue: {},
+		expire: 30 * 60
 	});
 };
 
@@ -22,7 +23,8 @@ export const getCharacterPerformanceTrends = async (args: GetCharacterPerformanc
 	return withCache<Awaited<ReturnType<typeof fallback>>>({
 		deps: ['model/character/getCharacterPerformanceTrends', args],
 		fallback,
-		defaultValue: {}
+		defaultValue: {},
+		expire: 30 * 60
 	});
 };
 
@@ -31,6 +33,7 @@ export const getCharacterPerformanceLines = async (args: GetCharacterPerformance
 	return withCache<Awaited<ReturnType<typeof fallback>>>({
 		deps: ['model/character/getCharacterPerformanceLines', args],
 		fallback,
-		defaultValue: []
+		defaultValue: [],
+		expire: 30 * 60
 	});
 };
