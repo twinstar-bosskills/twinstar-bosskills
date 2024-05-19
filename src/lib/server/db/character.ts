@@ -36,20 +36,16 @@ export const getCharacterBossRankings = async ({
 	const stats: CharacterBossRankingStats = {};
 	try {
 		const db = await createConnection();
-		const partitionQb = db
+		const baseQb = db
 			.select({
 				// .as to prevent duplicate column err
 				bosskillRemoteId: sql`${bosskillTable.remoteId}`.mapWith(String).as('bosskillRemoteId'),
-				bossId: bossTable.id,
-				bossRemoteId: bossTable.remoteId,
+				bossRemoteId: sql`${bossTable.remoteId}`.mapWith(String).as('bossRemoteId'),
 				guid: bosskillPlayerTable.guid,
 				spec: bosskillPlayerTable.talentSpec,
 				ilvl: bosskillPlayerTable.avgItemLvl,
 				mode: bosskillTable.mode,
-				metric: sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.mapWith(Number).as('metric'),
-				rank: sql`ROW_NUMBER() OVER (PARTITION BY ${bossTable.id}, ${bosskillTable.mode} ORDER BY metric DESC)`
-					.mapWith(Number)
-					.as('rank')
+				metric: sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.mapWith(Number).as('metric')
 			})
 			.from(bosskillPlayerTable)
 			.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
@@ -59,16 +55,34 @@ export const getCharacterBossRankings = async ({
 				and(eq(realmTable.name, realm), spec ? eq(bosskillPlayerTable.talentSpec, spec) : undefined)
 			);
 
-		const sub = partitionQb.as('sub');
-		const topQb = db
-			.select()
-			.from(sub)
-			.where(eq(sub.guid, guid))
-			.groupBy(sub.bossId, sub.mode)
-			.orderBy(asc(sub.rank));
-		const topRows = await topQb.execute();
+		const baseSub = baseQb.as('base_sub');
+		const rankQb = db
+			.select({
+				// select *, rank would be nicer :/
+				bosskillRemoteId: baseSub.bosskillRemoteId,
+				bossRemoteId: baseSub.bossRemoteId,
+				guid: baseSub.guid,
+				spec: baseSub.spec,
+				ilvl: baseSub.ilvl,
+				mode: baseSub.mode,
+				metric: baseSub.metric,
+				rank: sql`ROW_NUMBER() OVER (PARTITION BY ${baseSub.bossRemoteId}, ${baseSub.mode} ORDER BY metric DESC)`
+					.mapWith(Number)
+					.as('rank')
+			})
 
-		for (const row of topRows) {
+			.from(baseSub);
+
+		const rankSub = rankQb.as('rank_sub');
+		const personalBestQb = db
+			.select()
+			.from(rankSub)
+			.where(eq(rankSub.guid, guid))
+			.groupBy(rankSub.bossRemoteId, rankSub.mode)
+			.orderBy(asc(rankSub.rank));
+
+		const rows = await personalBestQb.execute();
+		for (const row of rows) {
 			stats[row.bossRemoteId] ??= {};
 			stats[row.bossRemoteId]![row.mode] = {
 				value: row.metric,
