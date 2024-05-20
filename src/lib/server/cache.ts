@@ -1,5 +1,5 @@
+import stableStringify from 'json-stable-stringify';
 import { createDragonflyClient } from './cache/dragonfly';
-
 const CACHE: Record<string, unknown> = {};
 const TIMERS: Record<string, number | NodeJS.Timeout> = {};
 /**
@@ -25,6 +25,10 @@ type Args<T> = {
 	 */
 	sliding?: boolean;
 	defaultValue?: T;
+	/**
+	 * Force to set cached item again even if found
+	 */
+	force?: boolean;
 };
 
 const setupTimer = (key: string, expire: number) => {
@@ -83,12 +87,14 @@ const dragonfly = async <T = unknown>({
 	fallback,
 	expire = 5 * 60,
 	sliding = true,
+	force = false,
 	defaultValue = undefined
 }: Args<T>): Promise<T> => {
-	const key = await sha256(JSON.stringify(deps));
+	const key = await sha256(stableStringify(deps));
 	const item = await Promise.race([df.get(key), delay({ value: null })]);
-	if (item === null) {
+	if (item === null || force) {
 		try {
+			// TODO: lock?
 			const data = await fallback();
 			await df.set(key, JSON.stringify(data));
 			df.expire(key, expire).catch(() => {});

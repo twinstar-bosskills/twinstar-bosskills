@@ -191,7 +191,7 @@
 {/if}
 
 <h2>Top stats by spec</h2>
-<div>
+<div class="filter">
 	<ul>
 		<li>
 			<Link data-sveltekit-reload style="display: flex;" href={difficultyResetHref}>Reset</Link>
@@ -252,11 +252,14 @@
 />
 
 <style>
-	ul li div {
+	.filter ul li div {
 		padding: 0.25rem;
 	}
-	ul li div.active {
-		border: 4px solid rgba(var(--color-primary), 1);
+	.filter ul li div.active {
+		border-bottom: 2px solid rgba(var(--color-primary), 1);
+	}
+	.filter :global(a) {
+		text-decoration: none;
 	}
 	ul {
 		display: flex;

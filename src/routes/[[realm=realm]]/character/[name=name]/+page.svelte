@@ -145,10 +145,10 @@
 </div>
 
 <h2 style="margin-bottom: 0;">Overall rankings by DPS and HPS</h2>
-<div style="display: flex;">
+<div class="ranking-links">
 	<Link href={specs.reset} style="padding-right: 0.25rem;">Reset</Link>
 	{#each specs.items as spec}
-		<Link href={spec.href} style="padding: 0.25rem;">
+		<Link href={spec.href} active={spec.isActive} style="padding: 0.25rem;">
 			<SpecIcon realm={data.realm} talentSpec={spec.id} />
 		</Link>
 	{/each}
@@ -162,8 +162,8 @@
 					{@const bossId = Number(bossRemoteId)}
 					{@const bossName = data.bossNameById[bossId] ?? bossRemoteId}
 					<div class="by-boss">
-						<div style="font-weight: bold;">
-							<Link href={links.boss(data.realm, bossId)}>{bossName}</Link>
+						<div>
+							<Link href={links.boss(data.realm, bossId, { spec: specs.current })}>{bossName}</Link>
 						</div>
 						<div class="by-diffs">
 							{#each Object.entries(byMode) as [mode, item]}
@@ -247,5 +247,11 @@
 		.rankings {
 			grid-template-columns: 1fr;
 		}
+	}
+	.ranking-links {
+		display: flex;
+	}
+	.ranking-links :global(a.active) {
+		border-bottom: 2px solid rgba(var(--color-primary), 1);
 	}
 </style>

@@ -78,13 +78,15 @@ type GetBossTopSpecsArgs = {
 	talentSpec?: number;
 	difficulty: number;
 	metric: MetricType;
+	limit?: number;
 };
 export const getBossTopSpecs = async ({
 	remoteId,
 	realm,
 	talentSpec,
 	difficulty,
-	metric
+	metric,
+	limit = 200
 }: GetBossTopSpecsArgs): Promise<BossTopSpecs> => {
 	const stats: BossTopSpecs = {};
 
@@ -117,8 +119,10 @@ export const getBossTopSpecs = async ({
 			.select({ id: sub.id })
 			.from(sub)
 			.where(eq(sub.row_number, 1))
-			.limit(200)
 			.orderBy(desc(sub.metric));
+		if (limit) {
+			topIdsQb.limit(limit);
+		}
 		const topRows = await topIdsQb.execute();
 		const topIds = topRows.map((row) => row.id);
 
