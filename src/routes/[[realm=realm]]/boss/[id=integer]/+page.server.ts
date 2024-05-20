@@ -1,6 +1,6 @@
 import { defaultDifficultyByExpansion } from '$lib/model';
 import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
-import { getDifficultyFromUrl } from '$lib/search-params';
+import { getDifficultyFromUrl, getSpecFromUrl } from '$lib/search-params';
 import { getBossKillsWipesTimes } from '$lib/server/api';
 import { getBossAggregatedStats, getBossTopSpecs } from '$lib/server/db/boss';
 import { getBoss } from '$lib/server/model/boss.model';
@@ -27,19 +27,9 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		getBossAggregatedStats({ realm, remoteId: id, difficulty: mode, metric: METRIC_TYPE.HPS })
 	]);
 
-	const difficultyStr = url.searchParams.get('difficulty');
-	let difficulty: number | undefined = defaultDifficultyByExpansion(expansion);
-	if (difficultyStr !== null) {
-		const v = Number(difficultyStr);
-		difficulty = isFinite(v) ? v : difficulty;
-	}
-
-	const talentSpecStr = url.searchParams.get('spec');
-	let talentSpec: number | undefined = undefined;
-	if (talentSpecStr !== null) {
-		const v = Number(talentSpecStr);
-		talentSpec = isFinite(v) ? v : talentSpec;
-	}
+	const difficulty: number | undefined =
+		getDifficultyFromUrl(url) ?? defaultDifficultyByExpansion(expansion);
+	const talentSpec = getSpecFromUrl(url);
 
 	const [byDPS, byHPS] = await Promise.all([
 		getBossTopSpecs({
