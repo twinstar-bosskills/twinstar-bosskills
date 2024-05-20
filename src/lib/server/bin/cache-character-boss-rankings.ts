@@ -1,5 +1,10 @@
 import { METRIC_TYPE, characterDps, characterHps } from '$lib/metrics';
-import { difficultiesByExpansion, difficultyToString, talentSpecsByExpansion } from '$lib/model';
+import {
+	difficultiesByExpansion,
+	difficultyToString,
+	isRaidDifficulty,
+	talentSpecsByExpansion
+} from '$lib/model';
 import { realmToExpansion } from '$lib/realm';
 import { getBossTopSpecs } from '../db/boss';
 
@@ -15,7 +20,9 @@ try {
 	for (const realm of realms) {
 		const realmStart = performance.now();
 		const expansion = realmToExpansion(realm.name);
-		const diffs = difficultiesByExpansion(expansion) ?? {};
+		const diffs = Object.values<number>(difficultiesByExpansion(expansion) ?? {}).filter(
+			isRaidDifficulty
+		);
 		const specs = talentSpecsByExpansion(expansion) ?? {};
 
 		console.log(`Realm ${realm.name} started`);
@@ -26,14 +33,13 @@ try {
 				const bossStart = performance.now();
 				console.log(`Boss ${boss.name} - ${metric} started`);
 				const bossRemoteId = boss.remoteId;
-				for (const difficulty of Object.values<number>(diffs)) {
+				for (const difficulty of diffs) {
 					const diffStr = difficultyToString(expansion, difficulty);
 					const diffStart = performance.now();
 					console.log(`  difficulty: ${diffStr} started`);
 					const topSpecs = await getBossTopSpecs({
 						realm: realm.name,
 						remoteId: boss.remoteId,
-						// @ts-ignore
 						difficulty,
 						metric,
 						limit: 0
