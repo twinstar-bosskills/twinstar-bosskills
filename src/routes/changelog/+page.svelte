@@ -10,7 +10,10 @@
 <h1>Changelog (YYYY-MM-DD)</h1>
 <div class="changelog">
 	<section>
-		<h2>2024-05-19 - Cache expiration increased to 30 minutes for stats in character detail</h2>
+		<h2>2024-06-27 - Cache expiration set to 30 minutes for stats in boss detail</h2>
+	</section>
+	<section>
+		<h2>2024-05-19 - Cache expiration increased to 1 day for stats in character detail</h2>
 		<div class="explanation">
 			<h3 class="hint">But why?!</h3>
 			<p class="content">Skill issues and sever went crazy 🔥.</p>
