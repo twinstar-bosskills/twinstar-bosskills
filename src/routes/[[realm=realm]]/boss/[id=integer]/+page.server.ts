@@ -1,13 +1,13 @@
+import { METRIC_TYPE } from '$lib/metrics';
 import { defaultDifficultyByExpansion } from '$lib/model';
 import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 import { getDifficultyFromUrl, getSpecFromUrl } from '$lib/search-params';
 import { getBossKillsWipesTimes } from '$lib/server/api';
-import { getBossAggregatedStats, getBossTopSpecs } from '$lib/server/db/boss';
-import { getBoss } from '$lib/server/model/boss.model';
+import { getBossAggregatedStats } from '$lib/server/db/boss';
+import { getBoss, getTopSpecs } from '$lib/server/model/boss.model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { METRIC_TYPE } from '$lib/metrics';
 
 export const load: PageServerLoad = async ({ url, params }) => {
 	const id = Number(params.id);
@@ -32,14 +32,14 @@ export const load: PageServerLoad = async ({ url, params }) => {
 	const talentSpec = getSpecFromUrl(url);
 
 	const [byDPS, byHPS] = await Promise.all([
-		getBossTopSpecs({
+		getTopSpecs({
 			realm,
 			difficulty,
 			talentSpec,
 			remoteId: id,
 			metric: METRIC_TYPE.DPS
 		}),
-		getBossTopSpecs({
+		getTopSpecs({
 			realm,
 			difficulty,
 			talentSpec,
