@@ -20,8 +20,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			filters: [
 				{ column: 'time', operator: FilterOperator.GTE, value: thisRaidLockStart },
 				{ column: 'time', operator: FilterOperator.LTE, value: thisRaidLockEnd }
-			],
-			cache: false
+			]
 		})
 	]);
 	const bosskillsByBoss: Record<number, number> = {};

@@ -10,7 +10,7 @@ import { getBossTopSpecs } from '../db/boss';
 
 import { createConnection } from '../db/index';
 import { realmTable } from '../db/schema/realm.schema';
-import { findBosses } from '../model/boss.model';
+import { findBosses, setBossTopSpecs } from '../model/boss.model';
 import { setCharacterBossRankings, type CharacterBossRankingStats } from '../model/character.model';
 
 try {
@@ -44,6 +44,20 @@ try {
 						metric,
 						limit: 0
 					});
+
+					try {
+						await setBossTopSpecs(
+							{
+								realm: realm.name,
+								remoteId: boss.remoteId,
+								difficulty,
+								metric
+							},
+							topSpecs
+						);
+					} catch (e) {
+						console.error(e);
+					}
 
 					console.log(`    spec: overall`);
 					const itemsOverall = [];
@@ -91,9 +105,23 @@ try {
 							// @ts-ignore
 							difficulty,
 							metric,
-							talentSpec,
-							limit: 0
+							talentSpec
 						});
+
+						try {
+							await setBossTopSpecs(
+								{
+									realm: realm.name,
+									remoteId: boss.remoteId,
+									difficulty,
+									metric,
+									talentSpec
+								},
+								topSpecs
+							);
+						} catch (e) {
+							console.error(e);
+						}
 
 						let specRank = 1;
 						for (const [specStr, items] of Object.entries(topSpecs)) {

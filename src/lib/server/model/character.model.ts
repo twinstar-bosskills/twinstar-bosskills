@@ -1,7 +1,8 @@
 import type { MetricType } from '$lib/metrics';
-import { withCache } from '../cache';
+import { EXPIRE_1_DAY, EXPIRE_1_HOUR, withCache } from '../cache';
 import {
 	getCharacterPerformanceLines as lines,
+	getCharacterPerformanceLinesGrouped as linesGrouped,
 	getCharacterPerformanceTrends as trends,
 	type GetCharacterPerformanceLinesArgs,
 	type GetCharacterPerformanceTrendsArgs
@@ -35,7 +36,7 @@ const withBossRankingsCache = (
 		fallback,
 		defaultValue: {},
 		// 1 day
-		expire: 24 * 60 * 60,
+		expire: EXPIRE_1_DAY,
 		force
 	});
 };
@@ -59,7 +60,7 @@ export const getCharacterPerformanceTrends = async (args: GetCharacterPerformanc
 		deps: ['model/character/getCharacterPerformanceTrends', args],
 		fallback,
 		defaultValue: {},
-		expire: 30 * 60
+		expire: EXPIRE_1_HOUR
 	});
 };
 
@@ -69,7 +70,18 @@ export const getCharacterPerformanceLines = async (args: GetCharacterPerformance
 		deps: ['model/character/getCharacterPerformanceLines', args],
 		fallback,
 		defaultValue: [],
-		expire: 30 * 60
+		expire: EXPIRE_1_HOUR
+	});
+};
+export const getCharacterPerformanceLinesGrouped = async (
+	args: GetCharacterPerformanceLinesArgs
+) => {
+	const fallback = () => linesGrouped(args);
+	return withCache<Awaited<ReturnType<typeof fallback>>>({
+		deps: ['model/character/getCharacterPerformanceLinesGrouped', args],
+		fallback,
+		defaultValue: [],
+		expire: EXPIRE_1_HOUR
 	});
 };
 

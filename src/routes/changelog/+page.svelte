@@ -10,6 +10,9 @@
 <h1>Changelog (YYYY-MM-DD)</h1>
 <div class="changelog">
 	<section>
+		<h2>2024-06-30 - Cache expiration set to 1 day for stats in boss detail</h2>
+	</section>
+	<section>
 		<h2>2024-06-27 - Cache expiration set to 30 minutes for stats in boss detail</h2>
 	</section>
 	<section>

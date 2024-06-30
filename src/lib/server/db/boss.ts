@@ -72,7 +72,7 @@ export const getByRemoteIdAndRealm = async ({
 };
 
 type BossTopSpecs = Record<number, BosskillCharacter[]>;
-type GetBossTopSpecsArgs = {
+export type GetBossTopSpecsArgs = {
 	remoteId: number;
 	realm: string;
 	talentSpec?: number;
@@ -196,7 +196,7 @@ export const getBossTopSpecs = async ({
 	return stats;
 };
 
-type GetBossAggregatedStatsArgs = {
+export type GetBossAggregatedStatsArgs = {
 	realm: string;
 	remoteId: number;
 	metric: MetricType;
@@ -256,7 +256,7 @@ export const getBossAggregatedStats = async ({
 	});
 };
 
-type GetBossStatsMedianArgs = {
+export type GetBossStatsMedianArgs = {
 	realm: string;
 	remoteId: number;
 	metric: MetricType;

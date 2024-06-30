@@ -77,6 +77,8 @@ export const load: PageServerLoad = async ({ url, params }) => {
 			}
 		}
 	}
+	dmg = dmg.sort((a, b) => b.amount - a.amount).slice(0, 200);
+	heal = heal.sort((a, b) => b.amount - a.amount).slice(0, 200);
 
 	return {
 		boss: { name: boss.name },

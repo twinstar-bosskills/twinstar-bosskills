@@ -1,14 +1,18 @@
 import { METRIC_TYPE, type PlayerPercentile, type PlayerPercentiles } from '$lib/metrics';
-import { withCache } from '../cache';
+import type { ART } from '$lib/types';
+import { EXPIRE_1_DAY, EXPIRE_1_HOUR, withCache } from '../cache';
 import {
 	findByRealm,
 	getBossPercentiles,
 	getBossTopSpecs,
-	getByRemoteIdAndRealm
+	getByRemoteIdAndRealm,
+	getBossStatsMedian as statsMedian,
+	type GetBossStatsMedianArgs,
+	type GetBossTopSpecsArgs
 } from '../db/boss';
 export const findBosses = async (args: { realm: string }) => {
 	const fallback = () => findByRealm(args);
-	return withCache<Awaited<ReturnType<typeof fallback>>>({
+	return withCache<ART<typeof fallback>>({
 		deps: ['model/boss/findBosses', args],
 		fallback,
 		defaultValue: []
@@ -17,10 +21,20 @@ export const findBosses = async (args: { realm: string }) => {
 
 export const getBoss = async (args: { remoteId: number; realm: string }) => {
 	const fallback = () => getByRemoteIdAndRealm(args);
-	return withCache<Awaited<ReturnType<typeof fallback>>>({
+	return withCache<ART<typeof fallback>>({
 		deps: ['model/boss/getBoss', args],
 		fallback,
 		defaultValue: null
+	});
+};
+
+export const getBossStatsMedian = (args: GetBossStatsMedianArgs) => {
+	const fallback = async () => statsMedian(args);
+	return withCache<ART<typeof fallback>>({
+		deps: ['model/boss/getBossStatsMedian', args],
+		fallback,
+		defaultValue: [],
+		expire: EXPIRE_1_HOUR
 	});
 };
 
@@ -81,14 +95,31 @@ export const getBossPercentilesPerPlayer = async (
 	});
 };
 
-type GetTopSpecsArsgs = Parameters<typeof getBossTopSpecs>[0];
-type BossTopSpecs = Awaited<ReturnType<typeof getBossTopSpecs>>;
-export const getTopSpecs = (args: GetTopSpecsArsgs): Promise<BossTopSpecs> => {
-	const fallback = async () => getBossTopSpecs(args);
+type BossTopSpecs = ART<typeof getBossTopSpecs>;
+const KEY_BOSS_TOP_SPECS = 'model/boss/getTopSpecs';
+const withBossTopSpecsCache = (
+	args: GetBossTopSpecsArgs,
+	fallback: () => BossTopSpecs | Promise<BossTopSpecs>,
+	force: boolean = false
+) => {
 	return withCache<BossTopSpecs>({
-		deps: ['model/boss/getTopSpecs', args],
+		deps: [KEY_BOSS_TOP_SPECS, args],
 		fallback,
 		defaultValue: {},
-		expire: 30 * 60
+		// 1 day
+		expire: EXPIRE_1_DAY,
+		force
 	});
+};
+
+export const getTopSpecs = (args: GetBossTopSpecsArgs): Promise<BossTopSpecs> => {
+	const fallback = async () => {
+		throw Error('wait until recache happens');
+	};
+	return withBossTopSpecsCache(args, fallback);
+};
+
+export const setBossTopSpecs = async (args: GetBossTopSpecsArgs, stats: BossTopSpecs) => {
+	const fallback = () => stats;
+	return withBossTopSpecsCache(args, fallback, true);
 };
