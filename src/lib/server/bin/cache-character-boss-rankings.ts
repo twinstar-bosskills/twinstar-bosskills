@@ -20,8 +20,8 @@ try {
 	for (const realm of realms) {
 		const realmStart = performance.now();
 		const expansion = realmToExpansion(realm.name);
-		const diffs = Object.values<number>(difficultiesByExpansion(expansion) ?? {}).filter(
-			isRaidDifficulty
+		const diffs = Object.values<number>(difficultiesByExpansion(expansion) ?? {}).filter((diff) =>
+			isRaidDifficulty(expansion, diff)
 		);
 		const specs = talentSpecsByExpansion(expansion) ?? {};
 
