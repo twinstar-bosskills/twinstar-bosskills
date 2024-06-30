@@ -17,7 +17,7 @@ type Args<T> = {
 	fallback: () => Promise<T> | T;
 	/**
 	 * In seconds
-	 * Default: 5 * 60 = 5 min
+	 * Default: 24 * 60 * 60 = 1 day
 	 */
 	expire?: number;
 	/**
@@ -43,10 +43,16 @@ const setupTimer = (key: string, expire: number) => {
 	} catch (e) {}
 };
 
+export const EXPIRE_5_MIN = 5 * 60;
+export const EXPIRE_30_MIN = 30 * 60;
+export const EXPIRE_1_HOUR = 60 * 60;
+export const EXPIRE_1_DAY = 24 * EXPIRE_1_HOUR;
+const EXPIRE_DEFAULT = EXPIRE_1_DAY;
+
 const memory = async <T = unknown>({
 	deps,
 	fallback,
-	expire = 5 * 60,
+	expire = EXPIRE_DEFAULT,
 	sliding = true,
 	defaultValue = undefined
 }: Args<T>): Promise<T> => {
@@ -85,7 +91,7 @@ const df = createDragonflyClient();
 const dragonfly = async <T = unknown>({
 	deps,
 	fallback,
-	expire = 5 * 60,
+	expire = EXPIRE_DEFAULT,
 	sliding = true,
 	force = false,
 	defaultValue = undefined
