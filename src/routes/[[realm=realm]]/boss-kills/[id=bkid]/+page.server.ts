@@ -64,17 +64,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	}
 
 	const percentiles = await getBossPercentilesPerPlayer({
-		realm,
-		bossId: boss.id,
-		difficulty: bosskill.mode,
-		players: (bosskill.boss_kills_players ?? []).map((bkp) => {
-			return {
-				guid: bkp.guid,
-				dps: characterDps(bkp, bosskill.length),
-				hps: characterHps(bkp, bosskill.length),
-				spec: bkp.talent_spec
-			};
-		})
+		bossKillRemoteId: bosskill.id
 	});
 
 	return {

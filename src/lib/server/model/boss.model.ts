@@ -39,13 +39,44 @@ export const getBossStatsMedian = (args: GetBossStatsMedianArgs) => {
 };
 
 type GetBossPercentilesArgs = {
+	bossKillRemoteId: string;
+};
+const KEY_BOSS_PERCENTILES_PER_PLAYER = 'model/boss/getBossPercentilesPerPlayer';
+const withBossPercentilesPerPlayerCache = (
+	args: GetBossPercentilesArgs,
+	fallback: () => PlayerPercentiles | Promise<PlayerPercentiles>,
+	force: boolean = false
+) => {
+	return withCache<PlayerPercentiles>({
+		deps: [KEY_BOSS_PERCENTILES_PER_PLAYER, args],
+		fallback,
+		defaultValue: {
+			[METRIC_TYPE.DPS]: {},
+			[METRIC_TYPE.HPS]: {}
+		},
+		// 1 day
+		expire: EXPIRE_1_DAY,
+		force
+	});
+};
+export const getBossPercentilesPerPlayer = async (
+	args: GetBossPercentilesArgs
+): Promise<PlayerPercentiles> => {
+	const fallback = async () => {
+		throw Error('wait until recache happens');
+	};
+
+	return withBossPercentilesPerPlayerCache(args, fallback);
+};
+
+type SetBossPercentilesArgs = GetBossPercentilesArgs & {
 	realm: string;
 	bossId: number;
 	difficulty: number;
 	players: { guid: number; dps: number; hps: number; spec: number }[];
 };
-export const getBossPercentilesPerPlayer = async (
-	args: GetBossPercentilesArgs
+export const setBossPercentilesPerPlayer = async (
+	args: SetBossPercentilesArgs
 ): Promise<PlayerPercentiles> => {
 	const fallback = async () => {
 		const { realm, bossId, difficulty, players } = args;
@@ -85,14 +116,11 @@ export const getBossPercentilesPerPlayer = async (
 		return percentiles;
 	};
 
-	return withCache<PlayerPercentiles>({
-		deps: ['model/boss/getBossPercentilesPerPlayer', args],
+	return withBossPercentilesPerPlayerCache(
+		{ bossKillRemoteId: args.bossKillRemoteId },
 		fallback,
-		defaultValue: {
-			[METRIC_TYPE.DPS]: {},
-			[METRIC_TYPE.HPS]: {}
-		}
-	});
+		true
+	);
 };
 
 type BossTopSpecs = ART<typeof getBossTopSpecs>;
