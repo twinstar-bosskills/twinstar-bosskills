@@ -6,11 +6,15 @@ import { realmTable } from './schema/realm.schema';
 
 type FindBossKillsArgs = {
 	realm: string;
+	bossId?: number;
+	difficulty?: number;
 	startsAt?: Date;
 	endsAt?: Date;
 };
 export const findBossKills = async ({
 	realm,
+	bossId,
+	difficulty,
 	startsAt,
 	endsAt
 }: FindBossKillsArgs): Promise<BossKill[]> => {
@@ -31,7 +35,9 @@ export const findBossKills = async ({
 				and(
 					eq(realmTable.name, realm),
 					startsAt ? gte(bosskillTable.time, startsAt.toISOString()) : undefined,
-					endsAt ? lte(bosskillTable.time, endsAt.toISOString()) : undefined
+					endsAt ? lte(bosskillTable.time, endsAt.toISOString()) : undefined,
+					bossId ? eq(bosskillTable.bossId, bossId) : undefined,
+					typeof difficulty !== 'undefined' ? eq(bosskillTable.mode, difficulty) : undefined
 				)
 			);
 
