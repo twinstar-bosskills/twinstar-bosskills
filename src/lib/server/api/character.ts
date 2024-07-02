@@ -1,7 +1,7 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
 
 import { realmToId } from '$lib/realm';
-import { withCache } from '../cache';
+import { EXPIRE_5_MIN, withCache } from '../cache';
 import { queryString, type QueryArgs } from './filter';
 import { listAll } from './pagination';
 import { makePaginatedResponseSchema, type PaginatedResponse } from './response';
@@ -37,7 +37,8 @@ export const getCharacterBossKills = async (
 	return withCache<BosskillCharacterPartial[]>({
 		deps: [`character-bosskills`, q],
 		fallback,
-		defaultValue: []
+		defaultValue: [],
+		expire: EXPIRE_5_MIN
 	});
 };
 
@@ -93,7 +94,12 @@ export const getCharacterTotalBossKills = async (q: {
 		}
 	};
 
-	return withCache<number>({ deps: [`character-total-bosskills`, q], fallback, defaultValue: 0 });
+	return withCache<number>({
+		deps: [`character-total-bosskills`, q],
+		fallback,
+		defaultValue: 0,
+		expire: EXPIRE_5_MIN
+	});
 };
 type CharacterByNameArgs = Pick<QueryArgs, 'page' | 'pageSize'> &
 	Required<Pick<QueryArgs, 'name' | 'realm'>>;

@@ -275,58 +275,46 @@ export const getBossStatsMedian = async ({
 	ilvlMin = 0,
 	ilvlMax = 0
 }: GetBossStatsMedianArgs) => {
-	const fallback = async () => {
-		try {
-			const db = await createConnection();
-			const qb = db
-				.select({
-					spec: sql`${bosskillPlayerTable.talentSpec}`.mapWith(Number).as('spec'),
-					mode: sql`${bosskillTable.mode}`.mapWith(Number).as('mode'),
-					value: sql`MEDIAN(${
-						metric === METRIC_TYPE.HPS ? hps : dps
-					}) OVER (PARTITION BY mode, spec)`
-						.mapWith(Number)
-						.as('value')
-				})
-				.from(bosskillPlayerTable)
-				.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
-				.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
-				.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
-				.where(
-					and(
-						eq(realmTable.name, realm),
-						eq(bossTable.remoteId, remoteId),
-						ne(bosskillPlayerTable.talentSpec, 0),
-						difficulties && difficulties.length
-							? inArray(bosskillTable.mode, difficulties)
-							: undefined,
-						specs && specs.length ? inArray(bosskillPlayerTable.talentSpec, specs) : undefined,
-						ilvlMin > 0 ? gte(bosskillPlayerTable.avgItemLvl, ilvlMin) : undefined,
-						ilvlMax > 0 ? lte(bosskillPlayerTable.avgItemLvl, ilvlMax) : undefined
-					)
-				);
-
-			const qb2 = db
-				.select()
-				.from(qb.as('sub'))
-				.where(
-					and(gte(sql`value`, 0), metric === METRIC_TYPE.HPS ? sql`value < 5000000` : undefined)
+	try {
+		const db = await createConnection();
+		const qb = db
+			.select({
+				spec: sql`${bosskillPlayerTable.talentSpec}`.mapWith(Number).as('spec'),
+				mode: sql`${bosskillTable.mode}`.mapWith(Number).as('mode'),
+				value: sql`MEDIAN(${metric === METRIC_TYPE.HPS ? hps : dps}) OVER (PARTITION BY mode, spec)`
+					.mapWith(Number)
+					.as('value')
+			})
+			.from(bosskillPlayerTable)
+			.innerJoin(bosskillTable, eq(bosskillTable.id, bosskillPlayerTable.bosskillId))
+			.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
+			.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
+			.where(
+				and(
+					eq(realmTable.name, realm),
+					eq(bossTable.remoteId, remoteId),
+					ne(bosskillPlayerTable.talentSpec, 0),
+					difficulties && difficulties.length
+						? inArray(bosskillTable.mode, difficulties)
+						: undefined,
+					specs && specs.length ? inArray(bosskillPlayerTable.talentSpec, specs) : undefined,
+					ilvlMin > 0 ? gte(bosskillPlayerTable.avgItemLvl, ilvlMin) : undefined,
+					ilvlMax > 0 ? lte(bosskillPlayerTable.avgItemLvl, ilvlMax) : undefined
 				)
-				.orderBy(sql`value`);
+			);
 
-			const rows = await qb2.execute();
-			return rows;
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	};
+		const qb2 = db
+			.select()
+			.from(qb.as('sub'))
+			.where(and(gte(sql`value`, 0), metric === METRIC_TYPE.HPS ? sql`value < 5000000` : undefined))
+			.orderBy(sql`value`);
 
-	return withCache({
-		deps: ['db:getBossStatsMedian', realm, remoteId, metric, difficulties, specs, ilvlMin, ilvlMax],
-		fallback,
-		defaultValue: []
-	});
+		const rows = await qb2.execute();
+		return rows;
+	} catch (e) {
+		console.error(e);
+	}
+	return [];
 };
 
 type GetBossPercentilesArgs = {
