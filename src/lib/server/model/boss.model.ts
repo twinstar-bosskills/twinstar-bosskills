@@ -3,7 +3,7 @@ import type { ART } from '$lib/types';
 import { EXPIRE_1_DAY, EXPIRE_1_HOUR, withCache } from '../cache';
 import {
 	findByRealm,
-	getBossPercentiles,
+	getBossPercentilesFast,
 	getBossTopSpecs,
 	getByRemoteIdAndRealm,
 	getBossStatsMedian as statsMedian,
@@ -86,7 +86,7 @@ export const setBossPercentilesPerPlayer = async (
 			const hps: PlayerPercentile = {};
 			for (const bkp of players) {
 				promises.push(
-					getBossPercentiles({
+					getBossPercentilesFast({
 						realm,
 						bossId,
 						difficulty,
@@ -98,7 +98,7 @@ export const setBossPercentilesPerPlayer = async (
 					})
 				);
 				promises.push(
-					getBossPercentiles({
+					getBossPercentilesFast({
 						realm,
 						bossId,
 						difficulty,
