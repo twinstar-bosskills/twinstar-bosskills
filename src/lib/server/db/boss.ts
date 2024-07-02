@@ -5,10 +5,11 @@ import {
 } from '$lib/components/echart/boxplot';
 import { METRIC_TYPE, type MetricType } from '$lib/metrics';
 import type { Boss } from '$lib/model/boss.model';
+import type { ART } from '$lib/types';
 import { and, desc, eq, gte, inArray, lte, ne, sql } from 'drizzle-orm';
 import { createConnection, type DbConnection } from '.';
 import { bosskillCharacterSchema, type BosskillCharacter } from '../api/schema';
-import { withCache } from '../cache';
+import { EXPIRE_30_MIN, withCache } from '../cache';
 import { bosskillPlayerTable, dps, hps } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
@@ -390,6 +391,84 @@ export const getBossPercentiles = async ({
 			return Number(r1);
 		}
 		return null;
+	} catch (e) {
+		console.error(e);
+	}
+	return null;
+};
+
+export const getBossPercentilesFast = async ({
+	realm,
+	bossId,
+	difficulty,
+	talentSpec,
+	metric,
+	targetValue
+}: GetBossPercentilesArgs): Promise<number | null> => {
+	try {
+		const fallback = async () => {
+			const db = await createConnection();
+			const qb = db
+				.select({
+					spec: bosskillPlayerTable.talentSpec,
+					value: sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.mapWith(Number).as('value'),
+					percentile_rank:
+						sql`100 * ROUND(PERCENT_RANK() OVER (PARTITION BY ${bosskillPlayerTable.talentSpec} ORDER BY value), 2)`
+							.mapWith(Number)
+							.as('percentile_rank')
+				})
+				.from(bosskillTable)
+				.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
+				.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
+				.innerJoin(bosskillPlayerTable, eq(bosskillPlayerTable.bosskillId, bosskillTable.id))
+				.where(
+					and(
+						eq(realmTable.name, realm),
+						eq(bossTable.id, bossId),
+						eq(bosskillTable.mode, difficulty),
+						eq(bosskillPlayerTable.talentSpec, talentSpec)
+					)
+				);
+			return qb.execute();
+		};
+
+		const rows = await withCache<ART<typeof fallback>>({
+			deps: [
+				'db/boss/getBossPercentilesFast',
+				// deps without targetValue on purpose
+				realm,
+				bossId,
+				difficulty,
+				talentSpec,
+				metric
+			],
+			fallback,
+			defaultValue: [],
+			expire: EXPIRE_30_MIN
+		});
+
+		const rowsLen = rows.length;
+		if (rowsLen === 0) {
+			return null;
+		}
+
+		let closest = rows[0] ?? null;
+		if (closest === null) {
+			return null;
+		}
+
+		// binary search would probably be even faster
+		// but this is enough for now
+		for (let i = 0; i < rowsLen; i++) {
+			const row = rows[i]!;
+			const closestDiff = Math.abs(targetValue - closest.value);
+			const currentDiff = Math.abs(targetValue - row.value);
+			if (currentDiff < closestDiff) {
+				closest = row;
+			}
+		}
+
+		return closest.percentile_rank;
 	} catch (e) {
 		console.error(e);
 	}
