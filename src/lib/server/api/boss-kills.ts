@@ -1,5 +1,5 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
-import { EXPIRE_5_MIN, withCache } from '../cache';
+import { EXPIRE_30_MIN, EXPIRE_5_MIN, withCache } from '../cache';
 import { queryString, type QueryArgs } from './filter';
 import { listAll } from './pagination';
 import {
@@ -42,6 +42,7 @@ export const getBossKills = async (q: BossKillQueryArgs): Promise<BossKillsData>
 		deps: [`boss-kills`, q],
 		fallback,
 		defaultValue: EMPTY_PAGINATED_RESPONSE as BossKillsData,
+		sliding: false,
 		expire: EXPIRE_5_MIN
 	});
 };
@@ -87,6 +88,7 @@ export const listAllLatestBossKills = async (
 		deps: ['list-all-lastest-boss-kills', q],
 		fallback,
 		defaultValue: [],
+		sliding: false,
 		expire: EXPIRE_5_MIN
 	});
 };
@@ -109,5 +111,11 @@ export const getBossKillDetail = async ({
 		}
 	};
 
-	return withCache({ deps: [`boss-kill-detail`, realm, id], fallback, defaultValue: null });
+	return withCache({
+		deps: [`boss-kill-detail`, realm, id],
+		fallback,
+		defaultValue: null,
+		sliding: false,
+		expire: EXPIRE_30_MIN
+	});
 };

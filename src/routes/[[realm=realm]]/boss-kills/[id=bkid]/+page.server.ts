@@ -6,8 +6,6 @@ import { getBoss, getBossPercentilesPerPlayer } from '$lib/server/model/boss.mod
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-import { characterDps, characterHps } from '$lib/metrics';
-
 export const load: PageServerLoad = async ({ params }) => {
 	const id = params.id;
 	const realm = params.realm ?? REALM_HELIOS;

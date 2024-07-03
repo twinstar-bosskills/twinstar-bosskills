@@ -1,5 +1,6 @@
 import stableStringify from 'json-stable-stringify';
 import { createDragonflyClient } from './cache/dragonfly';
+import { getUnixTime } from 'date-fns';
 const CACHE: Record<string, unknown> = {};
 const TIMERS: Record<string, number | NodeJS.Timeout> = {};
 /**
@@ -97,6 +98,15 @@ const dragonfly = async <T = unknown>({
 	defaultValue = undefined
 }: Args<T>): Promise<T> => {
 	const key = await sha256(stableStringify(deps));
+
+	// remove keys with ttl bigger that it should be
+	if (!sliding) {
+		const ttl = await df.ttl(key);
+		if (ttl > expire) {
+			await df.del(key);
+		}
+	}
+
 	const item = await Promise.race([df.get(key), delay({ value: null })]);
 	if (item === null || force) {
 		try {
