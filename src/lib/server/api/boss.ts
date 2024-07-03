@@ -112,6 +112,7 @@ export const getBossKillsWipesTimes = async ({ realm, id, mode }: GetBossKillsWi
 	return withCache({
 		deps: ['boss-kwt', realm, id, mode],
 		fallback,
+		sliding: false,
 		defaultValue: null
 	});
 };

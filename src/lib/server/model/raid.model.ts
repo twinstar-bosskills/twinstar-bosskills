@@ -3,7 +3,7 @@ import { difficultyToString } from '$lib/model';
 import type { BossKill } from '$lib/model/boss-kill.model';
 import { realmToExpansion } from '$lib/realm';
 import { format } from 'date-fns';
-import { withCache } from '../cache';
+import { EXPIRE_5_MIN, withCache } from '../cache';
 import { findBossKills } from '../db/boss-kill';
 import { findByRealm } from '../db/raid';
 import { findBosses } from './boss.model';
@@ -228,6 +228,8 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 		defaultValue: {
 			previous: EMPTY_RAID_LOCK_DATA,
 			current: EMPTY_RAID_LOCK_DATA
-		}
+		},
+		expire: EXPIRE_5_MIN,
+		sliding: false
 	});
 };
