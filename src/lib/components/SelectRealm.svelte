@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { REALMS_LOWECASE, REALM_HELIOS } from '$lib/realm';
+	import { REALMS_LOWECASE, REALM_HELIOS, realmIsPublic } from '$lib/realm';
 	import Link from './Link.svelte';
 
 	export let realm: string = REALM_HELIOS;
-	const realms = Object.entries(REALMS_LOWECASE);
+	const realms = Object.entries(REALMS_LOWECASE).filter(([name]) => realmIsPublic(name));
 </script>
 
 <div class="realms">
