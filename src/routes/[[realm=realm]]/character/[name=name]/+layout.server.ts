@@ -1,40 +1,27 @@
-import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
-import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
+import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
+import { assertGuildTokenFromCookie } from '$lib/server/guild-token.service';
 import { error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import { talentSpecToClass } from '$lib/model';
-export const load: LayoutServerLoad = async ({ params, url }) => {
+export const load: LayoutServerLoad = async ({ cookies, params, url }) => {
 	const realm = params.realm ?? REALM_HELIOS;
 	const name = params.name.charAt(0).toUpperCase() + params.name.slice(1);
-	const page = getPageFromURL(url);
-	const pageSize = getPageSizeFromURL(url, 20);
-	// TODO: this API is incredibly slow
-	// const character = await api.getCharacterByName({ name, realm });
 
-	const data = await api.getCharacterBossKills({
-		realm,
-		name,
-		page,
-		pageSize
-	});
+	const character = await api.getCharacterByName({ name, realm });
 
-	if (data.length === 0) {
-		throw error(404, { message: `No bosskills for character ${name} were found` });
+	if (character === null) {
+		throw error(404, { message: `Character ${name} was not found` });
 	}
 
-	const character = data[0] ?? null;
-	const guid = character?.guid ?? null;
-	if (character === null || guid === null) {
-		throw error(404, { message: `No bosskills for character ${name} were found` });
-	}
+	assertGuildTokenFromCookie({ guild: character.guildName, cookies, realm });
 
+	const talents = character.talents;
 	return {
 		character: {
 			name,
 			guid: character.guid,
-			class: talentSpecToClass(realmToExpansion(realm), character.talent_spec),
-			spec: character.talent_spec
+			class: character.class,
+			spec: talents.talentTree[talents.activeTalentGroup] ?? 0
 		}
 	};
 };

@@ -190,50 +190,52 @@
 	</p>
 {/if}
 
-<h2>Top stats by spec</h2>
-<div class="filter">
-	<ul>
-		<li>
-			<Link data-sveltekit-reload style="display: flex;" href={difficultyResetHref}>Reset</Link>
-		</li>
-		{#each diffs as { label, href, isActive }}
-			<li class:active={isActive}>
-				<div class:active={isActive}>
-					<Link data-sveltekit-reload style="display: flex;" {href}>
-						{label}
-					</Link>
-				</div>
+{#if data.realmIsPrivate === false}
+	<h2>Top stats by spec</h2>
+	<div class="filter">
+		<ul>
+			<li>
+				<Link data-sveltekit-reload style="display: flex;" href={difficultyResetHref}>Reset</Link>
 			</li>
+			{#each diffs as { label, href, isActive }}
+				<li class:active={isActive}>
+					<div class:active={isActive}>
+						<Link data-sveltekit-reload style="display: flex;" {href}>
+							{label}
+						</Link>
+					</div>
+				</li>
+			{/each}
+		</ul>
+		<ul>
+			<li><Link data-sveltekit-reload style="display: flex;" href={specResetHref}>Reset</Link></li>
+			{#each specs as { id, iconUrl, href, isActive }}
+				<li class:active={isActive}>
+					<div class:active={isActive}>
+						<Link data-sveltekit-reload style="display: flex;" {href}>
+							<Icon src={iconUrl} label={talentSpecToString(expansion, id)} />
+						</Link>
+					</div>
+				</li>
+			{/each}
+		</ul>
+	</div>
+	<div class="stats">
+		{#each data.stats as stat}
+			<div>
+				{#if stat.value.length > 0}
+					{@const isDmg = stat.type === STATS_TYPE_DMG}
+					<h3>{isDmg ? 'Top DPS' : 'Top HPS'}</h3>
+					<Table
+						data={stat.value}
+						columns={columnByStatsType[stat.type]}
+						sorting={[{ id: 'amountPerSecond', desc: true }]}
+					/>
+				{/if}
+			</div>
 		{/each}
-	</ul>
-	<ul>
-		<li><Link data-sveltekit-reload style="display: flex;" href={specResetHref}>Reset</Link></li>
-		{#each specs as { id, iconUrl, href, isActive }}
-			<li class:active={isActive}>
-				<div class:active={isActive}>
-					<Link data-sveltekit-reload style="display: flex;" {href}>
-						<Icon src={iconUrl} label={talentSpecToString(expansion, id)} />
-					</Link>
-				</div>
-			</li>
-		{/each}
-	</ul>
-</div>
-<div class="stats">
-	{#each data.stats as stat}
-		<div>
-			{#if stat.value.length > 0}
-				{@const isDmg = stat.type === STATS_TYPE_DMG}
-				<h3>{isDmg ? 'Top DPS' : 'Top HPS'}</h3>
-				<Table
-					data={stat.value}
-					columns={columnByStatsType[stat.type]}
-					sorting={[{ id: 'amountPerSecond', desc: true }]}
-				/>
-			{/if}
-		</div>
-	{/each}
-</div>
+	</div>
+{/if}
 
 <h2>DPS by Talent Spec</h2>
 <BossPerformanceBoxChart

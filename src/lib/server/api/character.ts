@@ -1,13 +1,12 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
 
-import { realmToId } from '$lib/realm';
-import { EXPIRE_5_MIN, withCache } from '../cache';
+import { EXPIRE_1_HOUR, EXPIRE_5_MIN, withCache } from '../cache';
 import { queryString, type QueryArgs } from './filter';
 import { listAll } from './pagination';
 import { makePaginatedResponseSchema, type PaginatedResponse } from './response';
 import {
 	bosskillCharactersPartialSchema,
-	charactersSchema,
+	characterSchema,
 	type BosskillCharacterPartial,
 	type Character
 } from './schema';
@@ -101,44 +100,27 @@ export const getCharacterTotalBossKills = async (q: {
 		expire: EXPIRE_5_MIN
 	});
 };
-type CharacterByNameArgs = Pick<QueryArgs, 'page' | 'pageSize'> &
-	Required<Pick<QueryArgs, 'name' | 'realm'>>;
-export const getCharacterByName = async (q: CharacterByNameArgs): Promise<Character | null> => {
-	const fetchCharacter = async ({ page, pageSize, ...rest }: CharacterByNameArgs) => {
-		const url = `${TWINSTAR_API_URL}/characters?${queryString({ ...rest, page, pageSize })}`;
+
+type CharacterByNameArgs = { realm: string; name: string };
+export const getCharacterByName = async (args: CharacterByNameArgs): Promise<Character | null> => {
+	const fallback = async () => {
+		const url = `${TWINSTAR_API_URL}/character?${queryString(args)}`;
 		try {
 			const r = await fetch(url);
 			const json = await r.json();
-			const items = makePaginatedResponseSchema(charactersSchema).parse(json);
+			const character = characterSchema.parse(json);
 
-			const char =
-				items.data.find(
-					(char) => char.name === q.name && char.realm.toLowerCase() === q.realm.toLowerCase()
-				) ?? null;
-			if (char) {
-				const realmId = realmToId(q.realm);
-				char.guid = Number(char.id.replace(`${realmId}_`, ''));
-			}
-
-			return char;
+			return character;
 		} catch (e) {
 			console.error(e, url);
 			throw e;
 		}
 	};
 
-	const fallback = async () => {
-		try {
-			const char = await fetchCharacter(q);
-			if (char) {
-				return char;
-			}
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-		return null;
-	};
-
-	return withCache<Character | null>({ deps: [`character`, q], fallback, defaultValue: null });
+	return withCache<Character | null>({
+		deps: [`character`, args],
+		fallback,
+		defaultValue: null,
+		expire: EXPIRE_1_HOUR
+	});
 };

@@ -5,10 +5,14 @@ import * as api from '$lib/server/api';
 import { FilterOperator } from '$lib/server/api/filter';
 import type { Boss } from '$lib/server/api/schema';
 import { getFilterFormData } from '$lib/server/form/filter-form';
+import { verifyGuildToken } from '$lib/server/guild-token.service';
 import { findBosses } from '$lib/server/model/boss.model';
+import type { ART } from '$lib/types';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ url, params }) => {
+export const load: PageServerLoad = async ({ url, params, parent }) => {
+	const { realmIsPrivate, guildName: guild, guildToken: token } = await parent();
+	let tokenVerified = realmIsPrivate === false;
 	const page = getPageFromURL(url);
 	const pageSize = getPageSizeFromURL(url);
 	const realm = params.realm ?? REALM_HELIOS;
@@ -40,13 +44,26 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		});
 	}
 
+	if (realmIsPrivate) {
+		tokenVerified = verifyGuildToken({ realm, guild, token });
+		if (tokenVerified) {
+			filters.push({
+				column: 'guild',
+				value: guild,
+				operator: FilterOperator.EQUALS
+			});
+		}
+	}
+
 	const [latestData, bossesData] = await Promise.all([
-		api.getLatestBossKills({
-			realm,
-			page,
-			pageSize,
-			filters
-		}),
+		tokenVerified
+			? api.getLatestBossKills({
+					realm,
+					page,
+					pageSize,
+					filters
+			  })
+			: ({ data: [], total: 0 } as ART<typeof api.getLatestBossKills>),
 		findBosses({ realm })
 	]);
 

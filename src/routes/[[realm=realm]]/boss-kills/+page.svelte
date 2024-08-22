@@ -15,6 +15,7 @@
 
 	export let data: PageData;
 
+	const realm = data.realm!;
 	let pageSize = getPageSizeFromURL($page.url);
 	let page_ = getPageFromURL($page.url);
 	const bosses = data.bossNameByRemoteId;
@@ -27,7 +28,7 @@
 			header: () => 'Boss',
 			cell: (info) =>
 				cellComponent(Boss, {
-					realm: data.realm,
+					realm,
 					bosskill: {
 						...info.row.original,
 						creature_name: bosses[info.row.original.entry] ?? info.row.original.creature_name
@@ -70,8 +71,7 @@
 		{
 			id: 'fightDetails',
 			header: () => 'Fight Details',
-			cell: (info) =>
-				cellComponent(FightDetails, { realm: data.realm, bosskill: info.row.original }),
+			cell: (info) => cellComponent(FightDetails, { realm, bosskill: info.row.original }),
 			enableSorting: false
 		}
 	];
@@ -83,7 +83,7 @@
 </svelte:head>
 <h1>Latest Bosskills</h1>
 <div style="margin-bottom: 1rem;">
-	<FilterForm realm={data.realm} data={data.form.data} values={data.form.values} />
+	<FilterForm {realm} data={data.form.data} values={data.form.values} />
 </div>
 <div>
 	<Table
