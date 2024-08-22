@@ -1,21 +1,15 @@
+import { SECRET_TOKEN_SYNCHRONIZE } from '$env/static/private';
 import { raidLock } from '$lib/date';
 import { synchronize } from '$lib/server/db/synchronize';
 import { safeGC } from '$lib/server/gc';
 import { error } from '@sveltejs/kit';
 import { format } from 'date-fns';
 import type { RequestHandler } from './$types';
-
 export const GET: RequestHandler = async ({ url, request }) => {
 	const xtoken = request.headers.get('X-Synchronize-Token')?.[0] ?? null;
-	const token = process.env.SYNCHRONIZE_TOKEN ?? null;
+	const token = SECRET_TOKEN_SYNCHRONIZE;
 
-	if (
-		xtoken === null ||
-		token === null ||
-		xtoken !== token ||
-		xtoken.length === 0 ||
-		token.length === 0
-	) {
+	if (xtoken === null || xtoken !== token || xtoken.length === 0 || token.length === 0) {
 		throw error(403, { message: `Synchronize token not found or does not match` });
 	}
 

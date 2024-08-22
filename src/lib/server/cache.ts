@@ -1,6 +1,5 @@
 import stableStringify from 'json-stable-stringify';
 import { createDragonflyClient } from './cache/dragonfly';
-import { getUnixTime } from 'date-fns';
 const CACHE: Record<string, unknown> = {};
 const TIMERS: Record<string, number | NodeJS.Timeout> = {};
 /**

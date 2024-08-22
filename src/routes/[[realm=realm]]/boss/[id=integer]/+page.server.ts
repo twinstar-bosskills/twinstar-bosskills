@@ -3,13 +3,14 @@ import { defaultDifficultyByExpansion } from '$lib/model';
 import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 import { getDifficultyFromUrl, getSpecFromUrl } from '$lib/search-params';
 import { getBossKillsWipesTimes } from '$lib/server/api';
+import type { BosskillCharacter } from '$lib/server/api/schema';
 import { getBossAggregatedStats } from '$lib/server/db/boss';
 import { getBoss, getTopSpecs } from '$lib/server/model/boss.model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ url, params }) => {
+export const load: PageServerLoad = async ({ url, params, parent }) => {
 	const id = Number(params.id);
 	const boss = await getBoss({ realm: params.realm!, remoteId: id });
 	if (!boss) {
@@ -18,6 +19,7 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		});
 	}
 
+	const { realmIsPrivate } = await parent();
 	const realm = params.realm ?? REALM_HELIOS;
 	const expansion = realmToExpansion(realm);
 	const mode = getDifficultyFromUrl(url) ?? defaultDifficultyByExpansion(expansion);
@@ -31,25 +33,29 @@ export const load: PageServerLoad = async ({ url, params }) => {
 		getDifficultyFromUrl(url) ?? defaultDifficultyByExpansion(expansion);
 	const talentSpec = getSpecFromUrl(url);
 
-	const [byDPS, byHPS] = await Promise.all([
-		getTopSpecs({
-			realm,
-			difficulty,
-			talentSpec,
-			remoteId: id,
-			metric: METRIC_TYPE.DPS
-		}),
-		getTopSpecs({
-			realm,
-			difficulty,
-			talentSpec,
-			remoteId: id,
-			metric: METRIC_TYPE.HPS
-		})
-	]);
+	const [byDPS, byHPS] = await Promise.all(
+		realmIsPrivate
+			? [{}, {}]
+			: [
+					getTopSpecs({
+						realm,
+						difficulty,
+						talentSpec,
+						remoteId: id,
+						metric: METRIC_TYPE.DPS
+					}),
+					getTopSpecs({
+						realm,
+						difficulty,
+						talentSpec,
+						remoteId: id,
+						metric: METRIC_TYPE.HPS
+					})
+			  ]
+	);
 
 	type Stats = {
-		char: (typeof byDPS)[number][0];
+		char: BosskillCharacter;
 		amount: number;
 	};
 	let dmg: Stats[] = [];

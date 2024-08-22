@@ -170,7 +170,12 @@ export const characterSchema = z
 		class: classSchema,
 		gender: genderSchema,
 		level: levelSchema,
-		realm: z.string()
+		realm: z.string(),
+		guildName: z.string(),
+		talents: z.object({
+			talentTree: z.array(z.object({ id: z.number() })),
+			activeTalentGroup: z.number()
+		})
 	})
 	.transform(characterTransform);
 export const charactersSchema = z.array(characterSchema);

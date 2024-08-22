@@ -49,6 +49,7 @@ export const twinstarGuild = (realm: string, guild: string) => {
 		expansionIsCata(expansion) ? 'cata' : 'mop'
 	}-twinhead.twinstar.cz/?guild=${encodeURIComponent(guild)}&realm=${realm}`;
 };
+export const guildToken = (realm: string) => `/${realm}/guild-token`;
 export const links = {
 	changelog,
 	raids,
@@ -60,5 +61,6 @@ export const links = {
 	twinstarBossKill,
 	twinstarArmory,
 	twinstarNPC,
-	twinstarGuild
+	twinstarGuild,
+	guildToken
 };
