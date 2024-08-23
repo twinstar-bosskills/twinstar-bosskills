@@ -14,7 +14,6 @@
 	import Spec from '$lib/components/table/column/Spec.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { formatSecondsInterval, fromServerTime } from '$lib/date';
-	import { characterDps, characterHps } from '$lib/metrics';
 	import {
 		defaultDifficultyByExpansion,
 		difficultiesByExpansion,
@@ -89,7 +88,7 @@
 				accessorFn: (row) => row.char,
 				header: () => 'Character',
 				cell: (info) => {
-					const rows = info.table.getSortedRowModel().rows;
+					const rows = info.table.getPreSortedRowModel().rows;
 					const index = rows.findIndex((r) => r.id === info.row.id) ?? null;
 					let rank = undefined;
 					if (index !== null) {
@@ -116,8 +115,8 @@
 				header: () => 'Spec'
 			},
 			{
-				id: 'amountPerSecond',
-				accessorFn: (row) => (isDmg ? characterDps(row.char) : characterHps(row.char)),
+				id: 'valuePerSecond',
+				accessorFn: (row) => row.valuePerSecond,
 				cell: (info) => {
 					return isDmg
 						? cellComponent(CharacterDps, { character: info.row.original.char })
@@ -127,8 +126,8 @@
 				header: () => (isDmg ? 'DPS' : 'HPS')
 			},
 			{
-				id: 'amount',
-				accessorFn: (row) => row.amount,
+				id: 'valueTotal',
+				accessorFn: (row) => row.valueTotal,
 				cell: formatCell,
 				header: () => (isDmg ? 'Dmg Done' : 'Healing Done')
 			},
@@ -229,7 +228,7 @@
 					<Table
 						data={stat.value}
 						columns={columnByStatsType[stat.type]}
-						sorting={[{ id: 'amountPerSecond', desc: true }]}
+						sorting={[{ id: 'valuePerSecond', desc: true }]}
 					/>
 				{/if}
 			</div>
