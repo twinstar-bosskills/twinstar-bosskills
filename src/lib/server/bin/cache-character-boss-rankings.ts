@@ -6,17 +6,31 @@ import {
 	talentSpecsByExpansion
 } from '$lib/model';
 import { realmToExpansion } from '$lib/realm';
+import { program } from 'commander';
 import { getBossTopSpecs } from '../db/boss';
 
+import { inArray } from 'drizzle-orm';
 import { createConnection } from '../db/index';
 import { realmTable } from '../db/schema/realm.schema';
 import { findBosses, setBossTopSpecs } from '../model/boss.model';
 import { setCharacterBossRankings, type CharacterBossRankingStats } from '../model/character.model';
+import { listOfIntegers, listOfStrings } from './parse-args';
 
+program.option('--boss-ids <items>', 'comma separated list of boss ids', listOfIntegers);
+program.option('--realms <items>', 'Realms', listOfStrings);
+program.parse();
+
+const options: { bossIds?: number[]; realms?: string[] } = program.opts();
+
+console.log('Start');
+console.log({ options });
 try {
-	console.log('Start');
 	const db = await createConnection();
-	const realms = await db.select().from(realmTable);
+	const realmsQb = db.select().from(realmTable);
+	if (Array.isArray(options.realms) && options.realms.length > 0) {
+		realmsQb.where(inArray(realmTable.name, options.realms));
+	}
+	const realms = await realmsQb.execute();
 	for (const realm of realms) {
 		const realmStart = performance.now();
 		const expansion = realmToExpansion(realm.name);
@@ -30,6 +44,9 @@ try {
 			const statsByGuid: { [guid in number]: CharacterBossRankingStats } = {};
 			const statsByGuidBySpec: { [spec in number]: typeof statsByGuid } = {};
 			for (const boss of await findBosses({ realm: realm.name })) {
+				if (Array.isArray(options.bossIds) && options.bossIds.includes(boss.remoteId) === false) {
+					continue;
+				}
 				const bossStart = performance.now();
 				console.log(`Boss ${boss.name} - ${metric} started`);
 				const bossRemoteId = boss.remoteId;

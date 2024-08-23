@@ -1,4 +1,4 @@
-import { METRIC_TYPE } from '$lib/metrics';
+import { characterDps, characterHps, healingAndAbsorbDone, METRIC_TYPE } from '$lib/metrics';
 import { defaultDifficultyByExpansion } from '$lib/model';
 import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 import { getDifficultyFromUrl, getSpecFromUrl } from '$lib/search-params';
@@ -56,17 +56,20 @@ export const load: PageServerLoad = async ({ url, params, parent }) => {
 
 	type Stats = {
 		char: BosskillCharacter;
-		amount: number;
+		valuePerSecond: number;
+		valueTotal: number;
 	};
 	let dmg: Stats[] = [];
 	let heal: Stats[] = [];
+
 	for (const bySpec of Object.values(byDPS)) {
 		for (const char of bySpec) {
 			const amount = Number(char.dmgDone);
 			if (isFinite(amount)) {
 				dmg.push({
 					char: char,
-					amount: amount
+					valuePerSecond: characterDps(char),
+					valueTotal: amount
 				});
 			}
 		}
@@ -74,17 +77,18 @@ export const load: PageServerLoad = async ({ url, params, parent }) => {
 
 	for (const bySpec of Object.values(byHPS)) {
 		for (const char of bySpec) {
-			const amount = Number(char.healingDone);
+			const amount = healingAndAbsorbDone(char);
 			if (isFinite(amount)) {
 				heal.push({
 					char: char,
-					amount: amount
+					valuePerSecond: characterHps(char),
+					valueTotal: amount
 				});
 			}
 		}
 	}
-	dmg = dmg.sort((a, b) => b.amount - a.amount).slice(0, 200);
-	heal = heal.sort((a, b) => b.amount - a.amount).slice(0, 200);
+	dmg = dmg.sort((a, b) => b.valuePerSecond - a.valuePerSecond).slice(0, 200);
+	heal = heal.sort((a, b) => b.valuePerSecond - a.valuePerSecond).slice(0, 200);
 
 	return {
 		boss: { name: boss.name },
