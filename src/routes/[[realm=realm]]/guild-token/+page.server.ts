@@ -1,4 +1,5 @@
 import { createGuildToken } from '$lib/server/guild-token.service';
+import { addYears } from 'date-fns';
 import type { Actions, PageServerLoad } from './$types';
 export const actions: Actions = {
 	default: async ({ request, cookies, params }) => {
@@ -12,8 +13,16 @@ export const actions: Actions = {
 			};
 		}
 
-		cookies.set('guild-token', token, { path: '/' });
-		cookies.set('guild-name', guild, { path: '/' });
+		cookies.set('guild-token', token, {
+			path: '/',
+			httpOnly: true,
+			expires: addYears(new Date(), 1)
+		});
+		cookies.set('guild-name', guild, {
+			path: '/',
+			httpOnly: true,
+			expires: addYears(new Date(), 1)
+		});
 
 		return {
 			message: 'Token saved'
