@@ -1,5 +1,6 @@
 import { SECRET_TOKEN_ADMIN } from '$env/static/private';
 import { createGuildToken } from '$lib/server/guild-token.service';
+import { addYears } from 'date-fns';
 
 import type { Actions, PageServerLoad } from './$types';
 export const actions: Actions = {
@@ -13,7 +14,11 @@ export const actions: Actions = {
 			};
 		}
 
-		cookies.set('admin-token', adminToken, { path: '/' });
+		cookies.set('admin-token', adminToken, {
+			path: '/',
+			httpOnly: true,
+			expires: addYears(new Date(), 1)
+		});
 
 		return { message: `Token for guild ${guild} is: ${createGuildToken(guild)}` };
 	}
