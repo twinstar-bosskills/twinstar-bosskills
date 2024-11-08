@@ -102,12 +102,13 @@ CREATE TABLE `realm_x_raid` (
 CREATE TABLE `realm` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
-	`expansion` integer NOT NULL
+	`expansion` integer NOT NULL,
+	`merged_to_id` integer DEFAULT null,
+	FOREIGN KEY (`merged_to_id`) REFERENCES `realm`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `boss_kill_death_remote_id_unique` ON `boss_kill_death` (`remote_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `boss_kill_remote_id_unique` ON `boss_kill` (`remote_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `boss_remote_id_unique` ON `boss` (`remote_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `raid_name_unique` ON `raid` (`name`);--> statement-breakpoint
-CREATE UNIQUE INDEX `realm_name_unique` ON `realm` (`name`);--> statement-breakpoint
-CREATE UNIQUE INDEX `realm_x_raid_unique` ON `realm_x_raid` (`realm_id`, `raid_id`);
+CREATE UNIQUE INDEX `realm_name_unique` ON `realm` (`name`);

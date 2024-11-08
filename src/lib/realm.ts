@@ -28,6 +28,15 @@ const REALM_TO_ID: Record<string, number> = {
 	[REALM_CATA_PRIVATE_PVE]: REALM_CATA_PRIVATE_PVE_ID
 };
 
+const REALM_MERGED_TO: Record<string, string> = {
+	[REALM_APOLLO]: REALM_ATHENA
+};
+
+const normalizeRealm = (realm: string) => REALMS_LOWECASE[realm.toLowerCase()] ?? REALM_HELIOS;
+export const realmMergedTo = (realm: string): string | undefined => {
+	return REALM_MERGED_TO[normalizeRealm(realm)] ?? undefined;
+};
+
 export const realmIsPublic = (realm: string) =>
 	realm.toLowerCase() !== REALM_CATA_PRIVATE_PVE.toLowerCase();
 
@@ -35,13 +44,11 @@ export const realmIsKnown = (realm: string) =>
 	typeof REALMS_LOWECASE[realm.toLowerCase()] !== 'undefined';
 
 export const realmToExpansion = (realm: string): number => {
-	const lc = REALMS_LOWECASE[realm.toLowerCase()] ?? REALM_HELIOS;
-	return REALM_TO_EXPANSION[lc]!;
+	return REALM_TO_EXPANSION[normalizeRealm(realm)]!;
 };
 
 export const realmToId = (realm: string): number | null => {
-	const lc = REALMS_LOWECASE[realm.toLowerCase()] ?? REALM_HELIOS;
-	return REALM_TO_ID[lc]!;
+	return REALM_TO_ID[normalizeRealm(realm)]!;
 };
 
 export const expansionIsCata = (expansion: number) => expansion === 3;

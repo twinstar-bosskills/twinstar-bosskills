@@ -17,6 +17,7 @@ const withSearchParams = (url: string, query: SearchParams) => {
 };
 
 const changelog = () => `/changelog`;
+const home = (realm: string) => `/${realm}`;
 const raids = (realm: string) => `/${realm}/raids`;
 const bossKills = (realm: string) => `/${realm}/boss-kills`;
 const character = (realm: string, name: string) =>
@@ -52,6 +53,7 @@ export const twinstarGuild = (realm: string, guild: string) => {
 export const guildToken = (realm: string) => `/${realm}/guild-token`;
 export const links = {
 	changelog,
+	home,
 	raids,
 	bossKills,
 	character,
