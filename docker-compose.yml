@@ -8,7 +8,7 @@ services:
       - .env
     networks:
       bosskills:
-        ipv4_address: 172.19.0.2
+        ipv4_address: 172.99.0.2
   dragonfly:
     image: 'docker.dragonflydb.io/dragonflydb/dragonfly'
     ulimits:
@@ -17,7 +17,7 @@ services:
       - dragonfly-data:/data
     networks:
       bosskills:
-        ipv4_address: 172.19.0.3
+        ipv4_address: 172.99.0.3
 volumes:
   mariadb-data:
   dragonfly-data:
@@ -27,5 +27,5 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 172.19.0.0/24
-          gateway: 172.19.0.1
+        - subnet: 172.99.0.0/24
+          gateway: 172.99.0.1

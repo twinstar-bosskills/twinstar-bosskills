@@ -4,8 +4,8 @@ import { realmToExpansion, REALM_HELIOS } from '$lib/realm';
 import { withCache } from '../cache';
 import { raidsSchema, type Raid } from './schema';
 
-type GetRaidsArgs = { realm?: string };
-export const getRaids = async ({ realm = REALM_HELIOS }: GetRaidsArgs): Promise<Raid[]> => {
+type GetRaidsArgs = { realm?: string; cache?: boolean };
+export const getRaids = async ({ realm = REALM_HELIOS, cache }: GetRaidsArgs): Promise<Raid[]> => {
 	const expansion = realmToExpansion(realm);
 	const url = `${TWINSTAR_API_URL}/bosskills/raids?expansion=${expansion}`;
 	const fallback = async () => {
@@ -130,6 +130,13 @@ export const getRaids = async ({ realm = REALM_HELIOS }: GetRaidsArgs): Promise<
 			throw e;
 		}
 	};
+
+	if (cache === false) {
+		return fallback().catch((e) => {
+			console.error(e);
+			return [];
+		});
+	}
 
 	return withCache({ deps: [`raids`, realm], fallback, defaultValue: [] });
 };

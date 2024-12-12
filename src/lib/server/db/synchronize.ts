@@ -61,7 +61,7 @@ export const synchronize = async ({
 	const realmEnt = await getOrCreateRealm({ name: realm, expansion });
 
 	const playerIdByGUID: Record<number, number> = {};
-	const raids = await getRaids({ realm });
+	const raids = await getRaids({ realm, cache: false });
 	let isLimited = false;
 
 	// fast create raids and bosses
