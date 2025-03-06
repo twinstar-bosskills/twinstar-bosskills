@@ -1,10 +1,11 @@
 import { SECRET_TOKEN_ADMIN } from '$env/static/private';
+import { REALM_CATA_PRIVATE_PVE } from '$lib/realm';
 import { createGuildToken } from '$lib/server/guild-token.service';
 import { addYears } from 'date-fns';
-
 import type { Actions, PageServerLoad } from './$types';
+
 export const actions: Actions = {
-	default: async ({ request, cookies }) => {
+	default: async ({ request, cookies, params }) => {
 		const form = await request.formData();
 		const guild = String(form.get('guild') ?? '').trim();
 		const adminToken = String(form.get('admin-token') ?? '').trim();
@@ -20,7 +21,13 @@ export const actions: Actions = {
 			expires: addYears(new Date(), 1)
 		});
 
-		return { message: `Token for guild ${guild} is: ${createGuildToken(guild)}` };
+		const realm = params?.realm ?? REALM_CATA_PRIVATE_PVE;
+		return {
+			message: `Token for guild ${guild} and realm ${realm} is: ${createGuildToken({
+				guild,
+				realm
+			})}`
+		};
 	}
 } satisfies Actions;
 

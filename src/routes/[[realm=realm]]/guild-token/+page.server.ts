@@ -1,25 +1,27 @@
+import { REALM_CATA_PRIVATE_PVE } from '$lib/realm';
 import { createGuildToken } from '$lib/server/guild-token.service';
 import { addYears } from 'date-fns';
 import type { Actions, PageServerLoad } from './$types';
+
 export const actions: Actions = {
 	default: async ({ request, cookies, params }) => {
 		const form = await request.formData();
 		const guild = String(form.get('guild') ?? '').trim();
 		const token = String(form.get('token') ?? '').trim();
-
-		if (createGuildToken(guild) !== token) {
+		const realm = params?.realm ?? REALM_CATA_PRIVATE_PVE;
+		if (createGuildToken({ guild, realm }) !== token) {
 			return {
-				message: `Either token or guild is wrong. Please try again.`
+				message: `Either token or guild or realm is wrong. Please try again.`
 			};
 		}
 
 		cookies.set('guild-token', token, {
-			path: '/',
+			path: `/${realm}`,
 			httpOnly: true,
 			expires: addYears(new Date(), 1)
 		});
 		cookies.set('guild-name', guild, {
-			path: '/',
+			path: `/${realm}`,
 			httpOnly: true,
 			expires: addYears(new Date(), 1)
 		});
@@ -30,7 +32,7 @@ export const actions: Actions = {
 	}
 } satisfies Actions;
 
-export const load: PageServerLoad = async ({ request, cookies, parent }) => {
+export const load: PageServerLoad = async ({ cookies }) => {
 	return {
 		token: cookies.get('guild-token') ?? '',
 		guild: cookies.get('guild-name') ?? ''

@@ -143,53 +143,55 @@
 		<LinkExternal href={links.twinstarArmory(data.realm, name)}>Armory</LinkExternal>
 	</div>
 </div>
-
-<h2 style="margin-bottom: 0;">Overall rankings by DPS and HPS</h2>
-<div class="ranking-links">
-	<Link href={specs.reset} style="padding-right: 0.25rem;">Reset</Link>
-	{#each specs.items as spec}
-		<Link href={spec.href} active={spec.isActive} style="padding: 0.25rem;">
-			<SpecIcon realm={data.realm} talentSpec={spec.id} />
-		</Link>
-	{/each}
-</div>
-<div class="rankings">
-	{#each Object.entries(data.bossRankings) as [type, rankings]}
-		<div>
-			<h3 style="margin: 0;">{type.toUpperCase()}</h3>
-			<div class="by-bosses">
-				{#each Object.entries(rankings) as [bossRemoteId, byMode]}
-					{@const bossId = Number(bossRemoteId)}
-					{@const bossName = data.bossNameById[bossId] ?? bossRemoteId}
-					<div class="by-boss">
-						<div>
-							<Link href={links.boss(data.realm, bossId, { spec: specs.current })}>{bossName}</Link>
+<details>
+	<summary>Overall rankings by DPS and HPS</summary>
+	<div class="ranking-links">
+		<Link href={specs.reset} style="padding-right: 0.25rem;">Reset</Link>
+		{#each specs.items as spec}
+			<Link href={spec.href} active={spec.isActive} style="padding: 0.25rem;">
+				<SpecIcon realm={data.realm} talentSpec={spec.id} />
+			</Link>
+		{/each}
+	</div>
+	<div class="rankings">
+		{#each Object.entries(data.bossRankings) as [type, rankings]}
+			<div>
+				<h3 style="margin: 0;">{type.toUpperCase()}</h3>
+				<div class="by-bosses">
+					{#each Object.entries(rankings) as [bossRemoteId, byMode]}
+						{@const bossId = Number(bossRemoteId)}
+						{@const bossName = data.bossNameById[bossId] ?? bossRemoteId}
+						<div class="by-boss">
+							<div>
+								<Link href={links.boss(data.realm, bossId, { spec: specs.current })}
+									>{bossName}</Link
+								>
+							</div>
+							<div class="by-diffs">
+								{#each Object.entries(byMode) as [mode, item]}
+									{@const diff = difficultyToString(data.expansion, mode)}
+									<div>
+										<Rank rank={item.rank} />
+									</div>
+									<div>{diff}</div>
+									<div style="display: flex; align-items: center; gap: 0.125rem;">
+										<SpecIcon realm={data.realm} talentSpec={item.spec} />
+										<Link href={links.bossKill(data.realm, item.bosskillRemoteId)}>
+											{item.value.toLocaleString()}
+										</Link>
+									</div>
+									<div>
+										{item.ilvl}ilvl
+									</div>
+								{/each}
+							</div>
 						</div>
-						<div class="by-diffs">
-							{#each Object.entries(byMode) as [mode, item]}
-								{@const diff = difficultyToString(data.expansion, mode)}
-								<div>
-									<Rank rank={item.rank} />
-								</div>
-								<div>{diff}</div>
-								<div style="display: flex; align-items: center; gap: 0.125rem;">
-									<SpecIcon realm={data.realm} talentSpec={item.spec} />
-									<Link href={links.bossKill(data.realm, item.bosskillRemoteId)}>
-										{item.value.toLocaleString()}
-									</Link>
-								</div>
-								<div>
-									{item.ilvl}ilvl
-								</div>
-							{/each}
-						</div>
-					</div>
-				{/each}
+					{/each}
+				</div>
 			</div>
-		</div>
-	{/each}
-</div>
-
+		{/each}
+	</div>
+</details>
 <h2>Recent kills</h2>
 <div class="table">
 	<Table data={bosskills} columns={columnsUnknown} sorting={[{ id: 'killedAt', desc: true }]}>
@@ -253,5 +255,25 @@
 	}
 	.ranking-links :global(a.active) {
 		border-bottom: 2px solid rgba(var(--color-primary), 1);
+	}
+
+	details {
+		border: 1px solid rgba(var(--color-primary), 1);
+		padding: 0.5em 0.5em 0;
+	}
+
+	summary {
+		font-weight: bold;
+		margin: -0.5em -0.5em 0;
+		padding: 0.5em;
+	}
+
+	details[open] {
+		padding: 0.5em;
+	}
+
+	details[open] summary {
+		border-bottom: 1px solid rgba(var(--color-primary), 1);
+		margin-bottom: 0.5em;
 	}
 </style>

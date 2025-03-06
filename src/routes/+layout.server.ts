@@ -1,7 +1,7 @@
 // TODO: enable when ready for deploy
 export const prerender = false;
 import {
-	REALMS_LOWECASE,
+	REALMS_LOWER_CASE,
 	REALM_HELIOS,
 	realmIsPublic,
 	realmMergedTo,
@@ -17,7 +17,7 @@ export const load: LayoutServerLoad = async ({ cookies, params }) => {
 
 	// @mutation: mutate realm in params
 	// locals might be better?
-	params.realm = REALMS_LOWECASE[params.realm?.toLowerCase() as string] ?? REALM_HELIOS;
+	params.realm = REALMS_LOWER_CASE[params.realm?.toLowerCase() as string] ?? REALM_HELIOS;
 
 	const mergedTo = realmMergedTo(params.realm);
 	if (mergedTo) {

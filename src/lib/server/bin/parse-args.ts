@@ -1,4 +1,4 @@
-import { REALMS_LOWECASE } from '$lib/realm';
+import { REALMS_LOWER_CASE } from '$lib/realm';
 import { InvalidArgumentError } from 'commander';
 import { isValid, parse } from 'date-fns';
 
@@ -10,7 +10,7 @@ export const integer = (v: string): number => {
 	return parsedValue;
 };
 export const realmString = (v: string): string => {
-	const parsedValue = REALMS_LOWECASE[v.toLowerCase()];
+	const parsedValue = REALMS_LOWER_CASE[v.toLowerCase()];
 	if (typeof parsedValue !== 'string') {
 		throw new InvalidArgumentError(`Value ${v} is not valid realm`);
 	}

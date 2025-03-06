@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { REALMS_LOWECASE, REALM_HELIOS, realmIsPublic, realmMergedTo } from '$lib/realm';
+	import { REALMS_LOWER_CASE, REALM_HELIOS, realmIsPublic, realmMergedTo } from '$lib/realm';
 	import Link from './Link.svelte';
 
 	export let realm: string = REALM_HELIOS;
-	const realms = Object.entries(REALMS_LOWECASE).filter(
+	const realms = Object.entries(REALMS_LOWER_CASE).filter(
 		([name]) => realmIsPublic(name) && typeof realmMergedTo(name) === 'undefined'
 	);
 </script>
