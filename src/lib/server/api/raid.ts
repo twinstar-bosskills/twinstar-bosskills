@@ -1,6 +1,6 @@
 import { TWINSTAR_API_URL } from '$env/static/private';
 
-import { realmToExpansion, REALM_HELIOS } from '$lib/realm';
+import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
 import { withCache } from '../cache';
 import { raidsSchema, type Raid } from './schema';
 
@@ -18,6 +18,12 @@ export const getRaids = async ({ realm = REALM_HELIOS, cache }: GetRaidsArgs): P
 					const boss = raid.bosses[i]!;
 
 					// MoP
+					// remove Sul the Sandcrawler
+					if (boss.entry === 69078) {
+						raid.bosses = raid.bosses.filter((b) => b.entry !== 69078);
+						continue;
+					}
+
 					// remove Elder Asani
 					if (boss.entry === 60586) {
 						raid.bosses = raid.bosses.filter((b) => b.entry !== 60586);
@@ -77,11 +83,21 @@ export const getRaids = async ({ realm = REALM_HELIOS, cache }: GetRaidsArgs): P
 				for (let i = 0; i < raid.bosses.length; ++i) {
 					const boss = raid.bosses[i]!;
 
-					// MoP
+					// MoP - ToT
+					if (boss.entry === 68905) {
+						raid.bosses[i]!.name = 'Twin Consorts';
+					}
+
+					if (boss.entry === 69132) {
+						raid.bosses[i]!.name = 'Council of Elders';
+					}
+
+					// MoP - ToES
 					if (boss.entry === 60583) {
 						raid.bosses[i]!.name = 'Protectors of the Endless';
 					}
 
+					// MoP - MSV
 					if (boss.entry === 59915) {
 						raid.bosses[i]!.name = 'Stone Guard';
 					}
