@@ -1,13 +1,13 @@
 import { program } from 'commander';
 import { accessSync, constants, readFileSync } from 'fs';
 import { createGuildToken } from '../guild-token.service';
-import { REALM_CATA_PRIVATE_PVE } from '$lib/realm';
+import { REALM_CATA_PROUDMOORE } from '$lib/realm';
 try {
 	program.requiredOption(
 		'--input-file <path>',
 		'Input .txt file with guild names separated by newline'
 	);
-	program.option('--realm <string>', 'Realm name, default CataPPvE', REALM_CATA_PRIVATE_PVE);
+	program.option('--realm <string>', 'Realm name, default Proudmoore', REALM_CATA_PROUDMOORE);
 	program.parse();
 
 	const { inputFile, realm } = program.opts();
