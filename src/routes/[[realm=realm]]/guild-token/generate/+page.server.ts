@@ -1,5 +1,5 @@
 import { SECRET_TOKEN_ADMIN } from '$env/static/private';
-import { REALM_CATA_PRIVATE_PVE } from '$lib/realm';
+import { REALM_CATA_PROUDMOORE } from '$lib/realm';
 import { createGuildToken } from '$lib/server/guild-token.service';
 import { addYears } from 'date-fns';
 import type { Actions, PageServerLoad } from './$types';
@@ -21,7 +21,7 @@ export const actions: Actions = {
 			expires: addYears(new Date(), 1)
 		});
 
-		const realm = params?.realm ?? REALM_CATA_PRIVATE_PVE;
+		const realm = params?.realm ?? REALM_CATA_PROUDMOORE;
 		return {
 			message: `Token for guild ${guild} and realm ${realm} is: ${createGuildToken({
 				guild,

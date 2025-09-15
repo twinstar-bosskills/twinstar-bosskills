@@ -1,4 +1,4 @@
-import { REALM_CATA_PRIVATE_PVE } from '$lib/realm';
+import { REALM_CATA_PROUDMOORE } from '$lib/realm';
 import { createGuildToken } from '$lib/server/guild-token.service';
 import { addYears } from 'date-fns';
 import type { Actions, PageServerLoad } from './$types';
@@ -8,7 +8,7 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const guild = String(form.get('guild') ?? '').trim();
 		const token = String(form.get('token') ?? '').trim();
-		const realm = params?.realm ?? REALM_CATA_PRIVATE_PVE;
+		const realm = params?.realm ?? REALM_CATA_PROUDMOORE;
 		if (createGuildToken({ guild, realm }) !== token) {
 			return {
 				message: `Either token or guild or realm is wrong. Please try again.`
