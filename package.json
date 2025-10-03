@@ -12,9 +12,7 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --plugin-search-dir . --check src",
 		"format": "prettier --plugin-search-dir . --write src",
-		"migrations:sqlite:generate": "drizzle-kit generate:sqlite --config=drizzle.sqlite.ts",
 		"migrations:mysql:generate": "drizzle-kit generate:mysql --config=drizzle.mysql.ts",
-		"migrations:sqlite:continue": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/migrate.sqlite.ts",
 		"migrations:mysql:continue": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/migrate.mysql.ts",
 		"cli:synchronize-with-api": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/synchronize-with-api.ts",
 		"cli:synchronize-with-api:today": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/synchronize-with-api.ts --realms=Helios,Athena,Proudmoore,MoPPvE --from-date=`date +'%Y-%m-%d'`",
@@ -53,8 +51,5 @@
 		"vite-node": "^0.34.6",
 		"zod": "^3.22.4"
 	},
-	"type": "module",
-	"dependencies": {
-		"@libsql/client": "^0.3.5"
-	}
+	"type": "module"
 }
