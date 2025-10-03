@@ -49,3 +49,33 @@ export const findBossKills = async ({
 
 	return [];
 };
+export const getBosskillByRemoteId = async ({
+	remoteId,
+	realm
+}: {
+	remoteId: string;
+	realm: string;
+}): Promise<BossKill | null> => {
+	try {
+		const db = await createConnection();
+		const qb = db
+			.select({
+				id: bosskillTable.id,
+				remoteId: bosskillTable.remoteId,
+				bossId: bosskillTable.bossId,
+				mode: bosskillTable.mode,
+				time: bosskillTable.time,
+				wipes: bosskillTable.wipes
+			})
+			.from(bosskillTable)
+			.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
+			.where(and(eq(realmTable.name, realm), eq(bosskillTable.remoteId, remoteId)));
+
+		const rows = await qb.execute();
+		return rows[0] ?? null;
+	} catch (e) {
+		console.error(e);
+	}
+
+	return null;
+};

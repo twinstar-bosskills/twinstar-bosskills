@@ -80,6 +80,8 @@ export type GetBossTopSpecsArgs = {
 	difficulty: number;
 	metric: MetricType;
 	limit?: number;
+	startsAt?: Date;
+	endsAt?: Date;
 };
 export const getBossTopSpecs = async ({
 	remoteId,
@@ -87,7 +89,9 @@ export const getBossTopSpecs = async ({
 	talentSpec,
 	difficulty,
 	metric,
-	limit = 200
+	limit = 200,
+	startsAt,
+	endsAt
 }: GetBossTopSpecsArgs): Promise<BossTopSpecs> => {
 	const stats: BossTopSpecs = {};
 
@@ -111,7 +115,9 @@ export const getBossTopSpecs = async ({
 					eq(realmTable.name, realm),
 					eq(bosskillTable.mode, difficulty),
 					eq(bossTable.remoteId, remoteId),
-					talentSpec ? eq(bosskillPlayerTable.talentSpec, talentSpec) : undefined
+					talentSpec ? eq(bosskillPlayerTable.talentSpec, talentSpec) : undefined,
+					startsAt ? gte(bosskillTable.time, startsAt.toISOString()) : undefined,
+					endsAt ? lte(bosskillTable.time, endsAt.toISOString()) : undefined
 				)
 			);
 
