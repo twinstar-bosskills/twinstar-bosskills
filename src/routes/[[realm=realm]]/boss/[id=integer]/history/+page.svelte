@@ -2,10 +2,6 @@
 	import { page } from '$app/stores';
 	import Icon from '$lib/components/Icon.svelte';
 	import Link from '$lib/components/Link.svelte';
-	import TextColorError from '$lib/components/TextColorError.svelte';
-	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
-	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
-	import BossPerformanceBoxChart from '$lib/components/echart/BossPerformanceBoxChart.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
@@ -13,7 +9,7 @@
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
 	import Spec from '$lib/components/table/column/Spec.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
-	import { formatSecondsInterval, fromServerTime, raidLock } from '$lib/date';
+	import { formatSecondsInterval, fromServerTime } from '$lib/date';
 	import {
 		defaultDifficultyByExpansion,
 		difficultiesByExpansion,
@@ -29,8 +25,7 @@
 	import { getTalentSpecIconUrl } from '$lib/talent';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
-	import BossKillDetailLink from './components/BossKillDetailLink.svelte';
-	import { links } from '$lib/links';
+	import BossKillDetailLink from './../components/BossKillDetailLink.svelte';
 
 	export let data: PageData;
 
@@ -168,30 +163,10 @@
 	<title>{title}</title>
 </svelte:head>
 <h1>{title}</h1>
-{#if data.kw}
-	<p>
-		{data.boss.name} ({difficultyToString(expansion, currentDifficulty)}) was killed
-		<TextColorSuccess>{data.kw.kills.total}</TextColorSuccess> times by raiders and wiped them <TextColorError
-			>{data.kw.wipes.total}</TextColorError
-		> times (<TextColorError>{data.kw.wipes.avg}</TextColorError>
-		times on average).
-	</p>
-	<p>
-		You have <TextColorSuccess>{data.kw.kills.chance.toFixed(2)}%</TextColorSuccess> chance to make a
-		kill and <TextColorError>{data.kw.wipes.chance.toFixed(2)}%</TextColorError> chance to wipe.
-	</p>
-	<p>
-		<TextColorSuccess>Fastest</TextColorSuccess> kill took
-		<TextColorSuccess>{formatSecondsInterval(data.kw.fightDuration.min)}</TextColorSuccess>,
-		<TextColorWarning>average</TextColorWarning> kill took
-		<TextColorWarning>{formatSecondsInterval(data.kw.fightDuration.avg)}</TextColorWarning> and
-		<TextColorError>slowest</TextColorError> kill took
-		<TextColorError>{formatSecondsInterval(data.kw.fightDuration.max)}</TextColorError>
-	</p>
-{/if}
-
 {#if data.realmIsPrivate === false}
-	<h2>Top stats by spec</h2>
+	<h2>
+		Top 5 by spec by for raid lock {data.raidLockStart.toLocaleDateString()} - {data.raidLockEnd.toLocaleDateString()}
+	</h2>
 	<div class="filter">
 		<ul>
 			<li>
@@ -225,16 +200,7 @@
 			<div>
 				{#if stat.value.length > 0}
 					{@const isDmg = stat.type === STATS_TYPE_DMG}
-					<h3 class="stats-headline">
-						{isDmg ? 'Top DPS' : 'Top HPS'}{#if data.talentSpec}
-							<a
-								href={links.bossHistory(data.realm, data.boss.remoteId, {
-									spec: data.talentSpec,
-									difficulty: data.difficulty,
-									raidlock: 1
-								})}>history</a
-							>{/if}
-					</h3>
+					<h3>{isDmg ? 'Top DPS' : 'Top HPS'}</h3>
 					<Table
 						data={stat.value}
 						columns={columnByStatsType[stat.type]}
@@ -245,22 +211,6 @@
 		{/each}
 	</div>
 {/if}
-
-<h2>DPS by Talent Spec</h2>
-<BossPerformanceBoxChart
-	realm={data.realm}
-	width={data.windowInnerWidth}
-	field="dps"
-	aggregated={data.aggregated.dps}
-/>
-
-<h2>HPS by Talent Spec</h2>
-<BossPerformanceBoxChart
-	realm={data.realm}
-	width={data.windowInnerWidth}
-	field="hps"
-	aggregated={data.aggregated.hps}
-/>
 
 <style>
 	.filter ul li div {
@@ -284,10 +234,6 @@
 	.stats {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-	}
-	.stats .stats-headline {
-		display: flex;
-		gap: 0.5rem;
 	}
 	.stats div {
 		margin-right: 1rem;

@@ -1,10 +1,11 @@
-import { datetime, int, text } from 'drizzle-orm/mysql-core';
+import { METRIC_TYPE } from '../../../../metrics';
+import { datetime, int, mysqlEnum } from 'drizzle-orm/mysql-core';
+import { bosskillTable } from './boss-kill.schema';
 import { bossTable } from './boss.schema';
 import { bosskills } from './mysql.schema';
+import { playerTable } from './player.schema';
 import { raidTable } from './raid.schema';
 import { realmTable } from './realm.schema';
-import { bosskillTable } from './boss-kill.schema';
-import { playerTable } from './player.schema';
 export const rankingTable = bosskills.table('ranking', {
 	id: int('id').primaryKey().autoincrement(),
 	realmId: int('realm_id')
@@ -26,8 +27,5 @@ export const rankingTable = bosskills.table('ranking', {
 	time: datetime('time').notNull(),
 	spec: int('spec').notNull(),
 	mode: int('mode').notNull(),
-	ilvl: int('ilvl').notNull(),
-	dmgDone: int('dmg_done').notNull(),
-	healingDone: int('healing_done').notNull(),
-	length: int('length').notNull()
+	metric: mysqlEnum('metric', [METRIC_TYPE.DPS, METRIC_TYPE.HPS]).notNull()
 });

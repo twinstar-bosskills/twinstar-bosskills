@@ -1,4 +1,4 @@
-import { METRIC_TYPE, characterDps, characterHps } from '$lib/metrics';
+import { characterDps, characterHps, METRIC_TYPE } from '$lib/metrics';
 import {
 	difficultiesByExpansion,
 	difficultyToString,
@@ -10,16 +10,18 @@ import { realmToExpansion } from '$lib/realm';
 import { program } from 'commander';
 import { getBossTopSpecs } from '../db/boss';
 
-import { and, eq, gte, inArray, lte } from 'drizzle-orm';
-import { createConnection } from '../db/index';
-import { realmTable } from '../db/schema/realm.schema';
-import { findBosses, setBossTopSpecs } from '../model/boss.model';
-import { setCharacterBossRankings, type CharacterBossRankingStats } from '../model/character.model';
-import { integerGte, listOfIntegers, listOfStrings } from './parse-args';
 import { raidLock } from '$lib/date';
-import { rankingTable } from '../db/schema/mysql/ranking.schema';
-import { getPlayerByGuid } from '../db/player';
+import { and, eq, gte, inArray, lte } from 'drizzle-orm';
 import { getBosskillByRemoteId } from '../db/boss-kill';
+import { createConnection } from '../db/index';
+import { getPlayerByGuid } from '../db/player';
+import { rankingTable } from '../db/schema/ranking.schema';
+import { realmTable } from '../db/schema/realm.schema';
+import { findBosses } from '../model/boss.model';
+import { integerGte, listOfStrings } from './parse-args';
+import { MySqlInsertValue } from 'drizzle-orm/mysql-core';
+import { Player } from '$lib/model/player.model';
+import { BossKill } from '$lib/model/boss-kill.model';
 
 const gteZero = integerGte(0);
 program.option(
@@ -53,12 +55,36 @@ try {
 		);
 		const specs = talentSpecsByExpansion(expansion) ?? {};
 
+		const playerCache = new Map<string, Player>();
+		const getPlayer = async ({ guid }: { guid: number }): Promise<Player | null> => {
+			const k = `${realm.name}-${guid}`;
+
+			const player = playerCache.get(k) ?? (await getPlayerByGuid({ guid, realm: realm.name }));
+			if (player === null) {
+				return null;
+			}
+			playerCache.set(k, player);
+			return player;
+		};
+
+		const bosskillCache = new Map<string, BossKill>();
+		const getBosskill = async ({ remoteId }: { remoteId: string }): Promise<BossKill | null> => {
+			const k = `${realm.name}-${remoteId}`;
+			const bk =
+				bosskillCache.get(k) ?? (await getBosskillByRemoteId({ remoteId, realm: realm.name }));
+			if (bk === null) {
+				return null;
+			}
+			bosskillCache.set(k, bk);
+			return bk;
+		};
+
 		console.log(`Realm ${realm.name} started`);
 		for (const metric of Object.values(METRIC_TYPE)) {
 			for (const boss of await findBosses({ realm: realm.name })) {
 				const bossStart = performance.now();
 				console.log(`Boss ${boss.name} - ${metric} started`);
-				const bossRemoteId = boss.remoteId;
+
 				for (const difficulty of diffs) {
 					const diffStr = difficultyToString(expansion, difficulty);
 					const diffStart = performance.now();
@@ -74,7 +100,7 @@ try {
 							difficulty,
 							metric,
 							talentSpec,
-							limit: 10,
+							limit: 5,
 							startsAt,
 							endsAt
 						});
@@ -89,12 +115,14 @@ try {
 										eq(rankingTable.bossId, boss.id),
 										eq(rankingTable.spec, talentSpec),
 										eq(rankingTable.mode, difficulty),
+										eq(rankingTable.metric, metric),
 										gte(rankingTable.time, startsAt),
 										lte(rankingTable.time, endsAt)
 									)
 								);
 						});
 
+						const values: MySqlInsertValue<typeof rankingTable>[] = [];
 						let rank = 1;
 						for (const [specStr, items] of Object.entries(topSpecs)) {
 							const spec = Number(specStr);
@@ -106,26 +134,13 @@ try {
 								if (bk) {
 									const mode = bk.mode;
 
-									const payload = {
-										bossRemoteId,
-										guid,
-										mode,
-										bosskillRemoteId: bk.id,
-										ilvl: item.avg_item_lvl,
-										rank: rank,
-										spec,
-										value: metric == METRIC_TYPE.DPS ? characterDps(item) : characterHps(item)
-									};
-
-									const player = await getPlayerByGuid({ guid, realm: realm.name });
+									const player = await getPlayer({ guid });
 									if (player === null) {
 										console.error(`Player not found by realm: ${realm.name} and guid: ${guid}`);
 										continue;
 									}
-									const bosskillId = (
-										await getBosskillByRemoteId({ remoteId: bk.id, realm: realm.name })
-									)?.id;
 
+									const bosskillId = (await getBosskill({ remoteId: bk.id }))?.id ?? null;
 									if (bosskillId === null) {
 										console.error(
 											`Bosskill not found by realm: ${realm.name} and remoteId: ${bk.id}`
@@ -133,27 +148,28 @@ try {
 										continue;
 									}
 
-									const result = await db.transaction((tx) => {
-										return tx.insert(rankingTable).values({
-											realmId: realm.id,
-											raidId: boss.raidId,
-											bossId: boss.id,
-											bosskillId,
-											playerId: player.id,
-											rank,
-											time: new Date(bk.time),
-											spec,
-											mode,
-											ilvl: item.avg_item_lvl,
-											dmgDone: item.dmgDone,
-											healingDone: item.healingDone,
-											length: bk.length
-										});
+									values.push({
+										realmId: realm.id,
+										raidId: boss.raidId,
+										bossId: boss.id,
+										bosskillId: bosskillId,
+										playerId: player.id,
+										rank,
+										time: new Date(bk.time),
+										spec,
+										mode,
+										metric
 									});
 
 									rank++;
 								}
 							}
+						}
+
+						if (values.length > 0) {
+							await db.transaction((tx) => {
+								return tx.insert(rankingTable).values(values);
+							});
 						}
 
 						const specEnd = performance.now() - specStart;

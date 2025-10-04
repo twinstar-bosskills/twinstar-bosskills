@@ -10,6 +10,7 @@ import {
 	type GetBossStatsMedianArgs,
 	type GetBossTopSpecsArgs
 } from '../db/boss';
+import { getRankingByRaidLock, GetRankingByRaidLockArgs, RankingByRaidLock } from '../db/ranking';
 export const findBosses = async (args: { realm: string }) => {
 	const fallback = () => findByRealm(args);
 	return withCache<ART<typeof fallback>>({
@@ -150,4 +151,30 @@ export const getTopSpecs = (args: GetBossTopSpecsArgs): Promise<BossTopSpecs> =>
 export const setBossTopSpecs = async (args: GetBossTopSpecsArgs, stats: BossTopSpecs) => {
 	const fallback = () => stats;
 	return withBossTopSpecsCache(args, fallback, true);
+};
+
+const KEY_BOSS_TOP_SPECS_BY_RAID_LOCK = 'model/boss/getTopSpecsByRaidLock';
+const withBossTopSpecsByRaidLockCache = (
+	args: GetRankingByRaidLockArgs,
+	fallback: () => Promise<RankingByRaidLock>,
+	force: boolean = false
+) => {
+	return withCache<RankingByRaidLock>({
+		deps: [KEY_BOSS_TOP_SPECS_BY_RAID_LOCK, args],
+		fallback,
+		defaultValue: [],
+		// 1 day
+		expire: EXPIRE_1_DAY,
+		sliding: false,
+		force
+	});
+};
+
+export const getTopSpecsByRaidLock = (
+	args: GetRankingByRaidLockArgs
+): Promise<RankingByRaidLock> => {
+	const fallback = async () => {
+		return getRankingByRaidLock(args);
+	};
+	return withBossTopSpecsByRaidLockCache(args, fallback);
 };

@@ -1,11 +1,8 @@
+import type { Player } from '$lib/model/player.model';
 import { and, eq, isNotNull } from 'drizzle-orm';
 import { createConnection } from '.';
-import { raidTable } from './schema/raid.schema';
-import { realmXRaidTable } from './schema/realm-x-raid.schema';
-import { realmTable } from './schema/realm.schema';
-import type { Raid } from '$lib/model/raid.model';
 import { playerTable } from './schema/player.schema';
-import { Player } from '$lib/model/player.model';
+import { realmTable } from './schema/realm.schema';
 
 export const getPlayerByGuid = async ({
 	realm,

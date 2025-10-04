@@ -1,6 +1,6 @@
 USE bosskills;--> statement-breakpoint
 START TRANSACTION;--> statement-breakpoint
-CREATE TABLE `ranking` (
+CREATE TABLE .`ranking` (
 	`id` int AUTO_INCREMENT NOT NULL,
 	`realm_id` int NOT NULL,
 	`raid_id` int NOT NULL,
@@ -11,10 +11,7 @@ CREATE TABLE `ranking` (
 	`time` datetime NOT NULL,
 	`spec` int NOT NULL,
 	`mode` int NOT NULL,
-	`ilvl` int NOT NULL,
-	`dmg_done` int NOT NULL,
-	`healing_done` int NOT NULL,
-	`length` int NOT NULL,
+	`metric` enum('dps','hps') NOT NULL,
 	CONSTRAINT `ranking_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint

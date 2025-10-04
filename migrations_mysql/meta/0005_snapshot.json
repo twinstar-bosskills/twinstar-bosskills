@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "8f72361c-0eba-4709-9e2b-8778024c191b",
+  "id": "f02f4483-1792-46c0-8152-e815f73545bc",
   "prevId": "cb41f673-6f0a-43b9-ac6b-016cbd008125",
   "tables": {
     "boss_kill_death": {
@@ -805,30 +805,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "ilvl": {
-          "name": "ilvl",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "dmg_done": {
-          "name": "dmg_done",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "healing_done": {
-          "name": "healing_done",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "length": {
-          "name": "length",
-          "type": "int",
+        "metric": {
+          "name": "metric",
+          "type": "enum('dps','hps')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false

@@ -72,7 +72,7 @@ export const getByRemoteIdAndRealm = async ({
 	return null;
 };
 
-type BossTopSpecs = Record<number, BosskillCharacter[]>;
+export type BossTopSpecs = Record<number, BosskillCharacter[]>;
 export type GetBossTopSpecsArgs = {
 	remoteId: number;
 	realm: string;
