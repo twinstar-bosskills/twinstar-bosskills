@@ -90,9 +90,9 @@ try {
 					const diffStart = performance.now();
 					console.log(`  difficulty: ${diffStr} started`);
 					for (const talentSpec of Object.values<number>(specs)) {
-						const specStart = performance.now();
-						const specName = talentSpecToString(expansion, talentSpec);
-						console.log(`    spec: ${specName} started`);
+						// const specStart = performance.now();
+						// const specName = talentSpecToString(expansion, talentSpec);
+						// console.log(`    spec: ${specName} started`);
 						const topSpecs = await getBossTopSpecs({
 							realm: realm.name,
 							remoteId: boss.remoteId,
@@ -172,8 +172,8 @@ try {
 							});
 						}
 
-						const specEnd = performance.now() - specStart;
-						console.log(`    spec: ${specName} done, took ${specEnd.toLocaleString()}ms`);
+						// const specEnd = performance.now() - specStart;
+						// console.log(`    spec: ${specName} done, took ${specEnd.toLocaleString()}ms`);
 					}
 
 					const diffEnd = performance.now() - diffStart;

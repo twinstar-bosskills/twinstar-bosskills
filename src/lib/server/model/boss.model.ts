@@ -1,6 +1,6 @@
 import { METRIC_TYPE, type PlayerPercentile, type PlayerPercentiles } from '$lib/metrics';
 import type { ART } from '$lib/types';
-import { EXPIRE_1_DAY, EXPIRE_1_HOUR, withCache } from '../cache';
+import { EXPIRE_1_DAY, EXPIRE_1_HOUR, EXPIRE_5_MIN, withCache } from '../cache';
 import {
 	findByRealm,
 	getBossPercentilesFast,
@@ -167,8 +167,8 @@ const withBossTopSpecsByRaidLockCache = (
 		deps: [KEY_BOSS_TOP_SPECS_BY_RAID_LOCK, args],
 		fallback,
 		defaultValue: [],
-		// 1 day
-		expire: EXPIRE_1_DAY,
+		// already "cached" in database
+		expire: EXPIRE_5_MIN,
 		sliding: false,
 		force
 	});
