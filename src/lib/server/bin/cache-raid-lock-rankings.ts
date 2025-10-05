@@ -3,10 +3,9 @@ import {
 	difficultiesByExpansion,
 	difficultyToString,
 	isRaidDifficulty,
-	talentSpecsByExpansion,
-	talentSpecToString
+	talentSpecsByExpansion
 } from '$lib/model';
-import { realmToExpansion } from '$lib/realm';
+import { realmIsPublic, realmToExpansion } from '$lib/realm';
 import { program } from 'commander';
 import { getBossTopSpecs } from '../db/boss';
 
@@ -48,6 +47,9 @@ try {
 	}
 	const realms = await realmsQb.execute();
 	for (const realm of realms) {
+		if (realmIsPublic(realm.name) === false) {
+			continue;
+		}
 		const realmStart = performance.now();
 		const expansion = realmToExpansion(realm.name);
 		const diffs = Object.values<number>(difficultiesByExpansion(expansion) ?? {}).filter((diff) =>
