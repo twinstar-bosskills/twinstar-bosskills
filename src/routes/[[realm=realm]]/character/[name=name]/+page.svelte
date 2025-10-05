@@ -2,12 +2,12 @@
 	import { page } from '$app/stores';
 	import Link from '$lib/components/Link.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
-	import Boss from '$lib/components/table/column/Boss.column.svelte';
+	import Boss from '$lib/components/table/column/BosskillBoss.column.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import FightDetails from '$lib/components/table/column/FightDetails.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
-	import Spec from '$lib/components/table/column/Spec.column.svelte';
+	import Spec from '$lib/components/table/column/BosskillSpec.column.svelte';
 	import { formatSecondsInterval, fromServerTime } from '$lib/date';
 
 	import LinkExternal from '$lib/components/LinkExternal.svelte';

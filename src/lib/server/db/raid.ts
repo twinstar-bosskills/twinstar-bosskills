@@ -12,7 +12,8 @@ export const findByRealm = async ({ realm }: { realm: string }): Promise<Raid[]>
 			.select({
 				id: raidTable.id,
 				name: raidTable.name,
-				remoteId: raidTable.name
+				remoteId: raidTable.name,
+				position: raidTable.position
 			})
 			.from(raidTable)
 			.innerJoin(realmXRaidTable, eq(realmXRaidTable.raidId, raidTable.id))

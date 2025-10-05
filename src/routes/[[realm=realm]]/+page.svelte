@@ -2,7 +2,7 @@
 	import TextColorError from '$lib/components/TextColorError.svelte';
 	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
-	import Boss from '$lib/components/table/column/Boss.column.svelte';
+	import Boss from '$lib/components/table/column/BosskillBoss.column.svelte';
 	import { formatTzLocalized } from '$lib/date';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 

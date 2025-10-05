@@ -1,64 +1,57 @@
 {
   "version": "5",
-  "dialect": "sqlite",
-  "id": "f19d7ab7-54d5-4185-9fd1-feec8d23127f",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "dialect": "mysql",
+  "id": "5a1fc86a-d864-4e27-b1de-dc9b6ddddc57",
+  "prevId": "f02f4483-1792-46c0-8152-e815f73545bc",
   "tables": {
     "boss_kill_death": {
       "name": "boss_kill_death",
+      "schema": "bosskills",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
-          "primaryKey": true,
+          "type": "int",
+          "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "boss_kill_id": {
           "name": "boss_kill_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "player_id": {
           "name": "player_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "remote_id": {
           "name": "remote_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "time": {
           "name": "time",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "is_ress": {
           "name": "is_ress",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         }
       },
-      "indexes": {
-        "boss_kill_death_remote_id_unique": {
-          "name": "boss_kill_death_remote_id_unique",
-          "columns": [
-            "remote_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "boss_kill_death_boss_kill_id_boss_kill_id_fk": {
           "name": "boss_kill_death_boss_kill_id_boss_kill_id_fk",
@@ -87,36 +80,51 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {
+        "boss_kill_death_id": {
+          "name": "boss_kill_death_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "boss_kill_death_remote_id_unique": {
+          "name": "boss_kill_death_remote_id_unique",
+          "columns": [
+            "remote_id"
+          ]
+        }
+      }
     },
     "boss_kill_loot": {
       "name": "boss_kill_loot",
+      "schema": "bosskills",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
-          "primaryKey": true,
+          "type": "int",
+          "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "boss_kill_id": {
           "name": "boss_kill_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "item_id": {
           "name": "item_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "count": {
           "name": "count",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -138,106 +146,114 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "boss_kill_loot_id": {
+          "name": "boss_kill_loot_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "boss_kill_player": {
       "name": "boss_kill_player",
+      "schema": "bosskills",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
-          "primaryKey": true,
+          "type": "int",
+          "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "boss_kill_id": {
           "name": "boss_kill_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "player_id": {
           "name": "player_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "talent_spec": {
           "name": "talent_spec",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "avg_item_lvl": {
           "name": "avg_item_lvl",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "dmg_done": {
           "name": "dmg_done",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "healing_done": {
           "name": "healing_done",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "overhealing_done": {
           "name": "overhealing_done",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "absorb_done": {
           "name": "absorb_done",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "dmg_taken": {
           "name": "dmg_taken",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "dmg_absorbed": {
           "name": "dmg_absorbed",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "healing_taken": {
           "name": "healing_taken",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "dispells": {
           "name": "dispells",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "interrupts": {
           "name": "interrupts",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -251,35 +267,35 @@
         },
         "guid": {
           "name": "guid",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "race": {
           "name": "race",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "class": {
           "name": "class",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "gender": {
           "name": "gender",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "level": {
           "name": "level",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -314,57 +330,65 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "boss_kill_player_id": {
+          "name": "boss_kill_player_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "boss_kill_timeline": {
       "name": "boss_kill_timeline",
+      "schema": "bosskills",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
-          "primaryKey": true,
+          "type": "int",
+          "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "boss_kill_id": {
           "name": "boss_kill_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "encounterDamage": {
           "name": "encounterDamage",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "encounterHeal": {
           "name": "encounterHeal",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "raidDamage": {
           "name": "raidDamage",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "raidHeal": {
           "name": "raidHeal",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "time": {
           "name": "time",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -386,18 +410,26 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "boss_kill_timeline_id": {
+          "name": "boss_kill_timeline_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "boss_kill": {
       "name": "boss_kill",
+      "schema": "bosskills",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
-          "primaryKey": true,
+          "type": "int",
+          "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "remote_id": {
           "name": "remote_id",
@@ -408,28 +440,28 @@
         },
         "boss_id": {
           "name": "boss_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "raid_id": {
           "name": "raid_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "realm_id": {
           "name": "realm_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "mode": {
           "name": "mode",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -450,42 +482,34 @@
         },
         "length": {
           "name": "length",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "wipes": {
           "name": "wipes",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "deaths": {
           "name": "deaths",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "ress_used": {
           "name": "ress_used",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         }
       },
-      "indexes": {
-        "boss_kill_remote_id_unique": {
-          "name": "boss_kill_remote_id_unique",
-          "columns": [
-            "remote_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "boss_kill_boss_id_boss_id_fk": {
           "name": "boss_kill_boss_id_boss_id_fk",
@@ -527,22 +551,37 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {
+        "boss_kill_id": {
+          "name": "boss_kill_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "boss_kill_remote_id_unique": {
+          "name": "boss_kill_remote_id_unique",
+          "columns": [
+            "remote_id"
+          ]
+        }
+      }
     },
     "boss": {
       "name": "boss",
+      "schema": "bosskills",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
-          "primaryKey": true,
+          "type": "int",
+          "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "remote_id": {
           "name": "remote_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -556,21 +595,21 @@
         },
         "raid_id": {
           "name": "raid_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "position": {
+          "name": "position",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
         }
       },
-      "indexes": {
-        "boss_remote_id_unique": {
-          "name": "boss_remote_id_unique",
-          "columns": [
-            "remote_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "boss_raid_id_raid_id_fk": {
           "name": "boss_raid_id_raid_id_fk",
@@ -586,29 +625,44 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {
+        "boss_id": {
+          "name": "boss_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "boss_remote_id_unique": {
+          "name": "boss_remote_id_unique",
+          "columns": [
+            "remote_id"
+          ]
+        }
+      }
     },
     "player": {
       "name": "player",
+      "schema": "bosskills",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
-          "primaryKey": true,
+          "type": "int",
+          "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "remote_id": {
           "name": "remote_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "realm_id": {
           "name": "realm_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -637,18 +691,26 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "player_id": {
+          "name": "player_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "raid": {
       "name": "raid",
+      "schema": "bosskills",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
-          "primaryKey": true,
+          "type": "int",
+          "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "name": {
           "name": "name",
@@ -656,34 +718,209 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "position": {
+          "name": "position",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
         }
       },
-      "indexes": {
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "raid_id": {
+          "name": "raid_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
         "raid_name_unique": {
           "name": "raid_name_unique",
           "columns": [
             "name"
-          ],
-          "isUnique": true
+          ]
         }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      }
     },
-    "realm_x_raid": {
-      "name": "realm_x_raid",
+    "ranking": {
+      "name": "ranking",
+      "schema": "bosskills",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
         "realm_id": {
           "name": "realm_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "raid_id": {
           "name": "raid_id",
-          "type": "integer",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "boss_id": {
+          "name": "boss_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "boss_kill_id": {
+          "name": "boss_kill_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rank": {
+          "name": "rank",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "time": {
+          "name": "time",
+          "type": "datetime",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "spec": {
+          "name": "spec",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "mode": {
+          "name": "mode",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "metric": {
+          "name": "metric",
+          "type": "enum('dps','hps')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ranking_realm_id_realm_id_fk": {
+          "name": "ranking_realm_id_realm_id_fk",
+          "tableFrom": "ranking",
+          "tableTo": "realm",
+          "columnsFrom": [
+            "realm_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ranking_raid_id_raid_id_fk": {
+          "name": "ranking_raid_id_raid_id_fk",
+          "tableFrom": "ranking",
+          "tableTo": "raid",
+          "columnsFrom": [
+            "raid_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ranking_boss_id_boss_id_fk": {
+          "name": "ranking_boss_id_boss_id_fk",
+          "tableFrom": "ranking",
+          "tableTo": "boss",
+          "columnsFrom": [
+            "boss_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ranking_boss_kill_id_boss_kill_id_fk": {
+          "name": "ranking_boss_kill_id_boss_kill_id_fk",
+          "tableFrom": "ranking",
+          "tableTo": "boss_kill",
+          "columnsFrom": [
+            "boss_kill_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ranking_player_id_player_id_fk": {
+          "name": "ranking_player_id_player_id_fk",
+          "tableFrom": "ranking",
+          "tableTo": "player",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "ranking_id": {
+          "name": "ranking_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "realm_x_raid": {
+      "name": "realm_x_raid",
+      "schema": "bosskills",
+      "columns": {
+        "realm_id": {
+          "name": "realm_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "raid_id": {
+          "name": "raid_id",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -723,13 +960,14 @@
     },
     "realm": {
       "name": "realm",
+      "schema": "bosskills",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
-          "primaryKey": true,
+          "type": "int",
+          "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": true
         },
         "name": {
           "name": "name",
@@ -740,29 +978,21 @@
         },
         "expansion": {
           "name": "expansion",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "merged_to_id": {
           "name": "merged_to_id",
-          "type": "integer",
+          "type": "int",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
           "default": "null"
         }
       },
-      "indexes": {
-        "realm_name_unique": {
-          "name": "realm_name_unique",
-          "columns": [
-            "name"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "realm_merged_to_id_realm_id_fk": {
           "name": "realm_merged_to_id_realm_id_fk",
@@ -778,11 +1008,27 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {
+        "realm_id": {
+          "name": "realm_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "realm_name_unique": {
+          "name": "realm_name_unique",
+          "columns": [
+            "name"
+          ]
+        }
+      }
     }
   },
-  "enums": {},
+  "schemas": {
+    "bosskills": "bosskills"
+  },
   "_meta": {
     "schemas": {},
     "tables": {},

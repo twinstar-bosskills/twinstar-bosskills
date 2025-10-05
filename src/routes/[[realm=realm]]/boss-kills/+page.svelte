@@ -3,7 +3,7 @@
 	import Pagination from '$lib/components/Pagination.svelte';
 	import FilterForm from '$lib/components/form/FilterForm.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
-	import Boss from '$lib/components/table/column/Boss.column.svelte';
+	import Boss from '$lib/components/table/column/BosskillBoss.column.svelte';
 	import FightDetails from '$lib/components/table/column/FightDetails.column.svelte';
 	import Guild from '$lib/components/table/column/Guild.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';

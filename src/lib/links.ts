@@ -3,6 +3,7 @@ import { expansionIsCata, realmToExpansion, realmToId } from './realm';
 type SearchParams = {
 	difficulty?: number | string;
 	spec?: number | string;
+	raidlock?: number | string;
 };
 const withSearchParams = (url: string, query: SearchParams) => {
 	const p = new URLSearchParams();
@@ -12,6 +13,9 @@ const withSearchParams = (url: string, query: SearchParams) => {
 	if (query.spec) {
 		p.append('spec', String(query.spec));
 	}
+	if (query.raidlock) {
+		p.append('raidlock', String(query.raidlock));
+	}
 	const ps = p.toString();
 	return ps !== '' ? url + '?' + p.toString() : url;
 };
@@ -19,6 +23,10 @@ const withSearchParams = (url: string, query: SearchParams) => {
 const changelog = () => `/changelog`;
 const home = (realm: string) => `/${realm}`;
 const raids = (realm: string) => `/${realm}/raids`;
+const ranks = (realm: string, params: SearchParams = {}) => {
+	const url = `/${realm}/ranks`;
+	return withSearchParams(url, params);
+};
 const bossKills = (realm: string) => `/${realm}/boss-kills`;
 const character = (realm: string, name: string) =>
 	`/${realm}/character/${encodeURIComponent(name)}`;
@@ -26,6 +34,10 @@ const characterPerformance = (realm: string, name: string) =>
 	`/${realm}/character/${encodeURIComponent(name)}/performance`;
 const boss = (realm: string, id: number, params: SearchParams = {}) => {
 	const url = `/${realm}/boss/${id}`;
+	return withSearchParams(url, params);
+};
+const bossHistory = (realm: string, id: number, params: SearchParams = {}) => {
+	const url = `/${realm}/boss/${id}/history`;
 	return withSearchParams(url, params);
 };
 const bossKill = (realm: string, id: string) => `/${realm}/boss-kills/${id}`;
@@ -55,10 +67,12 @@ export const links = {
 	changelog,
 	home,
 	raids,
+	ranks,
 	bossKills,
 	character,
 	characterPerformance,
 	boss,
+	bossHistory,
 	bossKill,
 	twinstarBossKill,
 	twinstarArmory,

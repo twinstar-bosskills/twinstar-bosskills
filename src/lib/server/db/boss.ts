@@ -24,7 +24,8 @@ const builder = (db: DbConnection, { realm, id, remoteId }: BuilderArgs) => {
 			id: bossTable.id,
 			remoteId: bossTable.remoteId,
 			name: bossTable.name,
-			raidId: raidTable.id
+			raidId: raidTable.id,
+			position: bossTable.position
 		})
 		.from(bossTable)
 		.innerJoin(raidTable, eq(raidTable.id, bossTable.raidId))
@@ -72,7 +73,7 @@ export const getByRemoteIdAndRealm = async ({
 	return null;
 };
 
-type BossTopSpecs = Record<number, BosskillCharacter[]>;
+export type BossTopSpecs = Record<number, BosskillCharacter[]>;
 export type GetBossTopSpecsArgs = {
 	remoteId: number;
 	realm: string;
@@ -80,6 +81,8 @@ export type GetBossTopSpecsArgs = {
 	difficulty: number;
 	metric: MetricType;
 	limit?: number;
+	startsAt?: Date;
+	endsAt?: Date;
 };
 export const getBossTopSpecs = async ({
 	remoteId,
@@ -87,7 +90,9 @@ export const getBossTopSpecs = async ({
 	talentSpec,
 	difficulty,
 	metric,
-	limit = 200
+	limit = 200,
+	startsAt,
+	endsAt
 }: GetBossTopSpecsArgs): Promise<BossTopSpecs> => {
 	const stats: BossTopSpecs = {};
 
@@ -111,7 +116,9 @@ export const getBossTopSpecs = async ({
 					eq(realmTable.name, realm),
 					eq(bosskillTable.mode, difficulty),
 					eq(bossTable.remoteId, remoteId),
-					talentSpec ? eq(bosskillPlayerTable.talentSpec, talentSpec) : undefined
+					talentSpec ? eq(bosskillPlayerTable.talentSpec, talentSpec) : undefined,
+					startsAt ? gte(bosskillTable.time, startsAt.toISOString()) : undefined,
+					endsAt ? lte(bosskillTable.time, endsAt.toISOString()) : undefined
 				)
 			);
 
