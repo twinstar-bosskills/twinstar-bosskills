@@ -167,7 +167,9 @@
 {#if data.realmIsPrivate === false}
 	<h2>
 		Top 5 by spec by for raid lock {data.raidLockStart.toLocaleDateString()} - {data.raidLockEnd.toLocaleDateString()}
-		<Link href={links.ranks(data.realm, { raidlock: data.raidlock + 1 })}>(see previous)</Link>
+		<Link href={links.bossHistory(data.realm, data.boss.remoteId, { raidlock: data.raidlock + 1 })}
+			>(see previous)</Link
+		>
 	</h2>
 
 	<div class="filter">
