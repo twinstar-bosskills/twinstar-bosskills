@@ -3,4 +3,5 @@ export type Boss = {
 	remoteId: number;
 	name: string;
 	raidId: number;
+	position: number;
 };

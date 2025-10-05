@@ -1,11 +1,8 @@
 <script lang="ts">
 	import SpecIcon from '$lib/components/icon/SpecIcon.svelte';
-	import type { BosskillCharacter } from '$lib/server/api/schema';
 
 	export let realm: string;
-	export let character: BosskillCharacter;
-
-	$: talentSpec = character.talent_spec;
+	export let spec: number;
 </script>
 
-<SpecIcon {realm} {talentSpec} />
+<SpecIcon {realm} talentSpec={spec} />

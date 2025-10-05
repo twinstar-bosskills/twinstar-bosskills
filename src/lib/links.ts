@@ -23,6 +23,10 @@ const withSearchParams = (url: string, query: SearchParams) => {
 const changelog = () => `/changelog`;
 const home = (realm: string) => `/${realm}`;
 const raids = (realm: string) => `/${realm}/raids`;
+const ranks = (realm: string, params: SearchParams = {}) => {
+	const url = `/${realm}/ranks`;
+	return withSearchParams(url, params);
+};
 const bossKills = (realm: string) => `/${realm}/boss-kills`;
 const character = (realm: string, name: string) =>
 	`/${realm}/character/${encodeURIComponent(name)}`;
@@ -63,6 +67,7 @@ export const links = {
 	changelog,
 	home,
 	raids,
+	ranks,
 	bossKills,
 	character,
 	characterPerformance,

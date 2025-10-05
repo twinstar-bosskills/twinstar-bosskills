@@ -4,7 +4,8 @@ import { bosskillTable } from './boss-kill.schema';
 import { bosskills } from './mysql.schema';
 export const raidTable = bosskills.table('raid', {
 	id: int('id').primaryKey().autoincrement(),
-	name: text('name').notNull().unique()
+	name: text('name').notNull().unique(),
+	position: int('position').notNull().default(0)
 });
 
 export const raidRelations = relations(raidTable, ({ many }) => ({

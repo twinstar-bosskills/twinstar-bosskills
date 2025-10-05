@@ -24,7 +24,8 @@ const builder = (db: DbConnection, { realm, id, remoteId }: BuilderArgs) => {
 			id: bossTable.id,
 			remoteId: bossTable.remoteId,
 			name: bossTable.name,
-			raidId: raidTable.id
+			raidId: raidTable.id,
+			position: bossTable.position
 		})
 		.from(bossTable)
 		.innerJoin(raidTable, eq(raidTable.id, bossTable.raidId))

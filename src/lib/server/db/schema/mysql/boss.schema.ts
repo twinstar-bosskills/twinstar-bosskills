@@ -9,7 +9,8 @@ export const bossTable = bosskills.table('boss', {
 	name: text('name').notNull(),
 	raidId: int('raid_id')
 		.notNull()
-		.references(() => raidTable.id)
+		.references(() => raidTable.id),
+	position: int('position').notNull().default(0)
 });
 
 export const bossRelations = relations(bossTable, ({ many }) => ({

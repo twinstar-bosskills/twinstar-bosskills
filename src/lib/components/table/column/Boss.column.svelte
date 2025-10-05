@@ -1,13 +1,14 @@
 <script lang="ts">
 	import Link from '$lib/components/Link.svelte';
 	import { links } from '$lib/links';
+	import type { Boss } from '$lib/model/boss.model';
 	import { REALM_HELIOS } from '$lib/realm';
-	import type { BossKill } from '$lib/server/api/schema';
 
 	export let realm: string = REALM_HELIOS;
-	export let bosskill: Pick<BossKill, 'entry' | 'mode' | 'creature_name'>;
+	export let boss: Boss;
+	export let difficulty: number | undefined = undefined;
 </script>
 
-<Link href={links.boss(realm, bosskill.entry, { difficulty: bosskill.mode })}>
-	{bosskill.creature_name ?? bosskill.entry}
+<Link href={links.boss(realm, boss.remoteId, { difficulty })}>
+	{boss.name}
 </Link>

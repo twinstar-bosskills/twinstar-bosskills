@@ -1,7 +1,7 @@
-import { MetricType } from '$lib/metrics';
+import type { MetricType } from '$lib/metrics';
 import { and, asc, eq, gte, lte } from 'drizzle-orm';
 import { createConnection } from '.';
-import { BosskillCharacter, bosskillCharacterSchema } from '../api/schema';
+import { type BosskillCharacter, bosskillCharacterSchema } from '../api/schema';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
 import { playerTable } from './schema/player.schema';
 import { raidTable } from './schema/raid.schema';
@@ -18,6 +18,7 @@ export type GetRankingByRaidLockArgs = {
 	metric: MetricType;
 	startsAt: Date;
 	endsAt: Date;
+	limit?: number;
 };
 export type RankingByRaidLock = BosskillCharacter[];
 
@@ -28,7 +29,8 @@ export const getRankingByRaidLock = async ({
 	difficulty,
 	metric,
 	startsAt,
-	endsAt
+	endsAt,
+	limit = 5
 }: GetRankingByRaidLockArgs): Promise<RankingByRaidLock> => {
 	try {
 		const db = await createConnection();
@@ -67,7 +69,8 @@ export const getRankingByRaidLock = async ({
 					lte(rankingTable.time, endsAt)
 				)
 			)
-			.orderBy(asc(rankingTable.rank));
+			.orderBy(asc(rankingTable.rank))
+			.limit(limit);
 
 		const stats = [];
 		const rows = await qb.execute();

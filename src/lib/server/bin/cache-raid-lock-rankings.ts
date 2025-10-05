@@ -1,4 +1,4 @@
-import { characterDps, characterHps, METRIC_TYPE } from '$lib/metrics';
+import { METRIC_TYPE } from '$lib/metrics';
 import {
 	difficultiesByExpansion,
 	difficultyToString,
@@ -11,7 +11,10 @@ import { program } from 'commander';
 import { getBossTopSpecs } from '../db/boss';
 
 import { raidLock } from '$lib/date';
+import type { BossKill } from '$lib/model/boss-kill.model';
+import type { Player } from '$lib/model/player.model';
 import { and, eq, gte, inArray, lte } from 'drizzle-orm';
+import type { MySqlInsertValue } from 'drizzle-orm/mysql-core';
 import { getBosskillByRemoteId } from '../db/boss-kill';
 import { createConnection } from '../db/index';
 import { getPlayerByGuid } from '../db/player';
@@ -19,9 +22,6 @@ import { rankingTable } from '../db/schema/ranking.schema';
 import { realmTable } from '../db/schema/realm.schema';
 import { findBosses } from '../model/boss.model';
 import { integerGte, listOfStrings } from './parse-args';
-import { MySqlInsertValue } from 'drizzle-orm/mysql-core';
-import { Player } from '$lib/model/player.model';
-import { BossKill } from '$lib/model/boss-kill.model';
 
 const gteZero = integerGte(0);
 program.option(

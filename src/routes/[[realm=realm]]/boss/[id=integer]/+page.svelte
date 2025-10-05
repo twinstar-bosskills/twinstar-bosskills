@@ -11,7 +11,7 @@
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
-	import Spec from '$lib/components/table/column/Spec.column.svelte';
+	import Spec from '$lib/components/table/column/BosskillSpec.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { formatSecondsInterval, fromServerTime, raidLock } from '$lib/date';
 	import {
@@ -232,7 +232,7 @@
 									spec: data.talentSpec,
 									difficulty: data.difficulty,
 									raidlock: 1
-								})}>history</a
+								})}>(see history)</a
 							>{/if}
 					</h3>
 					<Table

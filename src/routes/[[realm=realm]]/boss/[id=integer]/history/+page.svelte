@@ -3,13 +3,14 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Link from '$lib/components/Link.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
+	import Spec from '$lib/components/table/column/BosskillSpec.column.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
-	import Spec from '$lib/components/table/column/Spec.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { formatSecondsInterval, fromServerTime } from '$lib/date';
+	import { links } from '$lib/links';
 	import {
 		defaultDifficultyByExpansion,
 		difficultiesByExpansion,
@@ -32,7 +33,7 @@
 	const expansion = realmToExpansion(data.realm);
 	const talentSpecs = Object.values(talentSpecsByExpansion(expansion) ?? {});
 	const difficulties = Object.values(difficultiesByExpansion(expansion) ?? {});
-	const title = `Boss ${data.boss.name}`;
+	const title = `Historical top specs for boss ${data.boss.name}`;
 
 	let searchParams = new URLSearchParams($page.url.searchParams);
 	const currentDifficulty = String(
@@ -166,7 +167,9 @@
 {#if data.realmIsPrivate === false}
 	<h2>
 		Top 5 by spec by for raid lock {data.raidLockStart.toLocaleDateString()} - {data.raidLockEnd.toLocaleDateString()}
+		<Link href={links.ranks(data.realm, { raidlock: data.raidlock + 1 })}>(see previous)</Link>
 	</h2>
+
 	<div class="filter">
 		<ul>
 			<li>

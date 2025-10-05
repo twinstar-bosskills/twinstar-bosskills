@@ -10,7 +10,11 @@ import {
 	type GetBossStatsMedianArgs,
 	type GetBossTopSpecsArgs
 } from '../db/boss';
-import { getRankingByRaidLock, GetRankingByRaidLockArgs, RankingByRaidLock } from '../db/ranking';
+import {
+	getRankingByRaidLock,
+	type GetRankingByRaidLockArgs,
+	type RankingByRaidLock
+} from '../db/ranking';
 export const findBosses = async (args: { realm: string }) => {
 	const fallback = () => findByRealm(args);
 	return withCache<ART<typeof fallback>>({

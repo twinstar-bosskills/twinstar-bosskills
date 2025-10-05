@@ -11,6 +11,7 @@
 
 	const bklink = links.bossKills(data.realm);
 	const raidsLink = links.raids(data.realm);
+	const ranksLink = links.ranks(data.realm);
 </script>
 
 <svelte:head>
@@ -36,6 +37,9 @@
 			</li>
 			<li>
 				<Link href={raidsLink} active={$page.url.pathname === raidsLink}>Raids</Link>
+			</li>
+			<li>
+				<Link href={ranksLink} active={$page.url.pathname === ranksLink}>Ranks</Link>
 			</li>
 		</ul>
 	</nav>
