@@ -1,11 +1,10 @@
 <script lang="ts">
 	import arrowDown from '$lib/assets/icons/arrow-down.svg?raw';
 	import arrowUp from '$lib/assets/icons/arrow-up.svg?raw';
-	import { characterDps } from '$lib/metrics';
+	import { characterDps, type CharacterMetricParts } from '$lib/metrics';
 
 	import { formatNumber } from '$lib/number';
-	import type { BosskillCharacter } from '$lib/server/api/schema';
-	export let character: BosskillCharacter;
+	export let character: CharacterMetricParts;
 	export let fightLength: number | undefined = undefined;
 	export let performance: { dps: number } | undefined = undefined;
 

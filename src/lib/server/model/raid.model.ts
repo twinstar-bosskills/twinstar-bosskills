@@ -5,11 +5,11 @@ import { realmToExpansion } from '$lib/realm';
 import { format } from 'date-fns';
 import { EXPIRE_5_MIN, withCache } from '../cache';
 import { findBossKills } from '../db/boss-kill';
-import { findByRealm } from '../db/raid';
+import { findRaidsByRealm } from '../db/raid';
 import { findBosses } from './boss.model';
 
 export const getRaids = async (args: { realm: string }) => {
-	const fallback = () => findByRealm(args);
+	const fallback = () => findRaidsByRealm(args);
 
 	return withCache<Awaited<ReturnType<typeof fallback>>>({
 		deps: ['model/raid/getRaids', args],

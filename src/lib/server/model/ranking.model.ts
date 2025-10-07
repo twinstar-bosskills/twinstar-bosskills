@@ -1,8 +1,9 @@
+import { raidLock } from '$lib/date';
 import { characterDps, characterHps, METRIC_TYPE, type MetricType } from '$lib/metrics';
 import { talentSpecsByExpansion } from '$lib/model';
 import type { Boss } from '$lib/model/boss.model';
 import type { Raid } from '$lib/model/raid.model';
-import { EXPIRE_1_HOUR, withCache } from '../cache';
+import { EXPIRE_1_DAY, EXPIRE_7_DAYS, withCache } from '../cache';
 import type { RankingByRaidLock } from '../db/ranking';
 import { findBosses, getTopSpecsByRaidLock } from './boss.model';
 import { getRaids } from './raid.model';
@@ -16,17 +17,20 @@ type GetRanksArgs = {
 	metric: MetricType;
 };
 type Rank = {
-	raid: Raid;
-	boss: Boss;
 	spec: number;
-	ranks: RankingByRaidLock;
+	characters: RankingByRaidLock;
 };
-export const getRanks = async (args: GetRanksArgs): Promise<Rank[]> => {
+export type GetRanksResult = {
+	raids: (Raid & { bosses: Boss[] })[];
+	ranks: Record<number, Record<number, Rank[]>>;
+};
+export const getRanks = async (args: GetRanksArgs): Promise<GetRanksResult> => {
+	const isPreviousRaidLock = args.startsAt <= raidLock(new Date(), 1).start;
 	const fallback = async () => {
 		const { realm, expansion, startsAt, endsAt, difficulty, metric } = args;
 		const specs = talentSpecsByExpansion(expansion);
 		if (specs === null) {
-			return [];
+			return { raids: [], ranks: {} };
 		}
 		const bosses = await findBosses({ realm });
 		const raids = (await getRaids({ realm })).reduce((acc, raid) => {
@@ -34,15 +38,27 @@ export const getRanks = async (args: GetRanksArgs): Promise<Rank[]> => {
 			return acc;
 		}, {} as Record<number, Raid>);
 
-		const data: Record<string, Rank> = {};
+		const data: {
+			raids: Record<number, GetRanksResult['raids'][0]>;
+			ranks: GetRanksResult['ranks'];
+		} = {
+			raids: {},
+			ranks: {}
+		};
 		for (const boss of bosses) {
 			const bossId = boss.id;
 			const raid = raids[boss.raidId];
 			if (!raid) {
 				continue;
 			}
+			data.raids[raid.id] ??= { ...raid, bosses: [] };
+			data.raids[raid.id]!.bosses.push(boss);
+			data.ranks[raid.id] ??= {
+				[boss.id]: []
+			};
+			data.ranks[raid.id]![boss.id] ??= [];
+
 			for (const spec of Object.values(specs)) {
-				const k = `${raid.id}-${bossId}-${spec}`;
 				const ranks = await getTopSpecsByRaidLock({
 					realm,
 					bossId,
@@ -54,33 +70,39 @@ export const getRanks = async (args: GetRanksArgs): Promise<Rank[]> => {
 					limit: 1
 				});
 				if (ranks.length > 0) {
-					data[k] = {
-						raid,
-						boss,
+					data.ranks[raid.id]![boss.id]!.push({
 						spec,
-						ranks
-					};
+						characters: ranks
+					});
 				}
 			}
+			data.ranks[raid.id]![boss.id]!.sort((a, b) => {
+				if (metric === METRIC_TYPE.DPS) {
+					return characterDps(a.characters[0]!) < characterDps(b.characters[0]!) ? 1 : -1;
+				}
+				return characterHps(a.characters[0]!) < characterHps(b.characters[0]!) ? 1 : -1;
+			});
 		}
-		return Object.values(data).sort((a, b) => {
-			if (a.raid.position === b.raid.position) {
-				if (a.boss.position === b.boss.position) {
-					if (metric === METRIC_TYPE.DPS) {
-						return characterDps(a.ranks[0]!) < characterDps(b.ranks[0]!) ? 1 : -1;
-					}
-					return characterHps(a.ranks[0]!) < characterHps(b.ranks[0]!) ? 1 : -1;
-				}
-				return a.boss.position > b.boss.position ? 1 : -1;
-			}
-			return a.raid.position < b.raid.position ? 1 : -1;
+		const result: GetRanksResult = {
+			raids: Object.values(data.raids),
+			ranks: data.ranks
+		};
+		result.raids.sort((a, b) => {
+			return a.position < b.position ? 1 : -1;
 		});
+		for (const raid of result.raids) {
+			raid.bosses.sort((a, b) => {
+				return a.position > b.position ? 1 : -1;
+			});
+		}
+		return result;
 	};
-	return withCache<Rank[]>({
+
+	return withCache<GetRanksResult>({
 		deps: [`model/ranking/getRanks`, args],
 		fallback,
-		defaultValue: [],
-		expire: EXPIRE_1_HOUR,
+		defaultValue: { raids: [], ranks: {} },
+		expire: isPreviousRaidLock ? EXPIRE_7_DAYS : EXPIRE_1_DAY,
 		sliding: false
 	});
 };

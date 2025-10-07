@@ -41,7 +41,7 @@ const builder = (db: DbConnection, { realm, id, remoteId }: BuilderArgs) => {
 	return qb;
 };
 
-export const findByRealm = async ({ realm }: { realm: string }): Promise<Boss[]> => {
+export const findBossesByRealm = async ({ realm }: { realm: string }): Promise<Boss[]> => {
 	try {
 		const db = await createConnection();
 		const qb = builder(db, { realm });
@@ -54,7 +54,7 @@ export const findByRealm = async ({ realm }: { realm: string }): Promise<Boss[]>
 	return [];
 };
 
-export const getByRemoteIdAndRealm = async ({
+export const getBossByRemoteIdAndRealm = async ({
 	remoteId,
 	realm
 }: {

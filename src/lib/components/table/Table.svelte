@@ -30,6 +30,7 @@
 	export let data: T[] = [];
 	export let columns: ColumnDef<T>[] = [];
 	export let sorting: SortingState = [];
+	export let style: string = '';
 
 	const SORT_DIRECTION: Record<string, string> = {
 		asc: arrowUp,
@@ -66,7 +67,7 @@
 	const table = createSvelteTable(options);
 </script>
 
-<table style="--columns: {columns.length}">
+<table style="--columns: {columns.length}; {style}">
 	<thead>
 		{#each $table.getHeaderGroups() as headerGroup, i}
 			<tr>
@@ -163,7 +164,10 @@
 	table {
 		display: grid;
 		/* grid-template-columns: repeat(var(--columns), max-content); */
-		grid-template-columns: repeat(var(--columns), minmax(max-content, 1fr));
+		grid-template-columns: var(
+			--grid-template-columns,
+			repeat(var(--columns), minmax(max-content, 1fr))
+		);
 	}
 	thead,
 	tbody,
