@@ -3,12 +3,12 @@ import { and, asc, eq, gte, lte } from 'drizzle-orm';
 import { createConnection } from '.';
 import { type BosskillCharacter, bosskillCharacterSchema } from '../api/schema';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
+import { bosskillTable } from './schema/boss-kill.schema';
+import { bossTable } from './schema/boss.schema';
 import { playerTable } from './schema/player.schema';
 import { raidTable } from './schema/raid.schema';
 import { rankingTable } from './schema/ranking.schema';
 import { realmTable } from './schema/realm.schema';
-import { bosskillTable } from './schema/boss-kill.schema';
-import { bossTable } from './schema/boss.schema';
 
 export type GetRankingByRaidLockArgs = {
 	realm: string;

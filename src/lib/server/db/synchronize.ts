@@ -18,7 +18,9 @@ import {
 import { FilterOperator } from '../api/filter';
 import { getRaids } from '../api/raid';
 import { safeGC } from '../gc';
+import { findBosses } from '../model/boss.model';
 import { createConnection } from './index';
+import { findRaidsByRealm } from './raid';
 import { bosskillDeathTable } from './schema/boss-kill-death.schema';
 import { bosskillLootTable } from './schema/boss-kill-loot.schema';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
@@ -61,11 +63,11 @@ export const synchronize = async ({
 	const realmEnt = await getOrCreateRealm({ name: realm, expansion });
 
 	const playerIdByGUID: Record<number, number> = {};
-	const raids = await getRaids({ realm, cache: false });
+	const remoteRaids = await getRaids({ realm, cache: false });
 	let isLimited = false;
 
 	// fast create raids and bosses
-	for (const raid of raids) {
+	for (const raid of remoteRaids) {
 		onLog(`Assert raid: ${raid.map}`);
 		const raidEnt = await getOrCreateRaid({ raid, realmId: realmEnt.id });
 		for (const boss of raid.bosses) {
@@ -74,19 +76,24 @@ export const synchronize = async ({
 		}
 	}
 
+	const bosses = await findBosses({ realm });
+	const bossesByRaidId = bosses.reduce((acc, boss) => {
+		acc[boss.raidId] ??= [];
+		acc[boss.raidId]!.push(boss);
+		return acc;
+	}, {} as Record<number, typeof bosses>);
+	const raids = await findRaidsByRealm({ realm });
 	for (const raid of raids) {
 		safeGC();
-		onLog(`Processing raid: ${raid.map}`);
-		const raidEnt = await getOrCreateRaid({ raid, realmId: realmEnt.id });
-		for (const boss of raid.bosses) {
+		onLog(`Processing raid: ${raid.name}`);
+		for (const boss of bossesByRaidId[raid.id] ?? []) {
 			safeGC();
 			onLog(`Processing boss: ${boss.name}`);
-			const bossEnt = await getOrCreateBoss({ boss, raidId: raidEnt.id });
 
 			const query: LatestBossKillQueryArgs = {
 				cache: false,
 				realm,
-				filters: [{ column: 'entry', operator: FilterOperator.EQUALS, value: boss.entry }]
+				filters: [{ column: 'entry', operator: FilterOperator.EQUALS, value: boss.remoteId }]
 			};
 
 			if (startsAt) {
@@ -99,8 +106,8 @@ export const synchronize = async ({
 				query.filters?.push({ column: 'id', operator: FilterOperator.IN, value: bosskillIds });
 			}
 			if (Array.isArray(bossIds) && bossIds.length > 0) {
-				if (bossIds.includes(boss.entry) === false) {
-					onLog(`Skipping boss ${boss.name}-${boss.entry}`);
+				if (bossIds.includes(boss.remoteId) === false) {
+					onLog(`Skipping boss ${boss.name}-${boss.remoteId}`);
 					continue;
 				}
 				query.filters?.push({ column: 'entry', operator: FilterOperator.IN, value: bossIds });
@@ -122,96 +129,109 @@ export const synchronize = async ({
 
 			const bkLength = bosskills.length;
 			let timeSum = 0;
-			for (let i = 0; i < bkLength; ++i) {
-				if (i % 100 === 0) {
-					safeGC();
-				}
-				const start = performance.now();
-				const bk = bosskills[i]!;
+
+			const promises = bosskills.map((bk, i) => {
 				const xOfY = `(${i}/${bkLength})`;
+				const work = async () => {
+					if (i % 100 === 0) {
+						safeGC();
+					}
+					const start = performance.now();
 
-				onLog(
-					`${xOfY} Avg bosskill processing time: ${
-						i > 0 ? Math.round((100 * timeSum) / i) / 100 : 0
-					}`
-				);
-				onLog(`${xOfY} Processing ${boss.name} bosskill: ${bk.id}`);
-				const bkEnt = await getOrCreateBosskill({
-					bossId: bossEnt.id,
-					realmId: realmEnt.id,
-					raidId: raidEnt.id,
-					bk
-				});
-				const bosskillId = bkEnt.id;
+					onLog(`${xOfY} Processing ${boss.name} bosskill: ${bk.id}`);
+					const bkEnt = await getOrCreateBosskill({
+						bossId: boss.id,
+						realmId: realmEnt.id,
+						raidId: raid.id,
+						bk
+					});
+					const bosskillId = bkEnt.id;
 
-				const detail = await getBossKillDetail({ realm: realmEnt.name, id: bk.id });
-				if (detail) {
-					onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id}`);
+					const detail = await getBossKillDetail({ realm: realmEnt.name, id: bk.id });
+					if (detail) {
+						onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id}`);
 
-					if (Array.isArray(detail.boss_kills_players)) {
-						onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - players`);
-						await deleteBossKillPlayers({ bosskillId });
-						const players = [];
-						for (const player of detail.boss_kills_players) {
-							const playerEnt = await getOrCreatePlayer({
-								guid: player.guid,
-								name: player.name,
+						if (Array.isArray(detail.boss_kills_players)) {
+							onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - players`);
+							await deleteBossKillPlayers({ bosskillId });
+							const players = [];
+							for (const player of detail.boss_kills_players) {
+								const playerEnt = await getOrCreatePlayer({
+									guid: player.guid,
+									name: player.name,
+									realmId: realmEnt.id,
+									onLog
+								});
+								playerIdByGUID[player.guid] = playerEnt.id;
+								players.push({ ...player, playerId: playerEnt.id });
+							}
+							await createBossKillPlayers({
+								bosskillId,
+								players,
 								realmId: realmEnt.id,
 								onLog
 							});
-							playerIdByGUID[player.guid] = playerEnt.id;
-							players.push({ ...player, playerId: playerEnt.id });
 						}
-						await createBossKillPlayers({
-							bosskillId,
-							players,
-							realmId: realmEnt.id,
-							onLog
-						});
-					}
 
-					if (Array.isArray(detail.boss_kills_loot)) {
-						onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - loot`);
-						await deleteBossKillLoot({ bosskillId });
-						await createBossKillLoot({
-							bosskillId,
-							items: detail.boss_kills_loot
-						});
-					}
+						if (Array.isArray(detail.boss_kills_loot)) {
+							onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - loot`);
+							await deleteBossKillLoot({ bosskillId });
+							await createBossKillLoot({
+								bosskillId,
+								items: detail.boss_kills_loot
+							});
+						}
 
-					if (Array.isArray(detail.boss_kills_deaths)) {
-						onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - deaths`);
-						await deleteBossKillDeaths({ bosskillId });
+						if (Array.isArray(detail.boss_kills_deaths)) {
+							onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - deaths`);
+							await deleteBossKillDeaths({ bosskillId });
 
-						const deaths: BossKillDeathsArgs['deaths'] = [];
-						for (const death of detail.boss_kills_deaths) {
-							const playerId = playerIdByGUID[death.guid] ?? null;
-							if (playerId === null) {
-								onLog(`${xOfY} Player not found by guid: ${death.guid}`);
-								// TODO: error?
-								continue;
+							const deaths: BossKillDeathsArgs['deaths'] = [];
+							for (const death of detail.boss_kills_deaths) {
+								const playerId = playerIdByGUID[death.guid] ?? null;
+								if (playerId === null) {
+									onLog(`${xOfY} Player not found by guid: ${death.guid}`);
+									// TODO: error?
+									continue;
+								}
+								deaths.push({ ...death, playerId });
 							}
-							deaths.push({ ...death, playerId });
+							await createBossKillDeaths({ bosskillId, deaths });
 						}
-						await createBossKillDeaths({ bosskillId, deaths });
+
+						if (Array.isArray(detail.boss_kills_maps)) {
+							onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - timeline`);
+							await deleteBossKillTimeline({ bosskillId });
+							await createBossKillTimeline({
+								bosskillId,
+								timeline: detail.boss_kills_maps
+							});
+						}
+					} else {
+						onLog(`${xOfY} No bosskill detail found by ${bk.id}`);
 					}
 
-					if (Array.isArray(detail.boss_kills_maps)) {
-						onLog(`${xOfY} Processing ${boss.name} bosskill detail ${detail.id} - timeline`);
-						await deleteBossKillTimeline({ bosskillId });
-						await createBossKillTimeline({
-							bosskillId,
-							timeline: detail.boss_kills_maps
-						});
-					}
-				} else {
-					onLog(`${xOfY} No bosskill detail found by ${bk.id}`);
-				}
-
-				const took = performance.now() - start;
-				onLog(`${xOfY} Processing ${boss.name} bosskill took ${took}`);
-				timeSum += took;
-			}
+					const took = performance.now() - start;
+					onLog(`${xOfY} Processing ${boss.name} bosskill: ${bk.id} took ${took}`);
+					timeSum += took;
+				};
+				return work()
+					.then(() => {
+						onLog(
+							`${xOfY} Avg bosskill processing time: ${
+								i > 0 ? Math.round((100 * timeSum) / i) / 100 : 0
+							}`
+						);
+					})
+					.catch((e) => {
+						const msg = `${xOfY} Processing ${boss.name} bosskill ${
+							bk.id
+						} has failed. Error: ${String(e)}`;
+						onLog(msg);
+						console.error(msg);
+					});
+			});
+			await Promise.all(promises);
 		}
 	}
 	onLog('done');

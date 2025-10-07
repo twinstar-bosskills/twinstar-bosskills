@@ -47,8 +47,17 @@ export const EXPIRE_5_MIN = 5 * 60;
 export const EXPIRE_30_MIN = 30 * 60;
 export const EXPIRE_1_HOUR = 60 * 60;
 export const EXPIRE_1_DAY = 24 * EXPIRE_1_HOUR;
+export const EXPIRE_7_DAYS = 7 * EXPIRE_1_DAY;
 const EXPIRE_DEFAULT = EXPIRE_1_DAY;
 
+const createKey = async (deps: unknown[]) => {
+	const k = sha256(stableStringify(deps));
+	// prefix key if possible
+	if (typeof deps[0] === 'string') {
+		return deps[0] + ':' + (await k);
+	}
+	return k;
+};
 const memory = async <T = unknown>({
 	deps,
 	fallback,
@@ -56,7 +65,7 @@ const memory = async <T = unknown>({
 	sliding = true,
 	defaultValue = undefined
 }: Args<T>): Promise<T> => {
-	const key = await sha256(JSON.stringify(deps));
+	const key = await createKey(deps);
 	const item = CACHE[key];
 	if (typeof item === 'undefined') {
 		try {
@@ -96,7 +105,7 @@ const dragonfly = async <T = unknown>({
 	force = false,
 	defaultValue = undefined
 }: Args<T>): Promise<T> => {
-	const key = await sha256(stableStringify(deps));
+	const key = await createKey(deps);
 
 	// remove keys with ttl bigger that it should be
 	if (!sliding) {

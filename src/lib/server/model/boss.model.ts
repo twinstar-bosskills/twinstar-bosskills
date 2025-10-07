@@ -2,10 +2,10 @@ import { METRIC_TYPE, type PlayerPercentile, type PlayerPercentiles } from '$lib
 import type { ART } from '$lib/types';
 import { EXPIRE_1_DAY, EXPIRE_1_HOUR, EXPIRE_5_MIN, withCache } from '../cache';
 import {
-	findByRealm,
+	findBossesByRealm,
 	getBossPercentilesFast,
 	getBossTopSpecs,
-	getByRemoteIdAndRealm,
+	getBossByRemoteIdAndRealm,
 	getBossStatsMedian as statsMedian,
 	type GetBossStatsMedianArgs,
 	type GetBossTopSpecsArgs
@@ -16,7 +16,7 @@ import {
 	type RankingByRaidLock
 } from '../db/ranking';
 export const findBosses = async (args: { realm: string }) => {
-	const fallback = () => findByRealm(args);
+	const fallback = () => findBossesByRealm(args);
 	return withCache<ART<typeof fallback>>({
 		deps: ['model/boss/findBosses', args],
 		fallback,
@@ -25,7 +25,7 @@ export const findBosses = async (args: { realm: string }) => {
 };
 
 export const getBoss = async (args: { remoteId: number; realm: string }) => {
-	const fallback = () => getByRemoteIdAndRealm(args);
+	const fallback = () => getBossByRemoteIdAndRealm(args);
 	return withCache<ART<typeof fallback>>({
 		deps: ['model/boss/getBoss', args],
 		fallback,
@@ -180,5 +180,6 @@ export const getTopSpecsByRaidLock = (
 	const fallback = async () => {
 		return getRankingByRaidLock(args);
 	};
+
 	return withBossTopSpecsByRaidLockCache(args, fallback);
 };

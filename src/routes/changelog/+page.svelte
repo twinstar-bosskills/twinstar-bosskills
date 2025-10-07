@@ -1,7 +1,10 @@
 <script>
+	import Link from '$lib/components/Link.svelte';
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
 	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
+	import { links } from '$lib/links';
+	import { REALM_HELIOS } from '$lib/realm';
 </script>
 
 <svelte:head>
@@ -9,6 +12,17 @@
 </svelte:head>
 <h1>Changelog (YYYY-MM-DD)</h1>
 <div class="changelog">
+	<section>
+		<h2>2025-10-07 - <Link href={links.ranks(REALM_HELIOS)}>Ranks</Link> introduced</h2>
+		<p>
+			Calculated for the current (each day at 5AM) and previous raid locks (each WED at 6AM). Cached
+			for 1 day.
+		</p>
+		<div class="explanation">
+			<h3 class="hint">Why bother? Crossic asked nicely</h3>
+			<p class="content">Apparently this feature is useful to someone :D</p>
+		</div>
+	</section>
 	<section>
 		<h2>2024-06-30 - Cache expiration set to 1 day for stats in boss detail</h2>
 	</section>

@@ -13,8 +13,13 @@
 	import { difficultyToString } from '$lib/model';
 	import Link from '$lib/components/Link.svelte';
 	import { links } from '$lib/links';
+	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
+	import Class from '$lib/components/table/column/Class.column.svelte';
 
 	export let data: PageData;
+
+	const tableStyle =
+		'--grid-template-columns: minmax(max-content, 1fr) min-content repeat(2, minmax(max-content, 1fr)) min-content minmax(max-content, 1fr)';
 
 	const columnByStatsType: Record<MetricType, ColumnDef<unknown>[]> = {
 		[METRIC_TYPE.DPS]: [],
@@ -24,57 +29,50 @@
 		{ type: METRIC_TYPE.DPS, value: data.byDPS },
 		{ type: METRIC_TYPE.HPS, value: data.byHPS }
 	]) {
-		type T = (typeof stat.value)[0];
+		type T = (typeof stat.value.ranks)['0']['0'][0];
 		const isDmg = stat.type === METRIC_TYPE.DPS;
 		const columns: ColumnDef<T>[] = [
 			{
-				id: 'raid',
-				accessorFn: (row) => row.raid.name,
-				header: () => 'Raid',
-				enableSorting: false
-			},
-			{
-				id: 'boss',
-				accessorFn: (row) => row.boss.name,
-				header: () => 'Boss',
-				cell: ({ row }) => {
-					return cellComponent(Boss, {
+				id: 'character',
+				accessorFn: (row) => row.characters[0]!.name,
+				header: () => 'Character',
+				cell: ({ row, table }) => {
+					const rows = table.getPreSortedRowModel().rows;
+					const index = rows.findIndex((r) => r.id === row.id) ?? null;
+					let rank = undefined;
+					if (index !== null) {
+						rank = index + 1;
+					}
+					return cellComponent(CharacterName, {
 						realm: data.realm,
-						boss: row.original.boss,
-						difficulty: data.difficulty
+						character: row.original.characters[0]!,
+						rank
 					});
-				},
-				enableSorting: false
+				}
 			},
 			{
-				id: 'spec',
+				id: 'class',
 				accessorFn: (row) => row.spec,
 				cell: ({ row }) => {
-					return cellComponent(Spec, {
+					return cellComponent(Class, {
 						realm: data.realm,
-						spec: row.original.spec
+						character: row.original.characters[0]
 					});
 				},
-				header: () => 'Spec',
-				enableSorting: false
-			},
-			{
-				id: 'character',
-				accessorFn: (row) => row.ranks[0]!.name,
-				header: () => 'Character',
+				header: () => 'Class',
 				enableSorting: false
 			},
 			{
 				id: 'valuePerSecond',
 				accessorFn: (row) => {
-					const r1 = row.ranks[0];
+					const r1 = row.characters[0];
 					if (r1) {
 						return isDmg ? characterDps(r1) : characterHps(r1);
 					}
 					return null;
 				},
 				cell: ({ row }) => {
-					const r1 = row.original.ranks[0];
+					const r1 = row.original.characters[0];
 					if (r1) {
 						return isDmg
 							? cellComponent(CharacterDPS, { character: r1 })
@@ -83,29 +81,26 @@
 
 					return 'N/A';
 				},
-				header: () => (isDmg ? 'DPS' : 'HPS'),
-				enableSorting: false
+				header: () => (isDmg ? 'DPS' : 'HPS')
 			},
 
 			{
 				id: 'fightLength',
-				accessorFn: (row) => row.ranks[0]?.boss_kills?.length ?? 0,
+				accessorFn: (row) => row.characters[0]?.boss_kills?.length ?? 0,
 				cell: (info) => formatSecondsInterval(info.getValue() as number),
-				header: () => 'Fight Length',
-				enableSorting: false
+				header: () => 'Fight Length'
 			},
 
 			{
 				id: 'avgItemLvl',
-				accessorFn: (row) => row.ranks[0]!.avg_item_lvl,
+				accessorFn: (row) => row.characters[0]!.avg_item_lvl,
 				cell: (info) => formatAvgItemLvl(info.getValue() as any),
-				header: () => 'Avg iLvl',
-				enableSorting: false
+				header: () => 'iLvl'
 			},
 			{
 				id: 'detail',
 				cell: (info) => {
-					const bossKillId = info.row.original.ranks[0]!.boss_kills?.id;
+					const bossKillId = info.row.original.characters[0]!.boss_kills?.id;
 					return cellComponent(BossKillDetailLink, { realm: data.realm, id: bossKillId });
 				},
 				header: () => 'Details',
@@ -126,7 +121,45 @@
 </p>
 
 <h2>Top DPS ranks {difficultyToString(data.expansion, data.difficulty)}</h2>
-<Table data={data.byDPS} columns={columnByStatsType[METRIC_TYPE.DPS]} />
+{#each data.byDPS.raids as raid}
+	<h3>{raid.name}</h3>
+	{#each raid.bosses as boss}
+		{@const tableData = data.byDPS.ranks?.[raid.id]?.[boss.id] ?? []}
+		{#if tableData.length > 0}
+			<h4>
+				{raid.name} -
+				<Link href={links.boss(data.realm, boss.remoteId, { difficulty: data.difficulty })}>
+					{boss.name}
+				</Link>
+			</h4>
+			<Table
+				data={tableData}
+				columns={columnByStatsType[METRIC_TYPE.DPS]}
+				style={tableStyle}
+				sorting={[{ id: 'valuePerSecond', desc: true }]}
+			/>
+		{/if}
+	{/each}
+{/each}
 
 <h2>Top HPS ranks {difficultyToString(data.expansion, data.difficulty)}</h2>
-<Table data={data.byHPS} columns={columnByStatsType[METRIC_TYPE.HPS]} />
+{#each data.byHPS.raids as raid}
+	<h3>{raid.name}</h3>
+	{#each raid.bosses as boss}
+		{@const tableData = data.byHPS.ranks?.[raid.id]?.[boss.id] ?? []}
+		{#if tableData.length > 0}
+			<h4>
+				{raid.name} -
+				<Link href={links.boss(data.realm, boss.remoteId, { difficulty: data.difficulty })}>
+					{boss.name}
+				</Link>
+			</h4>
+			<Table
+				data={tableData}
+				columns={columnByStatsType[METRIC_TYPE.HPS]}
+				style={tableStyle}
+				sorting={[{ id: 'valuePerSecond', desc: true }]}
+			/>
+		{/if}
+	{/each}
+{/each}

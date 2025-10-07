@@ -1,10 +1,10 @@
 import { raidLock } from '$lib/date';
 import { METRIC_TYPE } from '$lib/metrics';
+import { difficultiesByExpansion } from '$lib/model';
 import { getRaidLockOffsetFromUrl } from '$lib/search-params';
 import { getRanks } from '$lib/server/model/ranking.model';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { defaultDifficultyByExpansion, difficultiesByExpansion } from '$lib/model';
 
 export const load: PageServerLoad = async ({ url, params, parent }) => {
 	const { realmIsPrivate, realm, expansion } = await parent();
