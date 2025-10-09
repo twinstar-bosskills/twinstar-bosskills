@@ -1,36 +1,33 @@
 <script lang="ts">
+	import Link from '$lib/components/Link.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
-	import Boss from '$lib/components/table/column/Boss.column.svelte';
 	import CharacterDPS from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
-	import Spec from '$lib/components/table/column/Spec.column.svelte';
+	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
+	import Class from '$lib/components/table/column/Class.column.svelte';
 	import { formatSecondsInterval } from '$lib/date';
+	import { links } from '$lib/links';
 	import { characterDps, characterHps, METRIC_TYPE, type MetricType } from '$lib/metrics';
+	import { difficultyToString } from '$lib/model';
 	import { formatAvgItemLvl } from '$lib/number';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import BossKillDetailLink from '../boss/[id=integer]/components/BossKillDetailLink.svelte';
 	import type { PageData } from './$types';
-	import { difficultyToString } from '$lib/model';
-	import Link from '$lib/components/Link.svelte';
-	import { links } from '$lib/links';
-	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
-	import Class from '$lib/components/table/column/Class.column.svelte';
 
 	export let data: PageData;
 
 	const tableStyle =
 		'--grid-template-columns: minmax(max-content, 1fr) min-content repeat(2, minmax(max-content, 1fr)) min-content minmax(max-content, 1fr)';
 
-	const columnByStatsType: Record<MetricType, ColumnDef<unknown>[]> = {
-		[METRIC_TYPE.DPS]: [],
-		[METRIC_TYPE.HPS]: []
-	};
-	for (const stat of [
-		{ type: METRIC_TYPE.DPS, value: data.byDPS },
-		{ type: METRIC_TYPE.HPS, value: data.byHPS }
-	]) {
-		type T = (typeof stat.value.ranks)['0']['0'][0];
-		const isDmg = stat.type === METRIC_TYPE.DPS;
+	const columnByStatsType = ({
+		boss,
+		metric
+	}: {
+		boss: (typeof data.byDPS)['raids'][0]['bosses'][0];
+		metric: MetricType;
+	}): ColumnDef<unknown>[] => {
+		type T = (typeof data.byDPS.ranks)['0']['0'][0];
+		const isDmg = metric === METRIC_TYPE.DPS;
 		const columns: ColumnDef<T>[] = [
 			{
 				id: 'character',
@@ -56,7 +53,12 @@
 				cell: ({ row }) => {
 					return cellComponent(Class, {
 						realm: data.realm,
-						character: row.original.characters[0]
+						character: row.original.characters[0],
+						talentSpecHref: links.bossHistory(data.realm, boss.remoteId, {
+							difficulty: data.difficulty,
+							raidlock: data.raidlock,
+							spec: row.original.spec
+						})
 					});
 				},
 				header: () => 'Class',
@@ -107,8 +109,8 @@
 				enableSorting: false
 			}
 		];
-		columnByStatsType[stat.type] = columns as any as ColumnDef<unknown>[];
-	}
+		return columns as any as ColumnDef<unknown>[];
+	};
 </script>
 
 <svelte:head>
@@ -134,7 +136,7 @@
 			</h4>
 			<Table
 				data={tableData}
-				columns={columnByStatsType[METRIC_TYPE.DPS]}
+				columns={columnByStatsType({ boss, metric: METRIC_TYPE.DPS })}
 				style={tableStyle}
 				sorting={[{ id: 'valuePerSecond', desc: true }]}
 			/>
@@ -156,7 +158,7 @@
 			</h4>
 			<Table
 				data={tableData}
-				columns={columnByStatsType[METRIC_TYPE.HPS]}
+				columns={columnByStatsType({ boss, metric: METRIC_TYPE.HPS })}
 				style={tableStyle}
 				sorting={[{ id: 'valuePerSecond', desc: true }]}
 			/>
