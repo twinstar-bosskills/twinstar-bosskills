@@ -40,7 +40,7 @@ export const verifyGuildTokenFromCookie = ({
 
 export const assertGuildTokenFromCookie = (args: VerifyGuildTokenFromCookiesArgs) => {
 	if (verifyGuildTokenFromCookie(args) === false) {
-		throw error(403, {
+		error(403, {
 			message: `Fobidden`,
 			// @ts-ignore
 			details: `Change your guild token if you want to see guild ${args.guild} data`,

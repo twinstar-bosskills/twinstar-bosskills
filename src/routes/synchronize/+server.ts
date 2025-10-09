@@ -10,7 +10,7 @@ export const GET: RequestHandler = async ({ url, request }) => {
 	const token = SECRET_TOKEN_SYNCHRONIZE;
 
 	if (xtoken === null || xtoken !== token || xtoken.length === 0 || token.length === 0) {
-		throw error(403, { message: `Synchronize token not found or does not match` });
+		error(403, { message: `Synchronize token not found or does not match` });
 	}
 
 	safeGC();

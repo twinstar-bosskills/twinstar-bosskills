@@ -23,7 +23,7 @@ export const load: LayoutServerLoad = async ({ cookies, params, url }) => {
 
 	const mergedTo = realmMergedTo(params.realm);
 	if (mergedTo) {
-		throw redirect(302, links.home(mergedTo));
+		redirect(302, links.home(mergedTo));
 	}
 
 	const expansion = realmToExpansion(params.realm!);

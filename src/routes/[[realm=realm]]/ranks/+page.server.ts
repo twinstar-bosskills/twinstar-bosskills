@@ -10,12 +10,12 @@ export const load: PageServerLoad = async ({ url, params, parent }) => {
 	const { realmIsPrivate, realm, expansion } = await parent();
 
 	if (realmIsPrivate) {
-		throw error(403, { message: 'Realm is private' });
+		error(403, { message: 'Realm is private' });
 	}
 
 	const difficulty = difficultiesByExpansion(expansion)?.DIFFICULTY_10_HC ?? null;
 	if (difficulty === null) {
-		throw error(404, { message: 'Difficulty 10 HC not found' });
+		error(404, { message: 'Difficulty 10 HC not found' });
 	}
 	const offset = getRaidLockOffsetFromUrl(url);
 	const { start: startsAt, end: endsAt } = raidLock(new Date(), offset);

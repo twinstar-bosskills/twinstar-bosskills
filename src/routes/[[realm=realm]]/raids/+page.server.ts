@@ -29,21 +29,21 @@ export const load: PageServerLoad = async ({ params }) => {
 	const bosskillsByRaidByDifficulty: Record<string, Record<number, number>> = {};
 	for (const bk of bosskills) {
 		bosskillsByBoss[bk.entry] ??= 0;
-		bosskillsByBoss[bk.entry]++;
+		bosskillsByBoss[bk.entry]!++;
 
 		bosskillsByBossByDifficulty[bk.entry] ??= { [bk.mode]: 0 };
 		if (typeof bosskillsByBossByDifficulty[bk.entry]?.[bk.mode] === 'undefined') {
 			bosskillsByBossByDifficulty[bk.entry]![bk.mode] = 0;
 		}
-		bosskillsByBossByDifficulty[bk.entry]![bk.mode]++;
+		bosskillsByBossByDifficulty[bk.entry]![bk.mode]!++;
 
 		bosskillsByRaid[bk.map] ??= 0;
-		bosskillsByRaid[bk.map]++;
+		bosskillsByRaid[bk.map]!++;
 		bosskillsByRaidByDifficulty[bk.map] ??= { [bk.mode]: 0 };
 		if (typeof bosskillsByRaidByDifficulty[bk.map]?.[bk.mode] === 'undefined') {
 			bosskillsByRaidByDifficulty[bk.map]![bk.mode] = 0;
 		}
-		bosskillsByRaidByDifficulty[bk.map]![bk.mode]++;
+		bosskillsByRaidByDifficulty[bk.map]![bk.mode]!++;
 	}
 
 	return {

@@ -40,7 +40,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	if (type !== 'race' && type !== 'raid') {
 		id = Number(id);
 		if (isFinite(id) === false || isNaN(id)) {
-			throw error(400, 'id must be finite integer');
+			error(400, 'id must be finite integer');
 		}
 	}
 
@@ -58,24 +58,27 @@ export const GET: RequestHandler = async ({ url }) => {
 	}
 	if (iconUrl !== null) {
 		const cached = await blobCacheGet(iconUrl);
+		const headers: HeadersInit = {
+			// 14 days
+			'Cache-Control': 'max-age=1209600, s-maxage=1209600'
+		};
 		let blob = null;
 		let blobType = undefined;
 		if (cached === null) {
+			headers['X-Cache-Miss'] = '1';
 			blob = await getBlob(iconUrl);
 			if (blob != null) {
 				blobType = blob.type;
 				await blobCacheSet(iconUrl, blob);
 			}
 		} else {
-			blob = Buffer.from(cached.value, 'binary');
+			headers['X-Cache-Hit'] = '1';
+			// @ts-ignore
+			blob = new Blob([Buffer.from(cached.value, 'binary')], { type: cached.type });
 			blobType = cached.type;
 		}
 
 		if (blob !== null) {
-			const headers: HeadersInit = {
-				// 14 days
-				'Cache-Control': 'max-age=1209600, s-maxage=1209600'
-			};
 			if (blobType) {
 				headers['Content-Type'] = blobType;
 			}
@@ -85,9 +88,9 @@ export const GET: RequestHandler = async ({ url }) => {
 		}
 
 		// return placeholder
-		throw redirect(302, `/icons/inv_misc_questionmark.png`);
+		redirect(302, `/icons/inv_misc_questionmark.png`);
 		// throw error(404, `img not found by id ${id} and type ${type}`);
 	}
 
-	throw error(400, `unknown type ${type}`);
+	error(400, `unknown type ${type}`);
 };

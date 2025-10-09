@@ -16,6 +16,6 @@ export const actions: Actions = {
 		throw redirect(303, redirectUrl);
 		*/
 
-		throw redirect(303, links.character(params.realm!, character));
+		redirect(303, links.character(params.realm!, character));
 	}
 } satisfies Actions;

@@ -158,6 +158,7 @@ export const blobCacheGet = async (key: string): Promise<BlobCacheItem> => {
 			if (typeof item?.type !== 'string' || typeof item?.value !== 'string') {
 				throw new Error(`Invalid item: ${v}`);
 			}
+			return item;
 		} catch (e) {
 			// ignore
 		}
@@ -170,6 +171,7 @@ export const blobCacheSet = async (key: string, blob: Blob): Promise<BlobCacheIt
 		const value = Buffer.from(await blob.arrayBuffer()).toString('binary');
 		const item = { type: blob.type, value };
 		await df.hset('blob-cache', { [key]: JSON.stringify(item) });
+
 		return item;
 	} catch (e) {
 		// ignore
