@@ -6,11 +6,14 @@ import { getTopSpecsByRaidLock } from '$lib/server/model/boss.model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import assert from 'node:assert';
 
-export const load: PageServerLoad = async ({ url, params, parent }) => {
+export const load: PageServerLoad = async ({ url, parent }) => {
 	const { realmIsPrivate, realm, boss, difficulty, talentSpec: spec } = await parent();
+	assert(boss);
+
 	if (!spec) {
-		throw error(400, {
+		error(400, {
 			message: 'No talent spec selected'
 		});
 	}

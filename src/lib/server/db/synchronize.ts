@@ -229,6 +229,7 @@ export const synchronize = async ({
 						} has failed. Error: ${String(e)}`;
 						onLog(msg);
 						console.error(msg);
+						console.error(e);
 					});
 			});
 			await Promise.all(promises);

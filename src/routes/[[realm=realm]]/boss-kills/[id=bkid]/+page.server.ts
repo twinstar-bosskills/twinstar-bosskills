@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	const realm = params.realm ?? REALM_HELIOS;
 	const bosskill = await api.getBossKillDetail({ realm, id });
 	if (!bosskill) {
-		throw error(404, {
+		error(404, {
 			message: 'Not found'
 		});
 	}
@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	const boss = await getBoss({ realm, remoteId: bosskill.entry });
 	if (!boss) {
-		throw error(404, {
+		error(404, {
 			message: `Boss ${id} not found`
 		});
 	}

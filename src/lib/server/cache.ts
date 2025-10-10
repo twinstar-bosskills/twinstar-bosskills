@@ -51,7 +51,12 @@ export const EXPIRE_7_DAYS = 7 * EXPIRE_1_DAY;
 const EXPIRE_DEFAULT = EXPIRE_1_DAY;
 
 const createKey = async (deps: unknown[]) => {
-	const k = sha256(stableStringify(deps));
+	const str = stableStringify(deps);
+	if (typeof str !== 'string') {
+		console.error('stableStringify has failed', { deps });
+		throw new Error('stableStringify has failed');
+	}
+	const k = sha256(str);
 	// prefix key if possible
 	if (typeof deps[0] === 'string') {
 		return deps[0] + ':' + (await k);
@@ -158,6 +163,7 @@ export const blobCacheGet = async (key: string): Promise<BlobCacheItem> => {
 			if (typeof item?.type !== 'string' || typeof item?.value !== 'string') {
 				throw new Error(`Invalid item: ${v}`);
 			}
+			return item;
 		} catch (e) {
 			// ignore
 		}
@@ -170,6 +176,7 @@ export const blobCacheSet = async (key: string, blob: Blob): Promise<BlobCacheIt
 		const value = Buffer.from(await blob.arrayBuffer()).toString('binary');
 		const item = { type: blob.type, value };
 		await df.hset('blob-cache', { [key]: JSON.stringify(item) });
+
 		return item;
 	} catch (e) {
 		// ignore

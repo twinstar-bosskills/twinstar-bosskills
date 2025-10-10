@@ -114,7 +114,7 @@
 		backgroundColor: 'transparent',
 		tooltip: {
 			trigger: 'axis',
-			valueFormatter: (v) => v.toLocaleString(),
+			valueFormatter: (v) => v?.toLocaleString() ?? '',
 			formatter: (params: TooltipComponentFormatterCallbackParams) => {
 				let html = '';
 				if (Array.isArray(params) && params.length > 0) {

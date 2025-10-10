@@ -10,7 +10,7 @@ export const load: LayoutServerLoad = async ({ cookies, params, url }) => {
 	const character = await api.getCharacterByName({ name, realm });
 
 	if (character === null) {
-		throw error(404, { message: `Character ${name} was not found` });
+		error(404, { message: `Character ${name} was not found` });
 	}
 
 	assertGuildTokenFromCookie({ guild: character.guildName, cookies, realm });
