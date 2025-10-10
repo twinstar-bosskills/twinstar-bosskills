@@ -51,7 +51,12 @@ export const EXPIRE_7_DAYS = 7 * EXPIRE_1_DAY;
 const EXPIRE_DEFAULT = EXPIRE_1_DAY;
 
 const createKey = async (deps: unknown[]) => {
-	const k = sha256(stableStringify(deps));
+	const str = stableStringify(deps);
+	if (typeof str !== 'string') {
+		console.error('stableStringify has failed', { deps });
+		throw new Error('stableStringify has failed');
+	}
+	const k = sha256(str);
 	// prefix key if possible
 	if (typeof deps[0] === 'string') {
 		return deps[0] + ':' + (await k);
