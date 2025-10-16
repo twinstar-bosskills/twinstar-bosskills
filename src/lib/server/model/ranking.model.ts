@@ -3,7 +3,7 @@ import { characterDps, characterHps, METRIC_TYPE, type MetricType } from '$lib/m
 import { talentSpecsByExpansion } from '$lib/model';
 import type { Boss } from '$lib/model/boss.model';
 import type { Raid } from '$lib/model/raid.model';
-import { EXPIRE_1_DAY, EXPIRE_7_DAYS, withCache } from '../cache';
+import { EXPIRE_30_MIN, EXPIRE_7_DAYS, withCache } from '../cache';
 import type { RankingByRaidLock } from '../db/ranking';
 import { findBosses, getTopSpecsByRaidLock } from './boss.model';
 import { getRaids } from './raid.model';
@@ -102,7 +102,7 @@ export const getRanks = async (args: GetRanksArgs): Promise<GetRanksResult> => {
 		deps: [`model/ranking/getRanks`, args],
 		fallback,
 		defaultValue: { raids: [], ranks: {} },
-		expire: isPreviousRaidLock ? EXPIRE_7_DAYS : EXPIRE_1_DAY,
+		expire: isPreviousRaidLock ? EXPIRE_7_DAYS : EXPIRE_30_MIN,
 		sliding: false
 	});
 };
