@@ -31,6 +31,7 @@
 	import type { PageData } from './$types';
 	import BossKillDetailLink from './components/BossKillDetailLink.svelte';
 	import { links } from '$lib/links';
+	import BossSelect from './components/BossSelect.svelte';
 
 	export let data: PageData;
 
@@ -168,6 +169,14 @@
 	<title>{title}</title>
 </svelte:head>
 <h1>{title}</h1>
+<BossSelect
+	realm={data.realm}
+	boss={data.boss}
+	bosses={data.raidBosses}
+	spec={data.talentSpec}
+	difficulty={data.difficulty}
+	raidlock={data.raidlock}
+/>
 {#if data.kw}
 	<p>
 		{data.boss.name} ({difficultyToString(expansion, currentDifficulty)}) was killed
