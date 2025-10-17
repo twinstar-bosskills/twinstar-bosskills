@@ -25,6 +25,7 @@
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
 	import { getTalentSpecIconUrl } from '$lib/talent';
 	import type { ColumnDef } from '@tanstack/svelte-table';
+	import BossSelect from '../components/BossSelect.svelte';
 	import type { PageData } from './$types';
 	import BossKillDetailLink from './../components/BossKillDetailLink.svelte';
 
@@ -164,6 +165,15 @@
 	<title>{title}</title>
 </svelte:head>
 <h1>{title}</h1>
+<BossSelect
+	linkTo="history"
+	realm={data.realm}
+	boss={data.boss}
+	bosses={data.raidBosses}
+	spec={data.talentSpec}
+	difficulty={data.difficulty}
+	raidlock={data.raidlock}
+/>
 {#if data.realmIsPrivate === false}
 	<h2>
 		Top 5 by spec by for raid lock {data.raidLockStart.toLocaleDateString()} - {data.raidLockEnd.toLocaleDateString()}
