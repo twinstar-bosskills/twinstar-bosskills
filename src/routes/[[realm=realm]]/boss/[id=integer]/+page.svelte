@@ -84,7 +84,7 @@
 	for (const stat of data.stats) {
 		type T = (typeof stat.value)[0];
 		const isDmg = stat.type === STATS_TYPE_DMG;
-		const columns: ColumnDef<T>[] = [
+		const columns: (ColumnDef<T> | undefined)[] = [
 			{
 				id: 'character',
 				accessorFn: (row) => row.char,
@@ -121,12 +121,26 @@
 				accessorFn: (row) => row.valuePerSecond,
 				cell: (info) => {
 					return isDmg
-						? cellComponent(CharacterDps, { character: info.row.original.char })
+						? cellComponent(CharacterDps, {
+								character: info.row.original.char,
+								effectivity: info.row.original.char.dpsEffectivity
+						  })
 						: cellComponent(CharacterHps, { character: info.row.original.char });
 				},
 
 				header: () => (isDmg ? 'DPS' : 'HPS')
 			},
+			isDmg
+				? {
+						id: 'effectivity',
+						accessorFn: (row) => row.char.dpsEffectivity,
+						cell: (info) => {
+							return isDmg ? info.row.original.char.dpsEffectivity : 'N/A';
+						},
+
+						header: () => 'Effectivity'
+				  }
+				: undefined,
 			{
 				id: 'valueTotal',
 				accessorFn: (row) => row.valueTotal,
@@ -161,7 +175,7 @@
 				enableSorting: false
 			}
 		];
-		columnByStatsType[stat.type] = columns as any as ColumnDef<unknown>[];
+		columnByStatsType[stat.type] = columns.filter(Boolean) as any as ColumnDef<unknown>[];
 	}
 </script>
 

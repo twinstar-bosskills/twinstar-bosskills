@@ -11,7 +11,7 @@
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
 	import { links } from '$lib/links';
-	import { characterDps, characterHps } from '$lib/metrics';
+	import { characterDps, characterHps, dpsEffectivity } from '$lib/metrics';
 	import { isRaidDifficultyWithLoot } from '$lib/model';
 	import { formatAvgItemLvl, formatNumber } from '$lib/number';
 	import { realmToExpansion } from '$lib/realm';
@@ -115,7 +115,20 @@
 		{
 			id: 'dps',
 			accessorFn: (row) => characterDps(row, fightLength),
-			cell: (info) => cellComponent(CharacterDps, { character: info.row.original, fightLength }),
+			cell: (info) =>
+				cellComponent(CharacterDps, {
+					character: info.row.original,
+					fightLength,
+					effectivity:
+						data.raidDmgDone > 0 && data.bossProps
+							? dpsEffectivity({
+									dmgDone: info.row.original.dmgDone,
+									fightLength,
+									raidDmgDone: data.raidDmgDone,
+									bossHealth: data.bossProps.health
+							  })
+							: undefined
+				}),
 			header: () => 'DPS'
 		},
 		{
@@ -238,14 +251,14 @@
 			<dt>Wipes</dt>
 			<dd>{data.bosskill.wipes}</dd>
 
-			<dt>Deaths</dt>
-			<dd>{data.bosskill.deaths}</dd>
+			<dt>Total dmg done</dt>
+			<dd>{formatNumber(data.raidDmgDone)}</dd>
 
 			<dt>Fight Length</dt>
 			<dd>{formatSecondsInterval(data.bosskill.length)}</dd>
 
-			<dt>Ressurects</dt>
-			<dd>{data.bosskill.ressUsed}</dd>
+			<dt>Deaths / Ressurects</dt>
+			<dd>{data.bosskill.deaths} / {data.bosskill.ressUsed}</dd>
 		</dl>
 	</div>
 

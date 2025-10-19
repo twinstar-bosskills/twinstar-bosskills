@@ -9,16 +9,17 @@
 	import { links } from '$lib/links';
 	import { characterDps, characterHps, METRIC_TYPE, type MetricType } from '$lib/metrics';
 	import { difficultyToString } from '$lib/model';
-	import { formatAvgItemLvl } from '$lib/number';
+	import { formatAvgItemLvl, formatNumber } from '$lib/number';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import BossKillDetailLink from '../boss/[id=integer]/components/BossKillDetailLink.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
-	const tableStyle =
+	const dpsTableStyle =
+		'--grid-template-columns: minmax(max-content, 1fr) min-content minmax(max-content, 1fr) min-content minmax(max-content, 1fr) min-content minmax(max-content, 1fr)';
+	const hpsTableStyle =
 		'--grid-template-columns: minmax(max-content, 1fr) min-content repeat(2, minmax(max-content, 1fr)) min-content minmax(max-content, 1fr)';
-
 	const columnByStatsType = ({
 		boss,
 		metric
@@ -28,7 +29,7 @@
 	}): ColumnDef<unknown>[] => {
 		type T = (typeof data.byDPS.ranks)['0']['0'][0];
 		const isDmg = metric === METRIC_TYPE.DPS;
-		const columns: ColumnDef<T>[] = [
+		const columns: (ColumnDef<T> | undefined)[] = [
 			{
 				id: 'character',
 				accessorFn: (row) => row.characters[0]!.name,
@@ -77,7 +78,7 @@
 					const r1 = row.original.characters[0];
 					if (r1) {
 						return isDmg
-							? cellComponent(CharacterDPS, { character: r1 })
+							? cellComponent(CharacterDPS, { character: r1, effectivity: r1.dpsEffectivity })
 							: cellComponent(CharacterHPS, { character: r1 });
 					}
 
@@ -85,7 +86,27 @@
 				},
 				header: () => (isDmg ? 'DPS' : 'HPS')
 			},
+			isDmg
+				? {
+						id: 'effectivity',
+						accessorFn: (row) => {
+							const r1 = row.characters[0];
+							if (r1) {
+								return isDmg ? r1.dpsEffectivity : null;
+							}
+							return null;
+						},
+						cell: ({ getValue }) => {
+							const dpsEffectivity = getValue<number | null>();
+							if (typeof dpsEffectivity === 'number') {
+								return formatNumber(dpsEffectivity);
+							}
 
+							return 'N/A';
+						},
+						header: () => 'Effectivity'
+				  }
+				: undefined,
 			{
 				id: 'fightLength',
 				accessorFn: (row) => row.characters[0]?.boss_kills?.length ?? 0,
@@ -109,7 +130,7 @@
 				enableSorting: false
 			}
 		];
-		return columns as any as ColumnDef<unknown>[];
+		return columns.filter(Boolean) as any as ColumnDef<unknown>[];
 	};
 </script>
 
@@ -137,7 +158,7 @@
 			<Table
 				data={tableData}
 				columns={columnByStatsType({ boss, metric: METRIC_TYPE.DPS })}
-				style={tableStyle}
+				style={dpsTableStyle}
 				sorting={[{ id: 'valuePerSecond', desc: true }]}
 			/>
 		{/if}
@@ -159,7 +180,7 @@
 			<Table
 				data={tableData}
 				columns={columnByStatsType({ boss, metric: METRIC_TYPE.HPS })}
-				style={tableStyle}
+				style={hpsTableStyle}
 				sorting={[{ id: 'valuePerSecond', desc: true }]}
 			/>
 		{/if}

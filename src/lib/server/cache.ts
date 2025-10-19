@@ -151,6 +151,7 @@ const dragonfly = async <T = unknown>({
 };
 
 export const withCache = async <T = unknown>(args: Args<T>): Promise<T> => {
+	args.force = true;
 	return dragonfly<T>(args);
 };
 

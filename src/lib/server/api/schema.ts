@@ -26,7 +26,7 @@ const bosskillTransform = <T extends { realm: string; mode: number }>(item: T) =
 	const expansion = realmToExpansion(realm);
 	return { ...item, difficulty: difficultyToString(expansion, item.mode) };
 };
-const bosskillSchemaBase = z.object({
+const bosskillSchemaBase = z.looseObject({
 	id: z.string(),
 	entry: bossIdSchema,
 	map: mapSchema,

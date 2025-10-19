@@ -5,13 +5,15 @@
 
 	import { formatNumber } from '$lib/number';
 	export let character: CharacterMetricParts;
+	export let effectivity: number | null | undefined = undefined;
 	export let fightLength: number | undefined = undefined;
 	export let performance: { dps: number } | undefined = undefined;
 
 	$: dps = characterDps(character, fightLength);
+	$: effectivityInfo = effectivity ? `Effectivity: ${formatNumber(effectivity)}` : undefined;
 </script>
 
-{formatNumber(dps)}
+<div title={effectivityInfo}>{formatNumber(dps)}</div>
 {#if performance && dps > 0}
 	<div
 		style="display: inline-flex; margin-left: 0.25rem;"

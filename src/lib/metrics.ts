@@ -30,17 +30,44 @@ export const healingAndAbsorbDone = (character: CharacterMetricParts) => {
 	}
 	return 0;
 };
-export const characterDps = (character: CharacterMetricParts, fightLength: number = 0) => {
+export const characterDps = (
+	character: Pick<CharacterMetricParts, 'dmgDone' | 'boss_kills'>,
+	fightLength: number = 0
+) => {
 	return valuePerSecond(
 		Number(character.dmgDone),
 		// character.usefullTime,
 		(character.boss_kills?.length ?? fightLength) / 1000
 	);
 };
-export const characterHps = (character: CharacterMetricParts, fightLength: number = 0) => {
+export const characterHps = (
+	character: Pick<CharacterMetricParts, 'healingDone' | 'absorbDone' | 'boss_kills'>,
+	fightLength: number = 0
+) => {
 	return valuePerSecond(
 		Number(character.healingDone) + Number(character.absorbDone),
 		// character.usefullTime,
 		(character.boss_kills?.length ?? fightLength) / 1000
 	);
+};
+
+type DpsEffectivity = {
+	dmgDone: number;
+	fightLength: number;
+	raidDmgDone: number;
+	bossHealth: number;
+};
+export const dpsEffectivity = ({
+	dmgDone,
+	fightLength,
+	raidDmgDone,
+	bossHealth
+}: DpsEffectivity) => {
+	if (fightLength <= 0 || raidDmgDone <= 0) {
+		return 0;
+	}
+
+	const eff =
+		(characterDps({ dmgDone }, fightLength) / (fightLength / 1000)) * (bossHealth / raidDmgDone);
+	return Math.floor(eff);
 };
