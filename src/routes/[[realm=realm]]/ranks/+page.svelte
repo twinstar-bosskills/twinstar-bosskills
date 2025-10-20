@@ -5,15 +5,15 @@
 	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
 	import Class from '$lib/components/table/column/Class.column.svelte';
+	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 	import { formatSecondsInterval } from '$lib/date';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps, METRIC_TYPE, type MetricType } from '$lib/metrics';
 	import { difficultyToString } from '$lib/model';
-	import { formatAvgItemLvl, formatNumber } from '$lib/number';
+	import { formatAvgItemLvl } from '$lib/number';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import BossKillDetailLink from '../boss/[id=integer]/components/BossKillDetailLink.svelte';
 	import type { PageData } from './$types';
-	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 
 	export let data: PageData;
 

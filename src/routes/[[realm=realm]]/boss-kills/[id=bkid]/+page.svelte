@@ -7,6 +7,8 @@
 	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
 	import Class from '$lib/components/table/column/Class.column.svelte';
+	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
+	import Percentile from '$lib/components/table/column/Percentile.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
@@ -18,8 +20,6 @@
 	import type { Item } from '$lib/server/api/schema';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
-	import Percentile from '$lib/components/table/column/Percentile.column.svelte';
-	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 
 	export let data: PageData;
 

@@ -7,13 +7,15 @@
 	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
 	import BossPerformanceBoxChart from '$lib/components/echart/BossPerformanceBoxChart.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
+	import Spec from '$lib/components/table/column/BosskillSpec.column.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
+	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
-	import Spec from '$lib/components/table/column/BosskillSpec.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
-	import { formatSecondsInterval, fromServerTime, raidLock } from '$lib/date';
+	import { formatSecondsInterval, fromServerTime } from '$lib/date';
+	import { links } from '$lib/links';
 	import {
 		defaultDifficultyByExpansion,
 		difficultiesByExpansion,
@@ -22,7 +24,7 @@
 		talentSpecToString,
 		talentSpecsByExpansion
 	} from '$lib/model';
-	import { formatAvgItemLvl, formatNumber } from '$lib/number';
+	import { formatAvgItemLvl } from '$lib/number';
 	import { realmToExpansion } from '$lib/realm';
 	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
@@ -30,9 +32,7 @@
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 	import BossKillDetailLink from './components/BossKillDetailLink.svelte';
-	import { links } from '$lib/links';
 	import BossSelect from './components/BossSelect.svelte';
-	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 
 	export let data: PageData;
 
