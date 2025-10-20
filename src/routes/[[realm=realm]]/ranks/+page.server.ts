@@ -6,7 +6,7 @@ import { getRanks } from '$lib/server/model/ranking.model';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ url, params, parent }) => {
+export const load: PageServerLoad = async ({ url, parent }) => {
 	const { realmIsPrivate, realm, expansion } = await parent();
 
 	if (realmIsPrivate) {

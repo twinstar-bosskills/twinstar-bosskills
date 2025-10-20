@@ -3,7 +3,7 @@ import {
 	type AggregatedBySpec,
 	type AggregatedBySpecStats
 } from '$lib/components/echart/boxplot';
-import { METRIC_TYPE, type MetricType } from '$lib/metrics';
+import { dpsEffectivity, METRIC_TYPE, type MetricType } from '$lib/metrics';
 import type { Boss } from '$lib/model/boss.model';
 import type { ART } from '$lib/types';
 import { and, desc, eq, gte, inArray, lte, ne, sql } from 'drizzle-orm';
@@ -16,6 +16,7 @@ import { bossTable } from './schema/boss.schema';
 import { raidTable } from './schema/raid.schema';
 import { realmXRaidTable } from './schema/realm-x-raid.schema';
 import { realmTable } from './schema/realm.schema';
+import { bossPropTable } from './schema/mysql/boss-prop.schema';
 
 type BuilderArgs = { realm: string; id?: number | undefined; remoteId?: number | undefined };
 const builder = (db: DbConnection, { realm, id, remoteId }: BuilderArgs) => {
@@ -73,7 +74,8 @@ export const getBossByRemoteIdAndRealm = async ({
 	return null;
 };
 
-export type BossTopSpecs = Record<number, BosskillCharacter[]>;
+export type BossTopSpecItem = BosskillCharacter & { dpsEffectivity: number | null };
+export type BossTopSpecs = Record<number, BossTopSpecItem[]>;
 export type GetBossTopSpecsArgs = {
 	remoteId: number;
 	realm: string;
@@ -143,6 +145,7 @@ export const getBossTopSpecs = async ({
 				bosskillPlayer: bosskillPlayerTable,
 				bosskill: bosskillTable,
 				boss: bossTable,
+				bossProp: bossPropTable,
 				raid: raidTable
 			})
 			.from(bosskillPlayerTable)
@@ -150,16 +153,41 @@ export const getBossTopSpecs = async ({
 			.innerJoin(bossTable, eq(bossTable.id, bosskillTable.bossId))
 			.innerJoin(realmTable, eq(realmTable.id, bosskillTable.realmId))
 			.innerJoin(raidTable, eq(raidTable.id, bosskillTable.raidId))
+			.leftJoin(
+				bossPropTable,
+				and(
+					eq(bossPropTable.bossId, bosskillTable.bossId),
+					eq(bossPropTable.mode, bosskillTable.mode)
+				)
+			)
 			.where(and(inArray(bosskillPlayerTable.id, topIds)))
-			.orderBy(desc(sql`${metric === METRIC_TYPE.HPS ? hps : dps}`));
+			.orderBy(desc(sql`${metric === METRIC_TYPE.HPS ? hps : dps}`))
+			.groupBy(bosskillPlayerTable.id);
 
 		const rows = await qb.execute();
+		const totalDmgByBkId = new Map<number, number>();
 		for (const row of rows) {
 			const bkp = row.bosskillPlayer;
 			const bk = row.bosskill;
 			const boss = row.boss;
 			const raid = row.raid;
 			const spec = bkp.talentSpec;
+
+			const bossHealth = row.bossProp?.health ?? 0;
+			let raidDmgDone = totalDmgByBkId.get(bk.id) ?? null;
+			if (raidDmgDone === null) {
+				const totals = await db
+					.select({
+						total: sql<number>`SUM(${bosskillPlayerTable.dmgDone})`.mapWith(Number).as('total')
+					})
+					.from(bosskillPlayerTable)
+					.where(eq(bosskillPlayerTable.bosskillId, bk.id))
+					.execute();
+				if (totals[0]) {
+					raidDmgDone = totals[0].total;
+					totalDmgByBkId.set(bk.id, raidDmgDone);
+				}
+			}
 
 			const value = {
 				guid: bkp.guid,
@@ -195,8 +223,18 @@ export const getBossTopSpecs = async ({
 				}
 			};
 			const item = bosskillCharacterSchema.parse(value);
+
+			(item as BossTopSpecItem).dpsEffectivity =
+				metric === METRIC_TYPE.DPS && bossHealth > 0 && raidDmgDone !== null && raidDmgDone > 0
+					? dpsEffectivity({
+							dmgDone: bkp.dmgDone,
+							fightLength: bk.length,
+							bossHealth,
+							raidDmgDone
+					  })
+					: null;
 			stats[spec] ??= [];
-			stats[spec]!.push(item);
+			stats[spec]!.push(item as BossTopSpecItem);
 		}
 	} catch (e) {
 		console.error(e);

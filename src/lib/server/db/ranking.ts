@@ -1,10 +1,11 @@
-import type { MetricType } from '$lib/metrics';
-import { and, asc, eq, gte, lte } from 'drizzle-orm';
+import { dpsEffectivity, METRIC_TYPE, type MetricType } from '$lib/metrics';
+import { and, asc, eq, gte, lte, sql } from 'drizzle-orm';
 import { createConnection } from '.';
 import { type BosskillCharacter, bosskillCharacterSchema } from '../api/schema';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
+import { bossPropTable } from './schema/mysql/boss-prop.schema';
 import { playerTable } from './schema/player.schema';
 import { raidTable } from './schema/raid.schema';
 import { rankingTable } from './schema/ranking.schema';
@@ -20,7 +21,10 @@ export type GetRankingByRaidLockArgs = {
 	endsAt: Date;
 	limit?: number;
 };
-export type RankingByRaidLock = BosskillCharacter[];
+type RankingItem = BosskillCharacter & {
+	dpsEffectivity: number | null;
+};
+export type RankingByRaidLock = RankingItem[];
 
 export const getRankingByRaidLock = async ({
 	realm,
@@ -30,7 +34,7 @@ export const getRankingByRaidLock = async ({
 	metric,
 	startsAt,
 	endsAt,
-	limit = 5
+	limit = 10
 }: GetRankingByRaidLockArgs): Promise<RankingByRaidLock> => {
 	try {
 		const db = await createConnection();
@@ -38,6 +42,7 @@ export const getRankingByRaidLock = async ({
 			.select({
 				raid: raidTable,
 				boss: bossTable,
+				bossProp: bossPropTable,
 				bosskill: bosskillTable,
 				bosskillPlayer: bosskillPlayerTable,
 				name: playerTable.name,
@@ -58,6 +63,13 @@ export const getRankingByRaidLock = async ({
 					eq(bosskillPlayerTable.playerId, rankingTable.playerId)
 				)
 			)
+			.leftJoin(
+				bossPropTable,
+				and(
+					eq(bossPropTable.bossId, rankingTable.bossId),
+					eq(bossPropTable.mode, rankingTable.mode)
+				)
+			)
 			.where(
 				and(
 					eq(realmTable.name, realm),
@@ -70,16 +82,33 @@ export const getRankingByRaidLock = async ({
 				)
 			)
 			.orderBy(asc(rankingTable.rank))
+			.groupBy(rankingTable.id)
 			.limit(limit);
 
-		const stats = [];
 		const rows = await qb.execute();
-
+		const stats = [];
+		const totalDmgByBkId = new Map<number, number>();
 		for (const row of rows) {
 			const bkp = row.bosskillPlayer;
 			const bk = row.bosskill;
 			const boss = row.boss;
 			const raid = row.raid;
+
+			const bossHealth = row.bossProp?.health ?? 0;
+			let raidDmgDone = totalDmgByBkId.get(bk.id) ?? null;
+			if (raidDmgDone === null) {
+				const totals = await db
+					.select({
+						total: sql<number>`SUM(${bosskillPlayerTable.dmgDone})`.mapWith(Number).as('total')
+					})
+					.from(bosskillPlayerTable)
+					.where(eq(bosskillPlayerTable.bosskillId, bk.id))
+					.execute();
+				if (totals[0]) {
+					raidDmgDone = totals[0].total;
+					totalDmgByBkId.set(bk.id, raidDmgDone);
+				}
+			}
 
 			const value = {
 				guid: bkp.guid,
@@ -114,8 +143,18 @@ export const getRankingByRaidLock = async ({
 					ressUsed: bk.ressUsed
 				}
 			};
+
 			const item = bosskillCharacterSchema.parse(value);
-			stats.push(item);
+			(item as RankingItem).dpsEffectivity =
+				metric === METRIC_TYPE.DPS && bossHealth > 0 && raidDmgDone !== null && raidDmgDone > 0
+					? dpsEffectivity({
+							dmgDone: bkp.dmgDone,
+							fightLength: bk.length,
+							bossHealth,
+							raidDmgDone
+					  })
+					: null;
+			stats.push(item as RankingItem);
 		}
 		return stats;
 	} catch (e) {

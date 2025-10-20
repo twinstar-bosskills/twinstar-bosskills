@@ -11,7 +11,7 @@
 	$: dps = characterDps(character, fightLength);
 </script>
 
-{formatNumber(dps)}
+<div>{formatNumber(dps)}</div>
 {#if performance && dps > 0}
 	<div
 		style="display: inline-flex; margin-left: 0.25rem;"

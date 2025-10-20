@@ -6,6 +6,8 @@ import { assertGuildTokenFromCookie } from '$lib/server/guild-token.service';
 import { getBoss, getBossPercentilesPerPlayer } from '$lib/server/model/boss.model';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { dpsEffectivity } from '$lib/metrics';
+import { getBossPropsByBossId } from '$lib/server/db/boss-prop';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const id = params.id;
@@ -56,17 +58,24 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
 	await Promise.all(queue);
 
+	let raidDmgDone = 0;
 	let avgItemLvl = null;
 	const playersCount = bosskill.boss_kills_players?.length ?? 0;
 	if (playersCount > 0) {
-		avgItemLvl =
-			bosskill.boss_kills_players.reduce((acc, p) => acc + p.avg_item_lvl, 0) / playersCount;
+		avgItemLvl = 0;
+		for (const bkp of bosskill.boss_kills_players) {
+			avgItemLvl += bkp.avg_item_lvl;
+			raidDmgDone += bkp.dmgDone;
+		}
+		avgItemLvl = avgItemLvl / playersCount;
 		avgItemLvl = Math.round(avgItemLvl * 100) / 100;
 	}
 
 	const percentiles = await getBossPercentilesPerPlayer({
 		bossKillRemoteId: bosskill.id
 	});
+
+	const bossProps = await getBossPropsByBossId(boss.id);
 
 	return {
 		bosskill,
@@ -76,6 +85,8 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		items,
 		tooltips,
 		lootChance,
-		percentiles
+		percentiles,
+		raidDmgDone,
+		bossProps
 	};
 };

@@ -7,13 +7,15 @@
 	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
 	import BossPerformanceBoxChart from '$lib/components/echart/BossPerformanceBoxChart.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
+	import Spec from '$lib/components/table/column/BosskillSpec.column.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
+	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
-	import Spec from '$lib/components/table/column/BosskillSpec.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
-	import { formatSecondsInterval, fromServerTime, raidLock } from '$lib/date';
+	import { formatSecondsInterval, fromServerTime } from '$lib/date';
+	import { links } from '$lib/links';
 	import {
 		defaultDifficultyByExpansion,
 		difficultiesByExpansion,
@@ -30,7 +32,6 @@
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 	import BossKillDetailLink from './components/BossKillDetailLink.svelte';
-	import { links } from '$lib/links';
 	import BossSelect from './components/BossSelect.svelte';
 
 	export let data: PageData;
@@ -84,7 +85,7 @@
 	for (const stat of data.stats) {
 		type T = (typeof stat.value)[0];
 		const isDmg = stat.type === STATS_TYPE_DMG;
-		const columns: ColumnDef<T>[] = [
+		const columns: (ColumnDef<T> | undefined)[] = [
 			{
 				id: 'character',
 				accessorFn: (row) => row.char,
@@ -127,6 +128,15 @@
 
 				header: () => (isDmg ? 'DPS' : 'HPS')
 			},
+			isDmg
+				? {
+						id: 'effectivity',
+						accessorFn: (row) => row.char.dpsEffectivity,
+						cell: ({ getValue }) =>
+							cellComponent(Effectivity, { effectivity: getValue<number | null>() }),
+						header: () => 'Effectivity'
+				  }
+				: undefined,
 			{
 				id: 'valueTotal',
 				accessorFn: (row) => row.valueTotal,
@@ -161,7 +171,7 @@
 				enableSorting: false
 			}
 		];
-		columnByStatsType[stat.type] = columns as any as ColumnDef<unknown>[];
+		columnByStatsType[stat.type] = columns.filter(Boolean) as any as ColumnDef<unknown>[];
 	}
 </script>
 

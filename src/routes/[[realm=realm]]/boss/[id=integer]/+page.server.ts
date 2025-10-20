@@ -1,7 +1,7 @@
 import { characterDps, characterHps, healingAndAbsorbDone, METRIC_TYPE } from '$lib/metrics';
 import { getBossKillsWipesTimes } from '$lib/server/api';
 import type { BosskillCharacter } from '$lib/server/api/schema';
-import { getBossAggregatedStats } from '$lib/server/db/boss';
+import { getBossAggregatedStats, type BossTopSpecItem } from '$lib/server/db/boss';
 import { getTopSpecs } from '$lib/server/model/boss.model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import type { PageServerLoad } from './$types';
@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ url, params, parent }) => {
 	);
 
 	type Stats = {
-		char: BosskillCharacter;
+		char: BossTopSpecItem;
 		valuePerSecond: number;
 		valueTotal: number;
 	};

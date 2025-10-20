@@ -7,18 +7,19 @@
 	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
 	import Class from '$lib/components/table/column/Class.column.svelte';
+	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
+	import Percentile from '$lib/components/table/column/Percentile.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
 	import { links } from '$lib/links';
-	import { characterDps, characterHps } from '$lib/metrics';
+	import { characterDps, characterHps, dpsEffectivity } from '$lib/metrics';
 	import { isRaidDifficultyWithLoot } from '$lib/model';
 	import { formatAvgItemLvl, formatNumber } from '$lib/number';
 	import { realmToExpansion } from '$lib/realm';
 	import type { Item } from '$lib/server/api/schema';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
-	import Percentile from '$lib/components/table/column/Percentile.column.svelte';
 
 	export let data: PageData;
 
@@ -115,8 +116,28 @@
 		{
 			id: 'dps',
 			accessorFn: (row) => characterDps(row, fightLength),
-			cell: (info) => cellComponent(CharacterDps, { character: info.row.original, fightLength }),
+			cell: (info) =>
+				cellComponent(CharacterDps, {
+					character: info.row.original,
+					fightLength
+				}),
 			header: () => 'DPS'
+		},
+		{
+			id: 'effectivity',
+			accessorFn: (row) => {
+				return data.raidDmgDone > 0 && data.bossProps
+					? dpsEffectivity({
+							dmgDone: row.dmgDone,
+							fightLength,
+							raidDmgDone: data.raidDmgDone,
+							bossHealth: data.bossProps.health
+					  })
+					: null;
+			},
+			cell: ({ getValue }) =>
+				cellComponent(Effectivity, { effectivity: getValue<number | null>() }),
+			header: () => 'Effectivity'
 		},
 		{
 			id: 'dmgDone',
@@ -238,14 +259,14 @@
 			<dt>Wipes</dt>
 			<dd>{data.bosskill.wipes}</dd>
 
-			<dt>Deaths</dt>
-			<dd>{data.bosskill.deaths}</dd>
+			<dt>Total dmg done</dt>
+			<dd>{formatNumber(data.raidDmgDone)}</dd>
 
 			<dt>Fight Length</dt>
 			<dd>{formatSecondsInterval(data.bosskill.length)}</dd>
 
-			<dt>Ressurects</dt>
-			<dd>{data.bosskill.ressUsed}</dd>
+			<dt>Deaths / Ressurects</dt>
+			<dd>{data.bosskill.deaths} / {data.bosskill.ressUsed}</dd>
 		</dl>
 	</div>
 
