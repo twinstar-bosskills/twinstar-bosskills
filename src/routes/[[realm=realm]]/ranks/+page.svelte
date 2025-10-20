@@ -13,6 +13,7 @@
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import BossKillDetailLink from '../boss/[id=integer]/components/BossKillDetailLink.svelte';
 	import type { PageData } from './$types';
+	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 
 	export let data: PageData;
 
@@ -89,21 +90,9 @@
 			isDmg
 				? {
 						id: 'effectivity',
-						accessorFn: (row) => {
-							const r1 = row.characters[0];
-							if (r1) {
-								return isDmg ? r1.dpsEffectivity : null;
-							}
-							return null;
-						},
-						cell: ({ getValue }) => {
-							const dpsEffectivity = getValue<number | null>();
-							if (typeof dpsEffectivity === 'number') {
-								return formatNumber(dpsEffectivity);
-							}
-
-							return 'N/A';
-						},
+						accessorFn: (row) => row.characters[0]?.dpsEffectivity ?? null,
+						cell: ({ getValue }) =>
+							cellComponent(Effectivity, { effectivity: getValue<number | null>() }),
 						header: () => 'Effectivity'
 				  }
 				: undefined,

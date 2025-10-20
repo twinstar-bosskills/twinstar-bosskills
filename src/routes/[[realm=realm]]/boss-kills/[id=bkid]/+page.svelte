@@ -19,6 +19,7 @@
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 	import Percentile from '$lib/components/table/column/Percentile.column.svelte';
+	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 
 	export let data: PageData;
 
@@ -118,18 +119,25 @@
 			cell: (info) =>
 				cellComponent(CharacterDps, {
 					character: info.row.original,
-					fightLength,
-					effectivity:
-						data.raidDmgDone > 0 && data.bossProps
-							? dpsEffectivity({
-									dmgDone: info.row.original.dmgDone,
-									fightLength,
-									raidDmgDone: data.raidDmgDone,
-									bossHealth: data.bossProps.health
-							  })
-							: undefined
+					fightLength
 				}),
 			header: () => 'DPS'
+		},
+		{
+			id: 'effectivity',
+			accessorFn: (row) => {
+				return data.raidDmgDone > 0 && data.bossProps
+					? dpsEffectivity({
+							dmgDone: row.dmgDone,
+							fightLength,
+							raidDmgDone: data.raidDmgDone,
+							bossHealth: data.bossProps.health
+					  })
+					: null;
+			},
+			cell: ({ getValue }) =>
+				cellComponent(Effectivity, { effectivity: getValue<number | null>() }),
+			header: () => 'Effectivity'
 		},
 		{
 			id: 'dmgDone',

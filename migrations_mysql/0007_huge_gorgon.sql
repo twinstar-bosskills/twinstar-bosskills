@@ -242,4 +242,9 @@ INSERT IGNORE INTO `boss_prop` (`boss_id`, `mode`, `health`) VALUES
 (@boss, @d25hc, 1099065240),
 (@boss, @dlfr,  402990588);--> statement-breakpoint
 
+SET @boss=(SELECT id FROM boss WHERE remote_id = 69473);--> statement-breakpoint
+INSERT IGNORE INTO `boss_prop` (`boss_id`, `mode`, `health`) VALUES
+(@boss, @d10hc,  491090262),
+(@boss, @d25hc, 1473270786);--> statement-breakpoint
+
 COMMIT;

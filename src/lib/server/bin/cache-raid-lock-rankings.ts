@@ -20,6 +20,7 @@ import { getPlayerByGuid } from '../db/player';
 import { rankingTable } from '../db/schema/ranking.schema';
 import { realmTable } from '../db/schema/realm.schema';
 import { findBosses } from '../model/boss.model';
+import { refreshCurrentRanks } from '../model/ranking.model';
 import { integerGte, listOfStrings } from './parse-args';
 
 const gteZero = integerGte(0);
@@ -82,6 +83,7 @@ try {
 		};
 
 		console.log(`Realm ${realm.name} started`);
+
 		for (const metric of Object.values(METRIC_TYPE)) {
 			for (const boss of await findBosses({ realm: realm.name })) {
 				const bossStart = performance.now();
@@ -100,9 +102,9 @@ try {
 								difficulty,
 								metric,
 								talentSpec,
-								limit: 5,
 								startsAt,
-								endsAt
+								endsAt,
+								limit: 10
 							});
 
 							await db.transaction((tx) => {
@@ -186,6 +188,36 @@ try {
 				console.log(`Boss ${boss.name} - ${metric} done, took ${bossEnd.toLocaleString()}ms`);
 			}
 		}
+
+		console.log(`Realm ${realm.name} - refresh current ranks`);
+		await Promise.all([
+			diffs.map((difficulty) => {
+				const work1 = async () => {
+					const diffStr = difficultyToString(realm.expansion, difficulty);
+					const diffStart = performance.now();
+
+					for (const metric of [METRIC_TYPE.DPS, METRIC_TYPE.HPS]) {
+						console.log(`  Refresh ranks - ${diffStr} - ${metric} - started`);
+						try {
+							await refreshCurrentRanks({
+								realm: realm.name,
+								difficulty,
+								expansion: realm.expansion,
+								metric
+							});
+						} catch (e) {
+							console.error(e);
+						}
+						console.log(`  Refresh ranks - ${diffStr} - ${metric} - done`);
+					}
+
+					const diffEnd = performance.now() - diffStart;
+					console.log(`  Refresh ranks - ${diffStr} done, took: ${diffEnd.toLocaleString()}ms`);
+				};
+				return work1();
+			})
+		]);
+
 		const realmEnd = performance.now() - realmStart;
 		console.log(`Realm ${realm.name} done, took: ${realmEnd.toLocaleString()}ms`);
 	}

@@ -22,7 +22,7 @@
 		talentSpecToString,
 		talentSpecsByExpansion
 	} from '$lib/model';
-	import { formatAvgItemLvl } from '$lib/number';
+	import { formatAvgItemLvl, formatNumber } from '$lib/number';
 	import { realmToExpansion } from '$lib/realm';
 	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
@@ -32,6 +32,7 @@
 	import BossKillDetailLink from './components/BossKillDetailLink.svelte';
 	import { links } from '$lib/links';
 	import BossSelect from './components/BossSelect.svelte';
+	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 
 	export let data: PageData;
 
@@ -121,10 +122,7 @@
 				accessorFn: (row) => row.valuePerSecond,
 				cell: (info) => {
 					return isDmg
-						? cellComponent(CharacterDps, {
-								character: info.row.original.char,
-								effectivity: info.row.original.char.dpsEffectivity
-						  })
+						? cellComponent(CharacterDps, { character: info.row.original.char })
 						: cellComponent(CharacterHps, { character: info.row.original.char });
 				},
 
@@ -134,10 +132,8 @@
 				? {
 						id: 'effectivity',
 						accessorFn: (row) => row.char.dpsEffectivity,
-						cell: (info) => {
-							return isDmg ? info.row.original.char.dpsEffectivity : 'N/A';
-						},
-
+						cell: ({ getValue }) =>
+							cellComponent(Effectivity, { effectivity: getValue<number | null>() }),
 						header: () => 'Effectivity'
 				  }
 				: undefined,

@@ -15,6 +15,7 @@ type GetRanksArgs = {
 	endsAt: Date;
 	difficulty: number;
 	metric: MetricType;
+	cache?: boolean;
 };
 type Rank = {
 	spec: number;
@@ -25,7 +26,6 @@ export type GetRanksResult = {
 	ranks: Record<number, Record<number, Rank[]>>;
 };
 export const getRanks = async (args: GetRanksArgs): Promise<GetRanksResult> => {
-	const isPreviousRaidLock = args.startsAt <= raidLock(new Date(), 1).start;
 	const fallback = async () => {
 		const { realm, expansion, startsAt, endsAt, difficulty, metric } = args;
 		const specs = talentSpecsByExpansion(expansion);
@@ -98,11 +98,48 @@ export const getRanks = async (args: GetRanksArgs): Promise<GetRanksResult> => {
 		return result;
 	};
 
+	if (args.cache === false) {
+		return fallback();
+	}
+
+	return withRanksCache(args, fallback);
+};
+
+export const refreshCurrentRanks = async (
+	args: Omit<GetRanksArgs, 'startsAt' | 'endsAt' | 'cache'>
+) => {
+	const { start: startsAt, end: endsAt } = raidLock(new Date());
+
+	const ranks = getRanks({
+		...args,
+		startsAt,
+		endsAt,
+		cache: false
+	});
+
+	return withRanksCache(
+		{
+			...args,
+			startsAt,
+			endsAt
+		},
+		() => ranks,
+		true
+	);
+};
+
+const withRanksCache = (
+	args: GetRanksArgs,
+	fallback: () => GetRanksResult | Promise<GetRanksResult>,
+	force: boolean = false
+) => {
+	const isPrevious = args.startsAt <= raidLock(new Date(), 1).start;
 	return withCache<GetRanksResult>({
 		deps: [`model/ranking/getRanks`, args],
 		fallback,
 		defaultValue: { raids: [], ranks: {} },
-		expire: isPreviousRaidLock ? EXPIRE_7_DAYS : EXPIRE_30_MIN,
-		sliding: false
+		expire: isPrevious ? EXPIRE_7_DAYS : EXPIRE_30_MIN,
+		sliding: false,
+		force
 	});
 };

@@ -34,7 +34,7 @@
 	const expansion = realmToExpansion(data.realm);
 	const talentSpecs = Object.values(talentSpecsByExpansion(expansion) ?? {});
 	const difficulties = Object.values(difficultiesByExpansion(expansion) ?? {});
-	const title = `Historical top specs for boss ${data.boss.name}`;
+	const title = `Historical top 10 specs for boss ${data.boss.name}`;
 
 	let searchParams = new URLSearchParams($page.url.searchParams);
 	const currentDifficulty = String(
@@ -176,7 +176,7 @@
 />
 {#if data.realmIsPrivate === false}
 	<h2>
-		Top 5 by spec by for raid lock {data.raidLockStart.toLocaleDateString()} - {data.raidLockEnd.toLocaleDateString()}
+		Top 10 by spec by for raid lock {data.raidLockStart.toLocaleDateString()} - {data.raidLockEnd.toLocaleDateString()}
 		<Link
 			href={links.bossHistory(data.realm, data.boss.remoteId, {
 				raidlock: data.raidlock + 1,

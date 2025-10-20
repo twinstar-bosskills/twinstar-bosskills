@@ -34,7 +34,7 @@ export const getRankingByRaidLock = async ({
 	metric,
 	startsAt,
 	endsAt,
-	limit = 5
+	limit = 10
 }: GetRankingByRaidLockArgs): Promise<RankingByRaidLock> => {
 	try {
 		const db = await createConnection();
@@ -82,6 +82,7 @@ export const getRankingByRaidLock = async ({
 				)
 			)
 			.orderBy(asc(rankingTable.rank))
+			.groupBy(rankingTable.id)
 			.limit(limit);
 
 		const rows = await qb.execute();
@@ -154,8 +155,6 @@ export const getRankingByRaidLock = async ({
 					  })
 					: null;
 			stats.push(item as RankingItem);
-
-			// console.log({ totalDmg, bossHealth: row.bossProp?.health ?? 0 });
 		}
 		return stats;
 	} catch (e) {
