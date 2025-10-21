@@ -109,7 +109,7 @@
 			id: 'avgItemLvl',
 			accessorFn: (row) => row.avg_item_lvl,
 			cell: (info) => formatAvgItemLvl(info.row.original.avg_item_lvl),
-			header: () => 'Avg iLvl'
+			header: () => 'iLvl'
 		},
 		{
 			id: 'killedAt',

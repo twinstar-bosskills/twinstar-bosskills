@@ -7,6 +7,7 @@
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
+	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { formatSecondsInterval, fromServerTime } from '$lib/date';
@@ -80,7 +81,7 @@
 	for (const stat of data.stats) {
 		type T = (typeof stat.value)[0];
 		const isDmg = stat.type === STATS_TYPE_DMG;
-		const columns: ColumnDef<T>[] = [
+		const columns: (ColumnDef<T> | undefined)[] = [
 			{
 				id: 'character',
 				accessorFn: (row) => row.char,
@@ -123,6 +124,15 @@
 
 				header: () => (isDmg ? 'DPS' : 'HPS')
 			},
+			isDmg
+				? {
+						id: 'effectivity',
+						accessorFn: (row) => row.char.dpsEffectivity ?? null,
+						cell: ({ getValue }) =>
+							cellComponent(Effectivity, { effectivity: getValue<number | null>() }),
+						header: () => 'Eff.'
+				  }
+				: undefined,
 			{
 				id: 'valueTotal',
 				accessorFn: (row) => row.valueTotal,
@@ -145,7 +155,7 @@
 				id: 'avgItemLvl',
 				accessorFn: (row) => row.char.avg_item_lvl,
 				cell: (info) => formatAvgItemLvl(info.getValue() as any),
-				header: () => 'Avg iLvl'
+				header: () => 'iLvl'
 			},
 			{
 				id: 'detail',
@@ -157,7 +167,7 @@
 				enableSorting: false
 			}
 		];
-		columnByStatsType[stat.type] = columns as any as ColumnDef<unknown>[];
+		columnByStatsType[stat.type] = columns.filter(Boolean) as any as ColumnDef<unknown>[];
 	}
 </script>
 

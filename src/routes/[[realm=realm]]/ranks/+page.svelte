@@ -5,7 +5,6 @@
 	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
 	import Class from '$lib/components/table/column/Class.column.svelte';
-	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 	import { formatSecondsInterval } from '$lib/date';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps, METRIC_TYPE, type MetricType } from '$lib/metrics';
@@ -17,10 +16,11 @@
 
 	export let data: PageData;
 
-	const dpsTableStyle =
-		'--grid-template-columns: minmax(max-content, 1fr) min-content minmax(max-content, 1fr) min-content minmax(max-content, 1fr) min-content minmax(max-content, 1fr)';
+	// const dpsTableStyle =
+	// 	'--grid-template-columns: minmax(max-content, 1fr) min-content minmax(max-content, 1fr) min-content minmax(max-content, 1fr) min-content minmax(max-content, 1fr)';
 	const hpsTableStyle =
 		'--grid-template-columns: minmax(max-content, 1fr) min-content repeat(2, minmax(max-content, 1fr)) min-content minmax(max-content, 1fr)';
+	const dpsTableStyle = hpsTableStyle;
 	const columnByStatsType = ({
 		boss,
 		metric
@@ -87,15 +87,17 @@
 				},
 				header: () => (isDmg ? 'DPS' : 'HPS')
 			},
+			/*
 			isDmg
 				? {
 						id: 'effectivity',
 						accessorFn: (row) => row.characters[0]?.dpsEffectivity ?? null,
 						cell: ({ getValue }) =>
 							cellComponent(Effectivity, { effectivity: getValue<number | null>() }),
-						header: () => 'Effectivity'
+						header: () => 'Eff.'
 				  }
 				: undefined,
+				*/
 			{
 				id: 'fightLength',
 				accessorFn: (row) => row.characters[0]?.boss_kills?.length ?? 0,

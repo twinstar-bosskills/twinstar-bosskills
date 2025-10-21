@@ -145,15 +145,17 @@ export const getRankingByRaidLock = async ({
 			};
 
 			const item = bosskillCharacterSchema.parse(value);
-			(item as RankingItem).dpsEffectivity =
-				metric === METRIC_TYPE.DPS && bossHealth > 0 && raidDmgDone !== null && raidDmgDone > 0
-					? dpsEffectivity({
-							dmgDone: bkp.dmgDone,
-							fightLength: bk.length,
-							bossHealth,
-							raidDmgDone
-					  })
-					: null;
+			if (metric === METRIC_TYPE.DPS && bossHealth > 0 && raidDmgDone !== null && raidDmgDone > 0) {
+				(item as RankingItem).dpsEffectivity =
+					metric === METRIC_TYPE.DPS && bossHealth > 0 && raidDmgDone !== null && raidDmgDone > 0
+						? dpsEffectivity({
+								dmgDone: bkp.dmgDone,
+								fightLength: bk.length,
+								bossHealth,
+								raidDmgDone
+						  })
+						: null;
+			}
 			stats.push(item as RankingItem);
 		}
 		return stats;

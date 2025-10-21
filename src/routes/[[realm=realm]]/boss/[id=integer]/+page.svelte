@@ -128,15 +128,17 @@
 
 				header: () => (isDmg ? 'DPS' : 'HPS')
 			},
+			/*
 			isDmg
 				? {
 						id: 'effectivity',
 						accessorFn: (row) => row.char.dpsEffectivity,
 						cell: ({ getValue }) =>
 							cellComponent(Effectivity, { effectivity: getValue<number | null>() }),
-						header: () => 'Effectivity'
+						header: () => 'Eff.'
 				  }
 				: undefined,
+				*/
 			{
 				id: 'valueTotal',
 				accessorFn: (row) => row.valueTotal,
@@ -159,7 +161,7 @@
 				id: 'avgItemLvl',
 				accessorFn: (row) => row.char.avg_item_lvl,
 				cell: (info) => formatAvgItemLvl(info.getValue() as any),
-				header: () => 'Avg iLvl'
+				header: () => 'iLvl'
 			},
 			{
 				id: 'detail',
