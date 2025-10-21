@@ -7,13 +7,12 @@
 	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
 	import Class from '$lib/components/table/column/Class.column.svelte';
-	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 	import Percentile from '$lib/components/table/column/Percentile.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
 	import { links } from '$lib/links';
-	import { characterDps, characterHps, dpsEffectivity } from '$lib/metrics';
+	import { characterDps, characterHps } from '$lib/metrics';
 	import { isRaidDifficultyWithLoot } from '$lib/model';
 	import { formatAvgItemLvl, formatNumber } from '$lib/number';
 	import { realmToExpansion } from '$lib/realm';
@@ -123,6 +122,7 @@
 				}),
 			header: () => 'DPS'
 		},
+		/*
 		{
 			id: 'effectivity',
 			accessorFn: (row) => {
@@ -137,8 +137,9 @@
 			},
 			cell: ({ getValue }) =>
 				cellComponent(Effectivity, { effectivity: getValue<number | null>() }),
-			header: () => 'Effectivity'
+			header: () => 'Eff.'
 		},
+		*/
 		{
 			id: 'dmgDone',
 			accessorFn: (row) => row.dmgDone,
@@ -207,7 +208,7 @@
 			id: 'avgItemLvl',
 			accessorFn: (row) => row.avg_item_lvl,
 			cell: (info) => formatAvgItemLvl(info.row.original.avg_item_lvl),
-			header: () => 'Avg iLvl'
+			header: () => 'iLvl'
 		}
 	];
 	const columnsUnknown = columns as any as ColumnDef<unknown>[];

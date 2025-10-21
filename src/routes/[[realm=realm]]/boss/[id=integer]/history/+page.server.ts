@@ -1,12 +1,11 @@
 import { raidLock } from '$lib/date';
 import { characterDps, characterHps, healingAndAbsorbDone, METRIC_TYPE } from '$lib/metrics';
 import { getRaidLockOffsetFromUrl } from '$lib/search-params';
-import type { BosskillCharacter } from '$lib/server/api/schema';
 import { getTopSpecsByRaidLock } from '$lib/server/model/boss.model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
 import assert from 'node:assert';
+import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, parent }) => {
 	const { realmIsPrivate, realm, boss, difficulty, talentSpec: spec } = await parent();
@@ -46,7 +45,7 @@ export const load: PageServerLoad = async ({ url, parent }) => {
 	);
 
 	type Stats = {
-		char: BosskillCharacter;
+		char: Awaited<ReturnType<typeof getTopSpecsByRaidLock>>[0];
 		valuePerSecond: number;
 		valueTotal: number;
 	};

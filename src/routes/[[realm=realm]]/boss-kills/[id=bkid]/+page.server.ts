@@ -1,13 +1,12 @@
 import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
 import type { Item, ItemTooltip } from '$lib/server/api/schema';
+import { getBossPropsByBossId } from '$lib/server/db/boss-prop';
 import { getLootChance, type LootChance } from '$lib/server/db/loot';
 import { assertGuildTokenFromCookie } from '$lib/server/guild-token.service';
 import { getBoss, getBossPercentilesPerPlayer } from '$lib/server/model/boss.model';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { dpsEffectivity } from '$lib/metrics';
-import { getBossPropsByBossId } from '$lib/server/db/boss-prop';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const id = params.id;
