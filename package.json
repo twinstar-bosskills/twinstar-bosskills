@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter @twinstar-bosskills/sveltekit dev",
-    "build": "pnpm --filter @twinstar-bosskills/sveltekit build",
+    "build": "pnpm -r build",
     "preview": "pnpm --filter @twinstar-bosskills/sveltekit preview",
     "start": "pnpm --filter @twinstar-bosskills/sveltekit start",
     "start:bun": "pnpm --filter @twinstar-bosskills/sveltekit start:bun",
-    "check": "pnpm --filter @twinstar-bosskills/sveltekit check",
+    "check": "pnpm -r check",
     "check:watch": "pnpm --filter @twinstar-bosskills/sveltekit check:watch",
     "lint": "pnpm --filter @twinstar-bosskills/sveltekit lint",
-    "format": "pnpm --filter @twinstar-bosskills/sveltekit format",
+    "format": "pnpm -r format",
     "migrations:mysql:generate": "pnpm --filter @twinstar-bosskills/sveltekit migrations:mysql:generate",
     "migrations:mysql:continue": "pnpm --filter @twinstar-bosskills/sveltekit migrations:mysql:continue",
     "cli:synchronize-with-api": "pnpm --filter @twinstar-bosskills/sveltekit cli:synchronize-with-api",
@@ -23,5 +23,8 @@
     "cli:cache-raid-lock-rankings": "pnpm --filter @twinstar-bosskills/sveltekit cli:cache-raid-lock-rankings",
     "cli:guild-token": "pnpm --filter @twinstar-bosskills/sveltekit cli:guild-token"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
 }

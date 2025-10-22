@@ -3,7 +3,7 @@ import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import { REALM_HELIOS } from '$lib/realm';
 import { getSpecFromUrl } from '$lib/search-params';
 import * as api from '$lib/server/api';
-import type { Boss } from '$lib/server/api/schema';
+import type { Boss } from '@twinstar-bosskills/api/dist/schema';
 import { findBosses } from '$lib/server/model/boss.model';
 import {
 	getCharacterBossRankings,

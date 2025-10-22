@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { distanceTzNow, formatTzLocalized } from '$lib/date';
-	import type { BossKill } from '$lib/server/api/schema';
+	import type { BossKill } from '@twinstar-bosskills/api/dist/schema';
 
 	export let bosskill: BossKill;
 	$: time = bosskill.time;

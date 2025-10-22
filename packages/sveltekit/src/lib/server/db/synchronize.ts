@@ -7,7 +7,7 @@ import type {
 	BosskillLoot,
 	BosskillTimeline,
 	Raid
-} from '$lib/server/api/schema';
+} from '@twinstar-bosskills/api/dist/schema';
 import { and, eq } from 'drizzle-orm';
 import {
 	getBossKillDetail,
@@ -15,7 +15,7 @@ import {
 	listAllLatestBossKills,
 	type LatestBossKillQueryArgs
 } from '../api';
-import { FilterOperator } from '../api/filter';
+import { FilterOperator } from '@twinstar-bosskills/api/dist/filter';
 import { getRaids } from '../api/raid';
 import { safeGC } from '../gc';
 import { findBosses } from '../model/boss.model';

@@ -8,7 +8,10 @@ import type { Boss } from '$lib/model/boss.model';
 import type { ART } from '$lib/types';
 import { and, desc, eq, gte, inArray, lte, ne, sql } from 'drizzle-orm';
 import { createConnection, type DbConnection } from '.';
-import { bosskillCharacterSchema, type BosskillCharacter } from '../api/schema';
+import {
+	bosskillCharacterSchema,
+	type BosskillCharacter
+} from '@twinstar-bosskills/api/dist/schema';
 import { EXPIRE_30_MIN, withCache } from '../cache';
 import { bosskillPlayerTable, dps, hps } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';

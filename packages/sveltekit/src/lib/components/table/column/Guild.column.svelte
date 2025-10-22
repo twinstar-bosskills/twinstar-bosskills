@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { BossKill } from '$lib/server/api/schema';
+	import type { BossKill } from '@twinstar-bosskills/api/dist/schema';
 	export let bosskill: Pick<BossKill, 'guild' | 'realm'>;
 </script>
 

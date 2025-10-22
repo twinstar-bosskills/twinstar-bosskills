@@ -1,0 +1,25 @@
+{
+  "name": "@twinstar-bosskills/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "check": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "format": "prettier --plugin-search-dir . --write src"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.23",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "zod": "^4.1.12",
+    "@twinstar-bosskills/sveltekit": "workspace:*"
+  }
+}

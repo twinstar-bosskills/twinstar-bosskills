@@ -1,7 +1,10 @@
 import { dpsEffectivity, METRIC_TYPE, type MetricType } from '$lib/metrics';
 import { and, asc, eq, gte, lte, sql } from 'drizzle-orm';
 import { createConnection } from '.';
-import { type BosskillCharacter, bosskillCharacterSchema } from '../api/schema';
+import {
+	type BosskillCharacter,
+	bosskillCharacterSchema
+} from '@twinstar-bosskills/api/dist/schema';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';

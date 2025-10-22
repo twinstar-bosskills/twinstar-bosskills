@@ -16,7 +16,7 @@
 	import { isRaidDifficultyWithLoot } from '$lib/model';
 	import { formatAvgItemLvl, formatNumber } from '$lib/number';
 	import { realmToExpansion } from '$lib/realm';
-	import type { Item } from '$lib/server/api/schema';
+	import type { Item } from '@twinstar-bosskills/api/dist/schema';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
 

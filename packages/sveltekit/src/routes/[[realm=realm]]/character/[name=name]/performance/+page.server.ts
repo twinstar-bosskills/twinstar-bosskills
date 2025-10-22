@@ -1,7 +1,7 @@
 import { METRIC_TYPE, type MetricType } from '$lib/metrics';
 import { talentSpecsByClass } from '$lib/model';
 import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
-import type { Boss } from '$lib/server/api/schema';
+import type { Boss } from '@twinstar-bosskills/api/dist/schema';
 import { getBossStatsMedian } from '$lib/server/model/boss.model';
 import { getFilterFormData } from '$lib/server/form/filter-form';
 import { getCharacterPerformanceLinesGrouped } from '$lib/server/model/character.model';

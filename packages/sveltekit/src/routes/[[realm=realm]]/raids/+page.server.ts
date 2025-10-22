@@ -2,7 +2,7 @@ import { raidLock } from '$lib/date';
 import type { Boss } from '$lib/model/boss.model';
 
 import { listAllLatestBossKills } from '$lib/server/api';
-import { FilterOperator } from '$lib/server/api/filter';
+import { FilterOperator } from '@twinstar-bosskills/api/dist/filter';
 import { findBosses } from '$lib/server/model/boss.model';
 import { getRaids } from '$lib/server/model/raid.model';
 import type { PageServerLoad } from './$types';

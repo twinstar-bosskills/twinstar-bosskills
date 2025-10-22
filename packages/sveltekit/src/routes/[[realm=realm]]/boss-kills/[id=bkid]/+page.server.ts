@@ -1,6 +1,6 @@
 import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
-import type { Item, ItemTooltip } from '$lib/server/api/schema';
+import type { Item, ItemTooltip } from '@twinstar-bosskills/api/dist/schema';
 import { getBossPropsByBossId } from '$lib/server/db/boss-prop';
 import { getLootChance, type LootChance } from '$lib/server/db/loot';
 import { assertGuildTokenFromCookie } from '$lib/server/guild-token.service';

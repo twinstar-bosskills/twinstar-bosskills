@@ -3,7 +3,7 @@
 	import Link from '$lib/components/Link.svelte';
 	import { talentSpecToString } from '$lib/model';
 	import { realmToExpansion } from '$lib/realm';
-	import type { BosskillCharacter } from '$lib/server/api/schema';
+	import type { BosskillCharacter } from '@twinstar-bosskills/api/dist/schema';
 	import { getTalentSpecIconUrl } from '$lib/talent';
 
 	export let realm: string;

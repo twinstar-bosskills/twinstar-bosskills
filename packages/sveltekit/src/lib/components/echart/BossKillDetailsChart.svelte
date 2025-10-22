@@ -5,7 +5,7 @@
 
 	// NOTE: if something breaks, just `import * as echarts from 'echarts';`
 
-	import type { BosskillCharacter } from '$lib/server/api/schema';
+	import type { BosskillCharacter } from '@twinstar-bosskills/api/dist/schema';
 	import type { EChartsOption, TooltipComponentFormatterCallbackParams } from 'echarts';
 	import { LineChart, ScatterChart } from 'echarts/charts';
 	import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';
