@@ -20,7 +20,6 @@ import { getPlayerByGuid } from '../db/player';
 import { rankingTable } from '../db/schema/ranking.schema';
 import { realmTable } from '../db/schema/realm.schema';
 import { findBosses } from '../model/boss.model';
-import { refreshCurrentRanks } from '../model/ranking.model';
 import { integerGte, listOfStrings } from './parse-args';
 
 const gteZero = integerGte(0);
@@ -94,92 +93,85 @@ try {
 					const diffStart = performance.now();
 					console.log(`  difficulty: ${diffStr} started`);
 
-					const promises = Object.values<number>(specs).map((talentSpec) => {
-						const work = async () => {
-							const topSpecs = await getBossTopSpecs({
-								realm: realm.name,
-								remoteId: boss.remoteId,
-								difficulty,
-								metric,
-								talentSpec,
-								startsAt,
-								endsAt,
-								limit: 10
-							});
+					for (const talentSpec of Object.values<number>(specs)) {
+						const topSpecs = await getBossTopSpecs({
+							realm: realm.name,
+							remoteId: boss.remoteId,
+							difficulty,
+							metric,
+							talentSpec,
+							startsAt,
+							endsAt,
+							limit: 10
+						});
 
-							await db.transaction((tx) => {
-								return tx
-									.delete(rankingTable)
-									.where(
-										and(
-											eq(rankingTable.realmId, realm.id),
-											eq(rankingTable.raidId, boss.raidId),
-											eq(rankingTable.bossId, boss.id),
-											eq(rankingTable.spec, talentSpec),
-											eq(rankingTable.mode, difficulty),
-											eq(rankingTable.metric, metric),
-											gte(rankingTable.time, startsAt),
-											lte(rankingTable.time, endsAt)
-										)
-									);
-							});
+						await db.transaction((tx) => {
+							return tx
+								.delete(rankingTable)
+								.where(
+									and(
+										eq(rankingTable.realmId, realm.id),
+										eq(rankingTable.raidId, boss.raidId),
+										eq(rankingTable.bossId, boss.id),
+										eq(rankingTable.spec, talentSpec),
+										eq(rankingTable.mode, difficulty),
+										eq(rankingTable.metric, metric),
+										gte(rankingTable.time, startsAt),
+										lte(rankingTable.time, endsAt)
+									)
+								);
+						});
 
-							const values: MySqlInsertValue<typeof rankingTable>[] = [];
-							let rank = 1;
-							for (const [specStr, items] of Object.entries(topSpecs)) {
-								const spec = Number(specStr);
-								const len = items.length;
-								for (let i = 0; i < len; i++) {
-									const item = items[i]!;
-									const guid = item.guid;
-									const bk = item.boss_kills;
-									if (bk) {
-										const mode = bk.mode;
+						const values: MySqlInsertValue<typeof rankingTable>[] = [];
+						let rank = 1;
+						for (const [specStr, items] of Object.entries(topSpecs)) {
+							const spec = Number(specStr);
+							const len = items.length;
+							for (let i = 0; i < len; i++) {
+								const item = items[i]!;
+								const guid = item.guid;
+								const bk = item.boss_kills;
+								if (bk) {
+									const mode = bk.mode;
 
-										const player = await getPlayer({ guid });
-										if (player === null) {
-											console.error(`Player not found by realm: ${realm.name} and guid: ${guid}`);
-											continue;
-										}
-
-										const bosskillId = (await getBosskill({ remoteId: bk.id }))?.id ?? null;
-										if (bosskillId === null) {
-											console.error(
-												`Bosskill not found by realm: ${realm.name} and remoteId: ${bk.id}`
-											);
-											continue;
-										}
-
-										values.push({
-											realmId: realm.id,
-											raidId: boss.raidId,
-											bossId: boss.id,
-											bosskillId: bosskillId,
-											playerId: player.id,
-											rank,
-											time: new Date(bk.time),
-											spec,
-											mode,
-											metric
-										});
-
-										rank++;
+									const player = await getPlayer({ guid });
+									if (player === null) {
+										console.error(`Player not found by realm: ${realm.name} and guid: ${guid}`);
+										continue;
 									}
+
+									const bosskillId = (await getBosskill({ remoteId: bk.id }))?.id ?? null;
+									if (bosskillId === null) {
+										console.error(
+											`Bosskill not found by realm: ${realm.name} and remoteId: ${bk.id}`
+										);
+										continue;
+									}
+
+									values.push({
+										realmId: realm.id,
+										raidId: boss.raidId,
+										bossId: boss.id,
+										bosskillId: bosskillId,
+										playerId: player.id,
+										rank,
+										time: new Date(bk.time),
+										spec,
+										mode,
+										metric
+									});
+
+									rank++;
 								}
 							}
+						}
 
-							if (values.length > 0) {
-								await db.transaction((tx) => {
-									return tx.insert(rankingTable).values(values);
-								});
-							}
-						};
-						return work().catch((e) => {
-							console.error(`    spec: ${talentSpec} failed`);
-						});
-					});
-
-					await Promise.all(promises);
+						if (values.length > 0) {
+							await db.transaction((tx) => {
+								return tx.insert(rankingTable).values(values);
+							});
+						}
+					}
 
 					const diffEnd = performance.now() - diffStart;
 					console.log(`  difficulty: ${diffStr} done, took ${diffEnd.toLocaleString()}ms`);
@@ -188,35 +180,6 @@ try {
 				console.log(`Boss ${boss.name} - ${metric} done, took ${bossEnd.toLocaleString()}ms`);
 			}
 		}
-
-		console.log(`Realm ${realm.name} - refresh current ranks`);
-		await Promise.all([
-			diffs.map((difficulty) => {
-				const work1 = async () => {
-					const diffStr = difficultyToString(realm.expansion, difficulty);
-					const diffStart = performance.now();
-
-					for (const metric of [METRIC_TYPE.DPS, METRIC_TYPE.HPS]) {
-						console.log(`  Refresh ranks - ${diffStr} - ${metric} - started`);
-						try {
-							await refreshCurrentRanks({
-								realm: realm.name,
-								difficulty,
-								expansion: realm.expansion,
-								metric
-							});
-						} catch (e) {
-							console.error(e);
-						}
-						console.log(`  Refresh ranks - ${diffStr} - ${metric} - done`);
-					}
-
-					const diffEnd = performance.now() - diffStart;
-					console.log(`  Refresh ranks - ${diffStr} done, took: ${diffEnd.toLocaleString()}ms`);
-				};
-				return work1();
-			})
-		]);
 
 		const realmEnd = performance.now() - realmStart;
 		console.log(`Realm ${realm.name} done, took: ${realmEnd.toLocaleString()}ms`);
