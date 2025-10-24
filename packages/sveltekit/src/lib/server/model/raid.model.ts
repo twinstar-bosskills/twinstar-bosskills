@@ -5,7 +5,7 @@ import { realmToExpansion } from '$lib/realm';
 import { format } from 'date-fns';
 import { EXPIRE_5_MIN, withCache } from '../cache';
 import { findBossKills } from '../db/boss-kill';
-import { findRaidsByRealm } from '../db/raid';
+import { findRaidsByRealm } from '@twinstar-bosskills/db/dist/raid';
 import { findBosses } from './boss.model';
 
 export const getRaids = async (args: { realm: string }) => {

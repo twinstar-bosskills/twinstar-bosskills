@@ -20,7 +20,7 @@ import { getRaids } from '../api/raid';
 import { safeGC } from '../gc';
 import { findBosses } from '../model/boss.model';
 import { createConnection } from './index';
-import { findRaidsByRealm } from './raid';
+import { findRaidsByRealm } from '@twinstar-bosskills/db/dist/raid';
 import { bosskillDeathTable } from './schema/boss-kill-death.schema';
 import { bosskillLootTable } from './schema/boss-kill-loot.schema';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';

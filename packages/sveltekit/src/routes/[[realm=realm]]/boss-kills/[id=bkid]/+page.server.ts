@@ -1,11 +1,11 @@
 import { REALM_HELIOS } from '$lib/realm';
 import * as api from '$lib/server/api';
-import type { Item, ItemTooltip } from '@twinstar-bosskills/api/dist/schema';
-import { getBossPropsByBossId } from '$lib/server/db/boss-prop';
 import { getLootChance, type LootChance } from '$lib/server/db/loot';
 import { assertGuildTokenFromCookie } from '$lib/server/guild-token.service';
 import { getBoss, getBossPercentilesPerPlayer } from '$lib/server/model/boss.model';
 import { error } from '@sveltejs/kit';
+import type { Item, ItemTooltip } from '@twinstar-bosskills/api/dist/schema';
+import { getBossPropsByBossId } from '@twinstar-bosskills/db/dist/boss-prop';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {

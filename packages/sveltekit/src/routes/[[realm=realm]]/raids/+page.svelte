@@ -17,12 +17,12 @@
 <h1>Raids</h1>
 <ul class="raids">
 	{#each data.raids as raid}
-		{@const byDifficulty = Object.entries(data.bosskillsByRaidByDifficulty[raid.remoteId] ?? {})}
+		{@const byDifficulty = Object.entries(data.bosskillsByRaidByDifficulty[raid.name] ?? {})}
 		<li class="raid">
-			<div class="bg" style="--background-image: url({getRaidIconUrl(raid.remoteId)})">
+			<div class="bg" style="--background-image: url({getRaidIconUrl(raid.name)})">
 				<div class="kills-count" title="Number of killed bosses during current raid lock">
 					<TextColorSuccess>
-						{data.bosskillsByRaid[raid.remoteId] ?? 0}
+						{data.bosskillsByRaid[raid.name] ?? 0}
 					</TextColorSuccess>
 					kills this raid lock
 					<div style="border-top: 1px solid rgba(var(--color-primary), 1); padding-top: 0.25rem;">
@@ -38,7 +38,7 @@
 				</div>
 			</div>
 			<div class="content">
-				<h2>{raid.remoteId}</h2>
+				<h2>{raid.name}</h2>
 				<div class="bosses">
 					<ol>
 						{#each data.bossesByRaidId[raid.id] ?? [] as boss}

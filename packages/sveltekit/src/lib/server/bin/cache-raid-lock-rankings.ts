@@ -1,3 +1,4 @@
+import { raidLock } from '$lib/date';
 import { METRIC_TYPE } from '$lib/metrics';
 import {
 	difficultiesByExpansion,
@@ -5,18 +6,16 @@ import {
 	isRaidDifficulty,
 	talentSpecsByExpansion
 } from '$lib/model';
-import { realmIsPublic, realmToExpansion } from '$lib/realm';
-import { program } from 'commander';
-import { getBossTopSpecs } from '../db/boss';
-
-import { raidLock } from '$lib/date';
 import type { BossKill } from '$lib/model/boss-kill.model';
-import type { Player } from '$lib/model/player.model';
+import { realmIsPublic, realmToExpansion } from '$lib/realm';
+import { getPlayerByGuid } from '@twinstar-bosskills/db/dist/player';
+import type { Player } from '@twinstar-bosskills/db/dist/types';
+import { program } from 'commander';
 import { and, eq, gte, inArray, lte } from 'drizzle-orm';
 import type { MySqlInsertValue } from 'drizzle-orm/mysql-core';
+import { getBossTopSpecs } from '../db/boss';
 import { getBosskillByRemoteId } from '../db/boss-kill';
 import { createConnection } from '../db/index';
-import { getPlayerByGuid } from '../db/player';
 import { rankingTable } from '../db/schema/ranking.schema';
 import { realmTable } from '../db/schema/realm.schema';
 import { findBosses } from '../model/boss.model';

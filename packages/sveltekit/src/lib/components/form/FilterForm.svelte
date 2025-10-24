@@ -46,9 +46,9 @@
 
 	for (const raid of data.raids) {
 		raids.push({
-			label: raid.remoteId,
-			value: raid.remoteId,
-			selected: values.raids.includes(raid.remoteId)
+			label: raid.name,
+			value: raid.name,
+			selected: values.raids.includes(raid.name)
 		});
 	}
 
