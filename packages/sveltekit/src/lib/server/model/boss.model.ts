@@ -1,4 +1,8 @@
-import { METRIC_TYPE, type PlayerPercentile, type PlayerPercentiles } from '$lib/metrics';
+import {
+	METRIC_TYPE,
+	type PlayerPercentile,
+	type PlayerPercentiles
+} from '@twinstar-bosskills/core/dist/metrics';
 import type { ART } from '$lib/types';
 import { EXPIRE_1_DAY, EXPIRE_1_HOUR, EXPIRE_5_MIN, withCache } from '../cache';
 import {

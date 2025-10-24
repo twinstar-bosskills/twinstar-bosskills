@@ -30,6 +30,7 @@
 		"@tanstack/svelte-table": "^8.21.3",
 		"@twinstar-bosskills/api": "workspace:*",
 		"@twinstar-bosskills/db": "workspace:*",
+		"@twinstar-bosskills/core": "workspace:*",
 		"@types/node": "^20.0.0",
 		"commander": "^14.0.1",
 		"date-fns": "^2.30.0",

@@ -1,4 +1,8 @@
-import { dpsEffectivity, METRIC_TYPE, type MetricType } from '$lib/metrics';
+import {
+	dpsEffectivity,
+	METRIC_TYPE,
+	type MetricType
+} from '@twinstar-bosskills/core/dist/metrics';
 import { and, asc, eq, gte, lte, sql } from 'drizzle-orm';
 import { createConnection } from '.';
 import {

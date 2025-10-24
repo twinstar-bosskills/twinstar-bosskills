@@ -3,7 +3,11 @@ import {
 	type AggregatedBySpec,
 	type AggregatedBySpecStats
 } from '$lib/components/echart/boxplot';
-import { dpsEffectivity, METRIC_TYPE, type MetricType } from '$lib/metrics';
+import {
+	dpsEffectivity,
+	METRIC_TYPE,
+	type MetricType
+} from '@twinstar-bosskills/core/dist/metrics';
 import type { Boss } from '$lib/model/boss.model';
 import type { ART } from '$lib/types';
 import { and, desc, eq, gte, inArray, lte, ne, sql } from 'drizzle-orm';

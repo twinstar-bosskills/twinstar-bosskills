@@ -15,8 +15,8 @@
 	import Rank from '$lib/components/Rank.svelte';
 	import SpecIcon from '$lib/components/icon/SpecIcon.svelte';
 	import { links } from '$lib/links';
-	import { characterDps, characterHps } from '$lib/metrics';
-	import { difficultyToString, talentSpecsByClass } from '$lib/model';
+	import { characterDps, characterHps } from '@twinstar-bosskills/core/dist/metrics';
+	import { difficultyToString, talentSpecsByClass } from '@twinstar-bosskills/core/dist/wow';
 	import { formatAvgItemLvl } from '$lib/number';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 	import { getSpecsFromUrl } from '$lib/search-params';

@@ -1,6 +1,6 @@
-import { METRIC_TYPE, type MetricType } from '$lib/metrics';
-import { talentSpecsByClass } from '$lib/model';
-import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
+import { METRIC_TYPE, type MetricType } from '@twinstar-bosskills/core/dist/metrics';
+import { talentSpecsByClass } from '@twinstar-bosskills/core/dist/wow';
+import { REALM_HELIOS, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import type { Boss } from '@twinstar-bosskills/api/dist/schema';
 import { getBossStatsMedian } from '$lib/server/model/boss.model';
 import { getFilterFormData } from '$lib/server/form/filter-form';

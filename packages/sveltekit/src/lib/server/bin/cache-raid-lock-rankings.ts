@@ -1,13 +1,13 @@
 import { raidLock } from '$lib/date';
-import { METRIC_TYPE } from '$lib/metrics';
+import { METRIC_TYPE } from '@twinstar-bosskills/core/dist/metrics';
 import {
 	difficultiesByExpansion,
 	difficultyToString,
 	isRaidDifficulty,
 	talentSpecsByExpansion
-} from '$lib/model';
+} from '@twinstar-bosskills/core/dist/wow';
 import type { BossKill } from '$lib/model/boss-kill.model';
-import { realmIsPublic, realmToExpansion } from '$lib/realm';
+import { realmIsPublic, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import { getPlayerByGuid } from '@twinstar-bosskills/db/dist/player';
 import type { Player } from '@twinstar-bosskills/db/dist/types';
 import { program } from 'commander';

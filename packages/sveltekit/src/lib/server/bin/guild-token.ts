@@ -1,7 +1,7 @@
 import { program } from 'commander';
 import { accessSync, constants, readFileSync } from 'fs';
 import { createGuildToken } from '../guild-token.service';
-import { REALM_CATA_PROUDMOORE } from '$lib/realm';
+import { REALM_CATA_PROUDMOORE } from '@twinstar-bosskills/core/dist/realm';
 try {
 	program.requiredOption(
 		'--input-file <path>',

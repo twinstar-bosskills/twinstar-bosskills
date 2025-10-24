@@ -1,4 +1,4 @@
-import { REALM_HELIOS } from '$lib/realm';
+import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
 import * as api from '$lib/server/api';
 import { assertGuildTokenFromCookie } from '$lib/server/guild-token.service';
 import { error } from '@sveltejs/kit';

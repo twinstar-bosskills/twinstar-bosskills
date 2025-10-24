@@ -1,6 +1,6 @@
 import { raidLock } from '$lib/date';
-import { getPerformaceDifficultiesByExpansion } from '$lib/model';
-import { realmToExpansion } from '$lib/realm';
+import { getPerformaceDifficultiesByExpansion } from '@twinstar-bosskills/core/dist/wow';
+import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import { and, asc, desc, eq, gte, inArray, lt, lte } from 'drizzle-orm';
 import { createConnection, type DbConnection } from '.';
 import { bosskillPlayerTable, dps, hps } from './schema/boss-kill-player.schema';

@@ -1,5 +1,9 @@
-import { difficultiesByExpansion, difficultyToString, isRaidDifficulty } from '$lib/model';
-import { realmToExpansion } from '$lib/realm';
+import {
+	difficultiesByExpansion,
+	difficultyToString,
+	isRaidDifficulty
+} from '@twinstar-bosskills/core/dist/wow';
+import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import { findBossKills } from '../db/boss-kill';
 
 import { findBossKillPlayers } from '../db/boss-kill-player';

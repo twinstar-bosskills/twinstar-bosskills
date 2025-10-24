@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Icon from '$lib/components/Icon.svelte';
 	import Link from '$lib/components/Link.svelte';
-	import { talentSpecToString } from '$lib/model';
-	import { realmToExpansion } from '$lib/realm';
+	import { talentSpecToString } from '@twinstar-bosskills/core/dist/wow';
+	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import type { BosskillCharacter } from '@twinstar-bosskills/api/dist/schema';
-	import { getTalentSpecIconUrl } from '$lib/talent';
+	import { getTalentSpecIconUrl } from '@twinstar-bosskills/api/dist/talent';
 
 	export let realm: string;
 	export let character: BosskillCharacter;

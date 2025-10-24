@@ -1,6 +1,6 @@
 import { raidLock } from '$lib/date';
-import { METRIC_TYPE } from '$lib/metrics';
-import { difficultiesByExpansion } from '$lib/model';
+import { METRIC_TYPE } from '@twinstar-bosskills/core/dist/metrics';
+import { difficultiesByExpansion } from '@twinstar-bosskills/core/dist/wow';
 import { getRaidLockOffsetFromUrl } from '$lib/search-params';
 import { getRanks } from '$lib/server/model/ranking.model';
 import { error } from '@sveltejs/kit';

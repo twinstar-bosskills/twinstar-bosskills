@@ -2,7 +2,7 @@
 	import Link from '$lib/components/Link.svelte';
 	import { links } from '$lib/links';
 	import type { Boss } from '$lib/model/boss.model';
-	import { REALM_HELIOS } from '$lib/realm';
+	import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
 
 	export let realm: string = REALM_HELIOS;
 	export let boss: Boss;

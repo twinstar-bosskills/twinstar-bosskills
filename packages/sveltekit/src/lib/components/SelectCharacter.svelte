@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { REALM_HELIOS } from '$lib/realm';
+	import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
 
 	export let realm: string = REALM_HELIOS;
 	export let redirectUrl: string = '/';

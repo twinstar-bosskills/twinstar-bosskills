@@ -6,12 +6,12 @@ import {
 	realmIsPublic,
 	realmMergedTo,
 	realmToExpansion
-} from '$lib/realm';
+} from '@twinstar-bosskills/core/dist/realm';
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { links } from '$lib/links';
 import { getDifficultyFromUrl, getRaidLockOffsetFromUrl, getSpecFromUrl } from '$lib/search-params';
-import { defaultDifficultyByExpansion } from '$lib/model';
+import { defaultDifficultyByExpansion } from '@twinstar-bosskills/core/dist/wow';
 
 export const load: LayoutServerLoad = async ({ cookies, params, url }) => {
 	const h = Number(cookies.get('wih'));

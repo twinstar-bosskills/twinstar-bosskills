@@ -1,7 +1,7 @@
 import { fromServerTime, raidLock } from '$lib/date';
-import { difficultyToString } from '$lib/model';
+import { difficultyToString } from '@twinstar-bosskills/core/dist/wow';
 import type { BossKill } from '$lib/model/boss-kill.model';
-import { realmToExpansion } from '$lib/realm';
+import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import { format } from 'date-fns';
 import { EXPIRE_5_MIN, withCache } from '../cache';
 import { findBossKills } from '../db/boss-kill';

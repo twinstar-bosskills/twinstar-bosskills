@@ -7,8 +7,13 @@
 	import Class from '$lib/components/table/column/Class.column.svelte';
 	import { formatSecondsInterval } from '$lib/date';
 	import { links } from '$lib/links';
-	import { characterDps, characterHps, METRIC_TYPE, type MetricType } from '$lib/metrics';
-	import { difficultyToString } from '$lib/model';
+	import {
+		characterDps,
+		characterHps,
+		METRIC_TYPE,
+		type MetricType
+	} from '@twinstar-bosskills/core/dist/metrics';
+	import { difficultyToString } from '@twinstar-bosskills/core/dist/wow';
 	import { formatAvgItemLvl } from '$lib/number';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import BossKillDetailLink from '../boss/[id=integer]/components/BossKillDetailLink.svelte';

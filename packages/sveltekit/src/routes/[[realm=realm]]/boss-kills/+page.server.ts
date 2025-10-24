@@ -1,5 +1,5 @@
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
-import { REALM_HELIOS } from '$lib/realm';
+import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
 import type { LatestBossKillQueryArgs } from '$lib/server/api';
 import * as api from '$lib/server/api';
 import { FilterOperator } from '@twinstar-bosskills/api/dist/filter';

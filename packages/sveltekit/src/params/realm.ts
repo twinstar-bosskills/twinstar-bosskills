@@ -1,4 +1,4 @@
-import { REALMS_LOWER_CASE } from '$lib/realm';
+import { REALMS_LOWER_CASE } from '@twinstar-bosskills/core/dist/realm';
 import type { ParamMatcher } from '@sveltejs/kit';
 
 const match: ParamMatcher = (param) => {

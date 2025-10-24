@@ -1,11 +1,11 @@
-import { METRIC_TYPE, characterDps, characterHps } from '$lib/metrics';
+import { METRIC_TYPE, characterDps, characterHps } from '@twinstar-bosskills/core/dist/metrics';
+import { realmIsPublic, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import {
 	difficultiesByExpansion,
 	difficultyToString,
 	isRaidDifficulty,
 	talentSpecsByExpansion
-} from '$lib/model';
-import { realmIsPublic, realmToExpansion } from '$lib/realm';
+} from '@twinstar-bosskills/core/dist/wow';
 import { program } from 'commander';
 import { getBossTopSpecs } from '../db/boss';
 

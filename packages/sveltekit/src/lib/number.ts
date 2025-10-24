@@ -1,4 +1,4 @@
-import { valuePerSecond } from './metrics';
+import { valuePerSecond } from '@twinstar-bosskills/core/dist/metrics';
 
 const fmt = new Intl.NumberFormat();
 export const formatNumber = (value: string | number): string => {

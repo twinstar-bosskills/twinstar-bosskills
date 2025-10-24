@@ -1,7 +1,7 @@
 <script lang="ts">
 	import arrowDown from '$lib/assets/icons/arrow-down.svg?raw';
 	import arrowUp from '$lib/assets/icons/arrow-up.svg?raw';
-	import { characterDps, type CharacterMetricParts } from '$lib/metrics';
+	import { characterDps, type CharacterMetricParts } from '@twinstar-bosskills/core/dist/metrics';
 
 	import { formatNumber } from '$lib/number';
 	export let character: CharacterMetricParts;

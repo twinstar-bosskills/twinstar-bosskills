@@ -17,8 +17,8 @@
 		difficultyToString,
 		isRaidDifficulty,
 		talentSpecToString
-	} from '$lib/model';
-	import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
+	} from '@twinstar-bosskills/core/dist/wow';
+	import { REALM_HELIOS, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import type { Data, Values } from '$lib/server/form/filter-form';
 	import Link from '../Link.svelte';
 	import SpecIcon from '../icon/SpecIcon.svelte';

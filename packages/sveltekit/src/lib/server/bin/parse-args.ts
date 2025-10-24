@@ -1,4 +1,4 @@
-import { REALMS_LOWER_CASE } from '$lib/realm';
+import { REALMS_LOWER_CASE } from '@twinstar-bosskills/core/dist/realm';
 import { InvalidArgumentError } from 'commander';
 import { isValid, parse } from 'date-fns';
 

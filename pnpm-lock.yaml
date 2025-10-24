@@ -14,9 +14,9 @@ importers:
 
   packages/api:
     dependencies:
-      '@twinstar-bosskills/sveltekit':
+      '@twinstar-bosskills/core':
         specifier: workspace:*
-        version: link:../sveltekit
+        version: link:../core
       dotenv:
         specifier: ^16.6.1
         version: 16.6.1
@@ -27,6 +27,12 @@ importers:
       '@types/node':
         specifier: ^20.19.23
         version: 20.19.23
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/core:
+    devDependencies:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -67,6 +73,9 @@ importers:
       '@twinstar-bosskills/api':
         specifier: workspace:*
         version: link:../api
+      '@twinstar-bosskills/core':
+        specifier: workspace:*
+        version: link:../core
       '@twinstar-bosskills/db':
         specifier: workspace:*
         version: link:../db

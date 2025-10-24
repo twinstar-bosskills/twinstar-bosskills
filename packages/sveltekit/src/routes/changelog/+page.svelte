@@ -4,7 +4,7 @@
 	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
 	import TextColorWarning from '$lib/components/TextColorWarning.svelte';
 	import { links } from '$lib/links';
-	import { REALM_HELIOS } from '$lib/realm';
+	import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
 </script>
 
 <svelte:head>

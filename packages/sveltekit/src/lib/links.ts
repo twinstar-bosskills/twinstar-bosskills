@@ -1,4 +1,4 @@
-import { expansionIsCata, realmToExpansion, realmToId } from './realm';
+import { expansionIsCata, realmToExpansion, realmToId } from '@twinstar-bosskills/core/dist/realm';
 
 type SearchParams = {
 	difficulty?: number | string;

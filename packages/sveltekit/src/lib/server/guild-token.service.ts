@@ -1,6 +1,6 @@
 import { SECRET_TOKEN_GUILD } from '$env/static/private';
 import { links } from '$lib/links';
-import { realmIsPublic } from '$lib/realm';
+import { realmIsPublic } from '@twinstar-bosskills/core/dist/realm';
 import type { Cookies } from '@sveltejs/kit';
 import { error } from '@sveltejs/kit';
 import { createHash } from 'node:crypto';

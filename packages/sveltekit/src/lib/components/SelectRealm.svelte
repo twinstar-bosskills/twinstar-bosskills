@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { REALMS_LOWER_CASE, REALM_HELIOS, realmIsPublic, realmMergedTo } from '$lib/realm';
+	import {
+		REALMS_LOWER_CASE,
+		REALM_HELIOS,
+		realmIsPublic,
+		realmMergedTo
+	} from '@twinstar-bosskills/core/dist/realm';
 	import Link from './Link.svelte';
 
 	export let realm: string = REALM_HELIOS;

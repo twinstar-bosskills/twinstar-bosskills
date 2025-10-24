@@ -1,4 +1,4 @@
-import { REALM_HELIOS, realmIsKnown, realmToExpansion } from '$lib/realm';
+import { REALM_HELIOS, realmIsKnown, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import type {
 	Boss,
 	BossKill,

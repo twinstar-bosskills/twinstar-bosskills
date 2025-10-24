@@ -1,12 +1,13 @@
-import { getClassIconUrl } from "@twinstar-bosskills/sveltekit/src/lib/class";
 import {
   classToString,
   difficultyToString,
   raceToString,
-} from "@twinstar-bosskills/sveltekit/src/lib/model";
-import { getRaceIconUrl } from "@twinstar-bosskills/sveltekit/src/lib/race";
-import { realmToExpansion } from "@twinstar-bosskills/sveltekit/src/lib/realm";
+} from "@twinstar-bosskills/core/dist/wow";
+
+import { realmToExpansion } from "@twinstar-bosskills/core/dist/realm";
 import { z } from "zod";
+import { getClassIconUrl } from "./class";
+import { getRaceIconUrl } from "./race";
 
 const bossIdSchema = z.number().gte(0);
 export const bossSchema = z.object({
@@ -26,7 +27,7 @@ export const raidsSchema = z.array(raidSchema);
 
 const modeSchema = z.number().gte(0);
 const bosskillTransform = <T extends { realm: string; mode: number }>(
-  item: T,
+  item: T
 ) => {
   const realm = item.realm;
   const expansion = realmToExpansion(realm);
@@ -82,7 +83,7 @@ const bosskillCharacterSchemaBase = z.object({
 const bosskillCharacterTransform = <
   T extends { class: number; race: number; gender: number },
 >(
-  item: T,
+  item: T
 ) => {
   const classString = classToString(item.class);
   const classIconUrl = getClassIconUrl(item.class);
@@ -101,7 +102,7 @@ const bosskillCharacterTransform = <
 export const bosskillCharacterSchema = bosskillCharacterSchemaBase.transform(
   (item) => {
     return bosskillCharacterTransform(item);
-  },
+  }
 );
 export const bosskillCharactersSchema = z.array(bosskillCharacterSchema);
 export type BosskillCharacter = z.infer<typeof bosskillCharacterSchema>;
@@ -115,7 +116,7 @@ export const bosskillCharacterPartialSchema = bosskillCharacterSchemaBase.omit({
 });
 
 export const bosskillCharactersPartialSchema = z.array(
-  bosskillCharacterPartialSchema,
+  bosskillCharacterPartialSchema
 );
 export type BosskillCharacterPartial = z.infer<
   typeof bosskillCharacterPartialSchema
@@ -148,7 +149,7 @@ export const bosskillTimelineSchema = z.object({
 export type BosskillTimeline = z.infer<typeof bosskillTimelineSchema>;
 
 const bosskillDetailTransform = (
-  item: z.infer<typeof bosskillDetailSchemaBase>,
+  item: z.infer<typeof bosskillDetailSchemaBase>
 ) => {
   const realm = item.realm;
   const expansion = realmToExpansion(realm);
@@ -163,13 +164,13 @@ const bosskillDetailSchemaBase = bosskillSchemaBase
     boss_kills_loot: z.array(bosskillLootSchema),
   });
 export const bosskillDetailSchema = bosskillDetailSchemaBase.transform(
-  bosskillDetailTransform,
+  bosskillDetailTransform
 );
 export type BossKillDetail = z.infer<typeof bosskillDetailSchema>;
 
 const characterTransform = <T extends { id: string }>(
   item: T,
-  ctx: z.RefinementCtx,
+  ctx: z.RefinementCtx
 ) => {
   const guid = Number(item.id.replace(/^[0-9]+_/, ""));
   if (isFinite(guid) === false) {

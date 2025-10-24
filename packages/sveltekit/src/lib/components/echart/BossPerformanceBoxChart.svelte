@@ -4,10 +4,10 @@
 	import { GridComponent, TooltipComponent } from 'echarts/components';
 	import * as echarts from 'echarts/core';
 	import { SVGRenderer } from 'echarts/renderers';
-	import { talentSpecToClass, talentSpecToString } from '../../model';
+	import { talentSpecToClass, talentSpecToString } from '@twinstar-bosskills/core/dist/wow';
 
-	import { REALM_HELIOS, realmToExpansion } from '$lib/realm';
-	import { getTalentSpecIconUrl } from '$lib/talent';
+	import { REALM_HELIOS, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+	import { getTalentSpecIconUrl } from '@twinstar-bosskills/api/dist/talent';
 	import Chart from './Chart.svelte';
 	import type { AggregatedBySpecStats } from './boxplot';
 

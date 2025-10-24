@@ -1,7 +1,12 @@
 import { raidLock } from '$lib/date';
-import { characterDps, characterHps, METRIC_TYPE, type MetricType } from '$lib/metrics';
-import { talentSpecsByExpansion } from '$lib/model';
 import type { Boss } from '$lib/model/boss.model';
+import {
+	characterDps,
+	characterHps,
+	METRIC_TYPE,
+	type MetricType
+} from '@twinstar-bosskills/core/dist/metrics';
+import { talentSpecsByExpansion } from '@twinstar-bosskills/core/dist/wow';
 import type { Raid } from '@twinstar-bosskills/db/dist/types';
 
 import { EXPIRE_30_MIN, EXPIRE_7_DAYS, withCache } from '../cache';

@@ -4,8 +4,8 @@
 	import CharacterPerformanceChart from '$lib/components/echart/CharacterPerformanceChart.svelte';
 	import FilterForm from '$lib/components/form/FilterForm.svelte';
 	import { links } from '$lib/links';
-	import { difficultyToString } from '$lib/model';
-	import { realmToExpansion } from '$lib/realm';
+	import { difficultyToString } from '@twinstar-bosskills/core/dist/wow';
+	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import type { PageData } from './$types';
 
 	export let data: PageData;

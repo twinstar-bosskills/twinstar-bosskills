@@ -1,4 +1,4 @@
-import { METRIC_TYPE } from '../../../../metrics';
+import { METRIC_TYPE } from '@twinstar-bosskills/core/dist/metrics';
 import { datetime, int, mysqlEnum } from 'drizzle-orm/mysql-core';
 import { bosskillTable } from './boss-kill.schema';
 import { bossTable } from './boss.schema';

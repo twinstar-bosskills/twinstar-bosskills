@@ -19,12 +19,12 @@
 		isRaidDifficulty,
 		talentSpecToString,
 		talentSpecsByExpansion
-	} from '$lib/model';
+	} from '@twinstar-bosskills/core/dist/wow';
 	import { formatAvgItemLvl } from '$lib/number';
-	import { realmToExpansion } from '$lib/realm';
+	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
-	import { getTalentSpecIconUrl } from '$lib/talent';
+	import { getTalentSpecIconUrl } from '@twinstar-bosskills/api/dist/talent';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import BossSelect from '../components/BossSelect.svelte';
 	import type { PageData } from './$types';

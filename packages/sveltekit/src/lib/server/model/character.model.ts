@@ -1,4 +1,4 @@
-import type { MetricType } from '$lib/metrics';
+import type { MetricType } from '@twinstar-bosskills/core/dist/metrics';
 import { EXPIRE_1_DAY, EXPIRE_1_HOUR, withCache } from '../cache';
 import {
 	getCharacterPerformanceLines as lines,

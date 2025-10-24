@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { realmToExpansion } from "@twinstar-bosskills/sveltekit/src/lib/realm";
+import { realmToExpansion } from "@twinstar-bosskills/core/dist/realm";
 import { TWINSTAR_API_URL } from "./config";
 import {
   itemSchema,

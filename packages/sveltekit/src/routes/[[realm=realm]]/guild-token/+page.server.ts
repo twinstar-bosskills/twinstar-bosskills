@@ -1,4 +1,4 @@
-import { REALM_CATA_PROUDMOORE } from '$lib/realm';
+import { REALM_CATA_PROUDMOORE } from '@twinstar-bosskills/core/dist/realm';
 import { createGuildToken } from '$lib/server/guild-token.service';
 import { addYears } from 'date-fns';
 import type { Actions, PageServerLoad } from './$types';

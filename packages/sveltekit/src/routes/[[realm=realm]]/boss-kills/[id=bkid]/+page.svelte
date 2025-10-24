@@ -12,10 +12,10 @@
 	import { quality } from '$lib/css-vars';
 	import { formatLocalized, formatSecondsInterval } from '$lib/date';
 	import { links } from '$lib/links';
-	import { characterDps, characterHps } from '$lib/metrics';
-	import { isRaidDifficultyWithLoot } from '$lib/model';
+	import { characterDps, characterHps } from '@twinstar-bosskills/core/dist/metrics';
+	import { isRaidDifficultyWithLoot } from '@twinstar-bosskills/core/dist/wow';
 	import { formatAvgItemLvl, formatNumber } from '$lib/number';
-	import { realmToExpansion } from '$lib/realm';
+	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import type { Item } from '@twinstar-bosskills/api/dist/schema';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';

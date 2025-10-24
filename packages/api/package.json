@@ -18,8 +18,8 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@twinstar-bosskills/core": "workspace:*",
     "dotenv": "^16.6.1",
-    "zod": "^4.1.12",
-    "@twinstar-bosskills/sveltekit": "workspace:*"
+    "zod": "^4.1.12"
   }
 }

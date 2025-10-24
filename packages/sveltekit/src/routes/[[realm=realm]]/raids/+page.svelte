@@ -2,9 +2,9 @@
 	import Link from '$lib/components/Link.svelte';
 	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
 	import { links } from '$lib/links';
-	import { difficultyToString } from '$lib/model';
-	import { getRaidIconUrl } from '$lib/raid';
-	import { realmToExpansion } from '$lib/realm';
+	import { difficultyToString } from '@twinstar-bosskills/core/dist/wow';
+	import { getRaidIconUrl } from '@twinstar-bosskills/api/dist/raid';
+	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import type { PageData } from './$types';
 
 	export let data: PageData;

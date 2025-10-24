@@ -1,5 +1,10 @@
 import { raidLock } from '$lib/date';
-import { characterDps, characterHps, healingAndAbsorbDone, METRIC_TYPE } from '$lib/metrics';
+import {
+	characterDps,
+	characterHps,
+	healingAndAbsorbDone,
+	METRIC_TYPE
+} from '@twinstar-bosskills/core/dist/metrics';
 import { getRaidLockOffsetFromUrl } from '$lib/search-params';
 import { getTopSpecsByRaidLock } from '$lib/server/model/boss.model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
