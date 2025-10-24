@@ -11,7 +11,7 @@ export const getPlayerByGuid = async ({
   try {
     const player = await db
       .selectFrom("player")
-      .selectAll()
+      .selectAll("player")
       .innerJoin("realm", "realm.id", "player.realm_id")
       .where(({ and, eb }) => {
         return and([

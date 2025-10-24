@@ -1,13 +1,15 @@
+import dotenv from "dotenv";
 import { DB } from "./types";
-import { createPool } from "mysql2";
 import { Kysely, MysqlDialect } from "kysely";
+import { createPool } from "mysql2";
 
+const cfg = dotenv.config();
 const dialect = new MysqlDialect({
   pool: createPool({
-    host: process.env.MARIADB_HOST!,
-    user: process.env.MARIADB_USER!,
-    password: process.env.MARIADB_PASSWORD!,
-    database: process.env.MARIADB_DATABASE!,
+    host: cfg.parsed?.MARIADB_HOST!,
+    user: cfg.parsed?.MARIADB_USER!,
+    password: cfg.parsed?.MARIADB_PASSWORD!,
+    database: cfg.parsed?.MARIADB_DATABASE!,
     connectionLimit: 10,
   }),
 });

@@ -45,7 +45,7 @@ export const defaultDifficultyByExpansion = (expansion: number): number => {
 };
 
 export const difficultiesByExpansion = (
-  expansion: number
+  expansion: number,
 ): typeof DifficultyMoP | typeof DifficultyCata | null => {
   if (expansionIsMoP(expansion)) {
     return DifficultyMoP;
@@ -59,7 +59,7 @@ export const difficultiesByExpansion = (
 };
 
 export const getPerformaceDifficultiesByExpansion = (
-  expansion: number
+  expansion: number,
 ): number[] => {
   if (expansionIsMoP(expansion)) {
     return [
@@ -110,7 +110,7 @@ const DIFFICULTY_CATA_TO_STRING = {
 };
 export const difficultyToString = (
   expansion: number,
-  diff: string | number
+  diff: string | number,
 ): string => {
   if (expansionIsMoP(expansion)) {
     return DIFFICULTY_MOP_TO_STRING[diff as number] ?? "None";
@@ -327,7 +327,7 @@ export const TalentSpecCata = {
 };
 
 export const talentSpecsByExpansion = (
-  expansion: number
+  expansion: number,
 ): typeof TalentSpecMoP | typeof TalentSpecCata | null => {
   if (expansionIsMoP(expansion)) {
     return TalentSpecMoP;
@@ -521,7 +521,7 @@ const TALENT_SPEC_CATA_TO_CLASS = {
 
 export const talentSpecToClass = (
   expansion: number,
-  spec: number
+  spec: number,
 ): number | null => {
   if (expansionIsMoP(expansion)) {
     return talentSpecMoPToClass(spec);
@@ -544,7 +544,7 @@ const talentSpecCataToClass = (spec: number): number | null => {
 
 export const talentSpecToClassString = (
   expansion: number,
-  spec: number
+  spec: number,
 ): string => {
   const cls = talentSpecToClass(expansion, spec);
   if (cls === null) {
@@ -554,7 +554,7 @@ export const talentSpecToClassString = (
 };
 
 const invert = (
-  obj: typeof TALENT_SPEC_CATA_TO_CLASS | typeof TALENT_SPEC_MOP_TO_CLASS
+  obj: typeof TALENT_SPEC_CATA_TO_CLASS | typeof TALENT_SPEC_MOP_TO_CLASS,
 ) =>
   Object.entries(obj).reduce(
     (acc, [k, v]) => {
@@ -562,7 +562,7 @@ const invert = (
       acc[v]!.push(Number(k));
       return acc;
     },
-    {} as Record<number, number[]>
+    {} as Record<number, number[]>,
   );
 
 const TALENT_SPEC_MOP_BY_CLASS = invert(TALENT_SPEC_MOP_TO_CLASS);
@@ -570,7 +570,7 @@ const TALENT_SPEC_CATA_BY_CLASS = invert(TALENT_SPEC_CATA_TO_CLASS);
 
 export const talentSpecsByClass = (
   expansion: number,
-  cls: number | null
+  cls: number | null,
 ): number[] => {
   if (cls === null) {
     return [];

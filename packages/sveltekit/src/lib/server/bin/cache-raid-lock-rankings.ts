@@ -1,20 +1,20 @@
 import { raidLock } from '$lib/date';
+
 import { METRIC_TYPE } from '@twinstar-bosskills/core/dist/metrics';
+import { realmIsPublic, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import {
 	difficultiesByExpansion,
 	difficultyToString,
 	isRaidDifficulty,
 	talentSpecsByExpansion
 } from '@twinstar-bosskills/core/dist/wow';
-import type { BossKill } from '$lib/model/boss-kill.model';
-import { realmIsPublic, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+import { getBosskillByRemoteId } from '@twinstar-bosskills/db/dist/boss-kill';
 import { getPlayerByGuid } from '@twinstar-bosskills/db/dist/player';
-import type { Player } from '@twinstar-bosskills/db/dist/types';
+import type { BossKill, Player } from '@twinstar-bosskills/db/dist/types';
 import { program } from 'commander';
 import { and, eq, gte, inArray, lte } from 'drizzle-orm';
 import type { MySqlInsertValue } from 'drizzle-orm/mysql-core';
 import { getBossTopSpecs } from '../db/boss';
-import { getBosskillByRemoteId } from '../db/boss-kill';
 import { createConnection } from '../db/index';
 import { rankingTable } from '../db/schema/ranking.schema';
 import { realmTable } from '../db/schema/realm.schema';

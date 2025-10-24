@@ -7,7 +7,7 @@ export const getBossPropsByBossId = async (
   try {
     const prop = await db
       .selectFrom("boss_prop")
-      .selectAll()
+      .selectAll("boss_prop")
       .where("boss_id", "=", bossId)
       .executeTakeFirst();
     return prop ?? null;

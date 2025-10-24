@@ -17,9 +17,6 @@ importers:
       '@twinstar-bosskills/core':
         specifier: workspace:*
         version: link:../core
-      dotenv:
-        specifier: ^16.6.1
-        version: 16.6.1
       zod:
         specifier: ^4.1.12
         version: 4.1.12

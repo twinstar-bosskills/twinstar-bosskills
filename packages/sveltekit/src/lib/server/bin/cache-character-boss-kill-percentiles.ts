@@ -4,7 +4,7 @@ import {
 	isRaidDifficulty
 } from '@twinstar-bosskills/core/dist/wow';
 import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
-import { findBossKills } from '../db/boss-kill';
+import { findBossKills } from '@twinstar-bosskills/db/dist/boss-kill';
 
 import { findBossKillPlayers } from '../db/boss-kill-player';
 import { createConnection } from '../db/index';
@@ -47,7 +47,7 @@ try {
 					if (players.length > 0) {
 						const bkStart = performance.now();
 						await setBossPercentilesPerPlayer({
-							bossKillRemoteId: bk.remoteId,
+							bossKillRemoteId: bk.remote_id,
 							realm: realm.name,
 							bossId: boss.id,
 							difficulty,

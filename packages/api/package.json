@@ -9,9 +9,10 @@
     "dist"
   ],
   "scripts": {
+    "dev": "tsc -p tsconfig.json --watch",
     "check": "tsc -p tsconfig.json --noEmit",
     "build": "tsc -p tsconfig.json",
-    "format": "prettier --plugin-search-dir . --write src"
+    "format": "prettier . --write src"
   },
   "devDependencies": {
     "@types/node": "^20.19.23",
@@ -19,7 +20,6 @@
   },
   "dependencies": {
     "@twinstar-bosskills/core": "workspace:*",
-    "dotenv": "^16.6.1",
     "zod": "^4.1.12"
   }
 }

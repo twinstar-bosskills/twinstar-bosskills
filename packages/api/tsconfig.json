@@ -1,17 +1,17 @@
 {
-	"compilerOptions": {
-		"target": "ES2022",
-		"module": "ES2022",
-		"moduleResolution": "node",
-		"outDir": "dist",
-		"rootDir": "src",
-		"declaration": true,
-		"declarationMap": true,
-		"sourceMap": true,
-		"strict": true,
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"skipLibCheck": true
-	},
-	"include": ["src"]
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
 }

@@ -6,7 +6,7 @@ export const getTalentSpecIconUrl = (realm: string, id: number): string => {
 
 export const getRemoteTalentSpecIconUrl = (
   realm: string,
-  id: number
+  id: number,
 ): string => {
   const expansion = realmToExpansion(realm);
   return `https://twinstar-api.twinstar-wow.com/talent/icon/${expansion}/${id}`;

@@ -9,6 +9,7 @@
     "dist"
   ],
   "scripts": {
+    "dev": "tsc -p tsconfig.json --watch",
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
     "format": "prettier . --write src"

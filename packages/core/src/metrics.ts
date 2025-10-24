@@ -32,12 +32,12 @@ export const healingAndAbsorbDone = (character: CharacterMetricParts) => {
 };
 export const characterDps = (
   character: Pick<CharacterMetricParts, "dmgDone" | "boss_kills">,
-  fightLength: number = 0
+  fightLength: number = 0,
 ) => {
   return valuePerSecond(
     Number(character.dmgDone),
     // character.usefullTime,
-    (character.boss_kills?.length ?? fightLength) / 1000
+    (character.boss_kills?.length ?? fightLength) / 1000,
   );
 };
 export const characterHps = (
@@ -45,12 +45,12 @@ export const characterHps = (
     CharacterMetricParts,
     "healingDone" | "absorbDone" | "boss_kills"
   >,
-  fightLength: number = 0
+  fightLength: number = 0,
 ) => {
   return valuePerSecond(
     Number(character.healingDone) + Number(character.absorbDone),
     // character.usefullTime,
-    (character.boss_kills?.length ?? fightLength) / 1000
+    (character.boss_kills?.length ?? fightLength) / 1000,
   );
 };
 

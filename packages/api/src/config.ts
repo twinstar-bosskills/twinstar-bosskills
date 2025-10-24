@@ -1,4 +1,1 @@
-import dotenv from "dotenv";
-const cfg = dotenv.config();
-
-export const TWINSTAR_API_URL = cfg.parsed?.TWINSTAR_API_URL;
+export const TWINSTAR_API_URL = "https://twinstar-api.twinstar-wow.com";

@@ -1,11 +1,11 @@
 import { fromServerTime, raidLock } from '$lib/date';
-import { difficultyToString } from '@twinstar-bosskills/core/dist/wow';
-import type { BossKill } from '$lib/model/boss-kill.model';
 import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+import { difficultyToString } from '@twinstar-bosskills/core/dist/wow';
+import { findBossKills } from '@twinstar-bosskills/db/dist/boss-kill';
+import { findRaidsByRealm } from '@twinstar-bosskills/db/dist/raid';
+import type { BossKill } from '@twinstar-bosskills/db/dist/types';
 import { format } from 'date-fns';
 import { EXPIRE_5_MIN, withCache } from '../cache';
-import { findBossKills } from '../db/boss-kill';
-import { findRaidsByRealm } from '@twinstar-bosskills/db/dist/raid';
 import { findBosses } from './boss.model';
 
 export const getRaids = async (args: { realm: string }) => {
@@ -111,7 +111,7 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 				topHour
 			};
 		};
-		const toStats = (data: BossKill[]): RaidLockData => {
+		const toStats = (data: Awaited<ReturnType<typeof findBossKills>>): RaidLockData => {
 			const byHour: Record<string, number> = {};
 			for (let i = 0; i < 24; i++) {
 				const key = `${String(i).padStart(2, '0')}:00`;
@@ -144,8 +144,8 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 			const last = data[0] ?? null;
 			const first = data[data.length - 1] ?? null;
 			for (const bk of data) {
-				const bossRemoteId = bossById[bk.bossId]?.remoteId ?? 0;
-				const bossName = bossById[bk.bossId]?.name ?? 'N/A';
+				const bossRemoteId = bossById[bk.boss_id]?.remoteId ?? 0;
+				const bossName = bossById[bk.boss_id]?.name ?? 'N/A';
 				const date = fromServerTime(bk.time);
 				try {
 					const weekDayKey = format(date, 'EEEE');
@@ -159,7 +159,7 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 					byHour[hourKey]++;
 				} catch (e) {}
 
-				const bkey = `${bk.bossId}_${bk.mode}`;
+				const bkey = `${bk.boss_id}_${bk.mode}`;
 				if (bk.wipes > 0) {
 					wipes++;
 					wipesByBoss[bkey] ??= {
