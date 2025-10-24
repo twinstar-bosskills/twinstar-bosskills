@@ -1,4 +1,3 @@
-import type { BossKillPlayer } from '$lib/model/boss-kill-player.model';
 import { eq } from 'drizzle-orm';
 import { createConnection } from '.';
 import { bosskillPlayerTable, dps, hps } from './schema/boss-kill-player.schema';
@@ -9,7 +8,14 @@ type FindBossKillPlayersArgs = {
 };
 export const findBossKillPlayers = async ({
 	bossKillId
-}: FindBossKillPlayersArgs): Promise<BossKillPlayer[]> => {
+}: FindBossKillPlayersArgs): Promise<
+	{
+		guid: number;
+		dps: number;
+		hps: number;
+		spec: number;
+	}[]
+> => {
 	try {
 		const db = await createConnection();
 		const qb = db
