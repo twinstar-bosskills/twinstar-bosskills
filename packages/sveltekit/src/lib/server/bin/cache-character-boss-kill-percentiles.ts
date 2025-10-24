@@ -6,7 +6,7 @@ import {
 import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import { findBossKills } from '@twinstar-bosskills/db/dist/boss-kill';
 
-import { findBossKillPlayers } from '../db/boss-kill-player';
+import { findBossKillPlayers } from '@twinstar-bosskills/db/dist/boss-kill-player';
 import { createConnection } from '../db/index';
 import { realmTable } from '../db/schema/realm.schema';
 import { findBosses, setBossPercentilesPerPlayer } from '../model/boss.model';
