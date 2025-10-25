@@ -1,5 +1,5 @@
-import { raidLock } from '$lib/date';
-import type { Boss } from '$lib/model/boss.model';
+import { raidLock } from '@twinstar-bosskills/core/dist/date';
+import type { Boss } from '@twinstar-bosskills/db/dist/types';
 import {
 	characterDps,
 	characterHps,
@@ -53,7 +53,7 @@ export const getRanks = async (args: GetRanksArgs): Promise<GetRanksResult> => {
 		};
 		for (const boss of bosses) {
 			const bossId = boss.id;
-			const raid = raids[boss.raidId];
+			const raid = raids[boss.raid_id];
 			if (!raid) {
 				continue;
 			}

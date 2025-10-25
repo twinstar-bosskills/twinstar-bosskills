@@ -1,5 +1,5 @@
 {
-  "name": "@twinstar-bosskills/core",
+  "name": "@twinstar-bosskills/cli",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -15,8 +15,7 @@
     "format": "prettier . --write src"
   },
   "dependencies": {
-    "date-fns": "^2.30.0",
-    "date-fns-tz": "^2.0.1"
+    "commander": "^14.0.1"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

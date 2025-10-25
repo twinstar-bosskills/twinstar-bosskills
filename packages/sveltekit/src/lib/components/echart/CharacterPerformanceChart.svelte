@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatTzLocalized } from '$lib/date';
+	import { formatTzLocalized } from '@twinstar-bosskills/core/dist/date';
 	import type { CharacterPerformanceLines } from '$lib/server/db/character';
 	import type {
 		LegendComponentOption,

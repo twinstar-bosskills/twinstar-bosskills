@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatNumber } from '$lib/number';
+	import { formatNumber } from '@twinstar-bosskills/core/dist/number';
 
 	export let effectivity: number | null;
 </script>

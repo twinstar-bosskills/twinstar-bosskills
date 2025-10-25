@@ -47,19 +47,19 @@ try {
 			const statsByGuid: { [guid in number]: CharacterBossRankingStats } = {};
 			const statsByGuidBySpec: { [spec in number]: typeof statsByGuid } = {};
 			for (const boss of await findBosses({ realm: realm.name })) {
-				if (Array.isArray(options.bossIds) && options.bossIds.includes(boss.remoteId) === false) {
+				if (Array.isArray(options.bossIds) && options.bossIds.includes(boss.remote_id) === false) {
 					continue;
 				}
 				const bossStart = performance.now();
 				console.log(`Boss ${boss.name} - ${metric} started`);
-				const bossRemoteId = boss.remoteId;
+				const bossRemoteId = boss.remote_id;
 				for (const difficulty of diffs) {
 					const diffStr = difficultyToString(expansion, difficulty);
 					const diffStart = performance.now();
 					console.log(`  difficulty: ${diffStr} started`);
 					const topSpecs = await getBossTopSpecs({
 						realm: realm.name,
-						remoteId: boss.remoteId,
+						remoteId: boss.remote_id,
 						difficulty,
 						metric,
 						limit: 0
@@ -69,7 +69,7 @@ try {
 						await setBossTopSpecs(
 							{
 								realm: realm.name,
-								remoteId: boss.remoteId,
+								remoteId: boss.remote_id,
 								difficulty,
 								metric
 							},
@@ -121,7 +121,7 @@ try {
 						// console.log(`    spec: ${specName} started`);
 						const topSpecs = await getBossTopSpecs({
 							realm: realm.name,
-							remoteId: boss.remoteId,
+							remoteId: boss.remote_id,
 							// @ts-ignore
 							difficulty,
 							metric,
@@ -132,7 +132,7 @@ try {
 							await setBossTopSpecs(
 								{
 									realm: realm.name,
-									remoteId: boss.remoteId,
+									remoteId: boss.remote_id,
 									difficulty,
 									metric,
 									talentSpec

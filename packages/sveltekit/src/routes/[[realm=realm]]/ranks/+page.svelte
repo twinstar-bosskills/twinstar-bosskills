@@ -5,7 +5,7 @@
 	import CharacterHPS from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import CharacterName from '$lib/components/table/column/CharacterName.column.svelte';
 	import Class from '$lib/components/table/column/Class.column.svelte';
-	import { formatSecondsInterval } from '$lib/date';
+	import { formatSecondsInterval } from '@twinstar-bosskills/core/dist/date';
 	import { links } from '$lib/links';
 	import {
 		characterDps,
@@ -14,7 +14,7 @@
 		type MetricType
 	} from '@twinstar-bosskills/core/dist/metrics';
 	import { difficultyToString } from '@twinstar-bosskills/core/dist/wow';
-	import { formatAvgItemLvl } from '$lib/number';
+	import { formatAvgItemLvl } from '../../../../../core/src/number';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import BossKillDetailLink from '../boss/[id=integer]/components/BossKillDetailLink.svelte';
 	import type { PageData } from './$types';
@@ -61,7 +61,7 @@
 					return cellComponent(Class, {
 						realm: data.realm,
 						character: row.original.characters[0],
-						talentSpecHref: links.bossHistory(data.realm, boss.remoteId, {
+						talentSpecHref: links.bossHistory(data.realm, boss.remote_id, {
 							difficulty: data.difficulty,
 							raidlock: data.raidlock,
 							spec: row.original.spec
@@ -147,7 +147,7 @@
 		{#if tableData.length > 0}
 			<h4>
 				{raid.name} -
-				<Link href={links.boss(data.realm, boss.remoteId, { difficulty: data.difficulty })}>
+				<Link href={links.boss(data.realm, boss.remote_id, { difficulty: data.difficulty })}>
 					{boss.name}
 				</Link>
 			</h4>
@@ -169,7 +169,7 @@
 		{#if tableData.length > 0}
 			<h4>
 				{raid.name} -
-				<Link href={links.boss(data.realm, boss.remoteId, { difficulty: data.difficulty })}>
+				<Link href={links.boss(data.realm, boss.remote_id, { difficulty: data.difficulty })}>
 					{boss.name}
 				</Link>
 			</h4>

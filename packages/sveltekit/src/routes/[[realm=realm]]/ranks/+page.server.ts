@@ -1,4 +1,4 @@
-import { raidLock } from '$lib/date';
+import { raidLock } from '@twinstar-bosskills/core/src/date';
 import { METRIC_TYPE } from '@twinstar-bosskills/core/dist/metrics';
 import { difficultiesByExpansion } from '@twinstar-bosskills/core/dist/wow';
 import { getRaidLockOffsetFromUrl } from '$lib/search-params';

@@ -10,8 +10,14 @@
 	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
-	import { formatSecondsInterval, fromServerTime } from '$lib/date';
 	import { links } from '$lib/links';
+	import { getDifficultyFromUrl } from '$lib/search-params';
+	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
+	import type { ColumnDef } from '@tanstack/svelte-table';
+	import { getTalentSpecIconUrl } from '@twinstar-bosskills/api/dist/talent';
+	import { formatSecondsInterval, fromServerTime } from '@twinstar-bosskills/core/dist/date';
+	import { formatAvgItemLvl } from '@twinstar-bosskills/core/dist/number';
+	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import {
 		defaultDifficultyByExpansion,
 		difficultiesByExpansion,
@@ -20,12 +26,6 @@
 		talentSpecToString,
 		talentSpecsByExpansion
 	} from '@twinstar-bosskills/core/dist/wow';
-	import { formatAvgItemLvl } from '$lib/number';
-	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
-	import { getDifficultyFromUrl } from '$lib/search-params';
-	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
-	import { getTalentSpecIconUrl } from '@twinstar-bosskills/api/dist/talent';
-	import type { ColumnDef } from '@tanstack/svelte-table';
 	import BossSelect from '../components/BossSelect.svelte';
 	import type { PageData } from './$types';
 	import BossKillDetailLink from './../components/BossKillDetailLink.svelte';
@@ -188,7 +188,7 @@
 	<h2>
 		Top 10 by spec by for raid lock {data.raidLockStart.toLocaleDateString()} - {data.raidLockEnd.toLocaleDateString()}
 		<Link
-			href={links.bossHistory(data.realm, data.boss.remoteId, {
+			href={links.bossHistory(data.realm, data.boss.remote_id, {
 				raidlock: data.raidlock + 1,
 				spec: data.talentSpec,
 				difficulty: data.difficulty

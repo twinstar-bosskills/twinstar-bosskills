@@ -39,8 +39,8 @@
 	for (const boss of data.bosses) {
 		bosses.push({
 			label: boss.name,
-			value: boss.remoteId,
-			selected: values.bosses.includes(boss.remoteId)
+			value: boss.remote_id,
+			selected: values.bosses.includes(boss.remote_id)
 		});
 	}
 

@@ -1,4 +1,4 @@
-import { fromServerTime, raidLock } from '$lib/date';
+import { fromServerTime, raidLock } from '@twinstar-bosskills/core/dist/date';
 import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import { difficultyToString } from '@twinstar-bosskills/core/dist/wow';
 import { findBossKills } from '@twinstar-bosskills/db/dist/boss-kill';
@@ -144,7 +144,7 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 			const last = data[0] ?? null;
 			const first = data[data.length - 1] ?? null;
 			for (const bk of data) {
-				const bossRemoteId = bossById[bk.boss_id]?.remoteId ?? 0;
+				const bossRemoteId = bossById[bk.boss_id]?.remote_id ?? 0;
 				const bossName = bossById[bk.boss_id]?.name ?? 'N/A';
 				const date = fromServerTime(bk.time);
 				try {

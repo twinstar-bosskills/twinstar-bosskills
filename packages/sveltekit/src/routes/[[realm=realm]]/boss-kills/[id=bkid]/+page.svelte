@@ -10,11 +10,11 @@
 	import Percentile from '$lib/components/table/column/Percentile.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
 	import { quality } from '$lib/css-vars';
-	import { formatLocalized, formatSecondsInterval } from '$lib/date';
+	import { formatLocalized, formatSecondsInterval } from '@twinstar-bosskills/core/dist/date';
 	import { links } from '$lib/links';
 	import { characterDps, characterHps } from '@twinstar-bosskills/core/dist/metrics';
 	import { isRaidDifficultyWithLoot } from '@twinstar-bosskills/core/dist/wow';
-	import { formatAvgItemLvl, formatNumber } from '$lib/number';
+	import { formatAvgItemLvl, formatNumber } from '@twinstar-bosskills/core/dist/number';
 	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import type { Item } from '@twinstar-bosskills/api/dist/schema';
 	import type { ColumnDef } from '@tanstack/svelte-table';

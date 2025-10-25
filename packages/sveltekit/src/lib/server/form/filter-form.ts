@@ -1,5 +1,5 @@
 import { toArrayOfInt, toArrayOfNonEmptyStrings, toIntOrUndefined } from '$lib/mapper';
-import type { Boss } from '$lib/model/boss.model';
+import type { Boss } from '@twinstar-bosskills/db/dist/types';
 import { findBosses } from '../model/boss.model';
 import { getRaids } from '../model/raid.model';
 export type Data = {

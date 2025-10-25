@@ -12,7 +12,7 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, params, parent }) => {
 	const { realmIsPrivate, realm, difficulty, talentSpec, boss } = await parent();
-	const remoteId = boss.remoteId;
+	const remoteId = boss.remote_id;
 	const [kw, dpsPrepared, hpsPrepared] = await Promise.all([
 		getBossKillsWipesTimes({ realm, id: remoteId, mode: difficulty }),
 		getBossAggregatedStats({ realm, remoteId, difficulty, metric: METRIC_TYPE.DPS }),

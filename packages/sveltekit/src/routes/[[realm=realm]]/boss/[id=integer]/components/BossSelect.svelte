@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Link from '$lib/components/Link.svelte';
 	import { links } from '$lib/links';
-	import type { Boss } from '$lib/model/boss.model';
+	import type { Boss } from '@twinstar-bosskills/db/dist/types';
 
 	export let realm: string;
 	export let boss: Boss;
@@ -16,8 +16,8 @@
 	{#each bosses as b}
 		<Link
 			href={linkTo === 'history'
-				? links.bossHistory(realm, b.remoteId, { spec, difficulty, raidlock })
-				: links.boss(realm, b.remoteId, { spec, difficulty, raidlock })}
+				? links.bossHistory(realm, b.remote_id, { spec, difficulty, raidlock })
+				: links.boss(realm, b.remote_id, { spec, difficulty, raidlock })}
 			active={b.id === boss.id}
 			style="text-decoration: none; padding: 0.5rem 0;"
 		>

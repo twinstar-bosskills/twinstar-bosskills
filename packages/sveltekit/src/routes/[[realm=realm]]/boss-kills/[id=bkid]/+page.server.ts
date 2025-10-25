@@ -49,7 +49,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 			})
 		);
 		queue.push(
-			getLootChance({ itemId, bossRemoteId: boss.remoteId, mode: bosskill.mode }).then((v) => {
+			getLootChance({ itemId, bossRemoteId: boss.remote_id, mode: bosskill.mode }).then((v) => {
 				lootChance[itemId] = v;
 			})
 		);

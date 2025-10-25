@@ -3,7 +3,7 @@
 	import TextColorSuccess from '$lib/components/TextColorSuccess.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import Boss from '$lib/components/table/column/BosskillBoss.column.svelte';
-	import { formatTzLocalized } from '$lib/date';
+	import { formatTzLocalized } from '../../../../core/src/date';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 
 	import BossKillsByTimeBarChart from '$lib/components/echart/BossKillsByTimeBarChart.svelte';

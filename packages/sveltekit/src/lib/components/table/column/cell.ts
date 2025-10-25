@@ -1,4 +1,4 @@
-import { formatNumber } from '$lib/number';
+import { formatNumber } from '@twinstar-bosskills/core/dist/number';
 import type { CellContext } from '@tanstack/svelte-table';
 
 export const formatCell = <TData = unknown, TValue = unknown>(info: CellContext<TData, TValue>) => {

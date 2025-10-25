@@ -3,7 +3,7 @@
 	import arrowUp from '$lib/assets/icons/arrow-up.svg?raw';
 	import { characterHps, type CharacterMetricParts } from '@twinstar-bosskills/core/dist/metrics';
 
-	import { formatNumber } from '$lib/number';
+	import { formatNumber } from '@twinstar-bosskills/core/dist/number';
 
 	export let character: CharacterMetricParts;
 	export let fightLength: number | undefined = undefined;

@@ -3,24 +3,24 @@
 	import Link from '$lib/components/Link.svelte';
 	import Table, { cellComponent } from '$lib/components/table/Table.svelte';
 	import Boss from '$lib/components/table/column/BosskillBoss.column.svelte';
+	import Spec from '$lib/components/table/column/BosskillSpec.column.svelte';
 	import CharacterDps from '$lib/components/table/column/CharacterDPS.column.svelte';
 	import CharacterHps from '$lib/components/table/column/CharacterHPS.column.svelte';
 	import FightDetails from '$lib/components/table/column/FightDetails.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
-	import Spec from '$lib/components/table/column/BosskillSpec.column.svelte';
-	import { formatSecondsInterval, fromServerTime } from '$lib/date';
+	import { formatSecondsInterval, fromServerTime } from '@twinstar-bosskills/core/dist/date';
 
 	import LinkExternal from '$lib/components/LinkExternal.svelte';
 	import Pagination from '$lib/components/Pagination.svelte';
 	import Rank from '$lib/components/Rank.svelte';
 	import SpecIcon from '$lib/components/icon/SpecIcon.svelte';
 	import { links } from '$lib/links';
-	import { characterDps, characterHps } from '@twinstar-bosskills/core/dist/metrics';
-	import { difficultyToString, talentSpecsByClass } from '@twinstar-bosskills/core/dist/wow';
-	import { formatAvgItemLvl } from '$lib/number';
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 	import { getSpecsFromUrl } from '$lib/search-params';
 	import type { ColumnDef } from '@tanstack/svelte-table';
+	import { characterDps, characterHps } from '@twinstar-bosskills/core/dist/metrics';
+	import { formatAvgItemLvl } from '@twinstar-bosskills/core/dist/number';
+	import { difficultyToString, talentSpecsByClass } from '@twinstar-bosskills/core/dist/wow';
 	import type { PageData } from './$types';
 
 	let pageSize = getPageSizeFromURL($page.url, 20);

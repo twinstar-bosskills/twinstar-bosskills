@@ -82,7 +82,7 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 	const bossNameById: BossNameByRemoteId = await findBosses({ realm })
 		.then((bosses) => {
 			return bosses.reduce((acc, boss) => {
-				acc[boss.remoteId] = boss.name;
+				acc[boss.remote_id] = boss.name;
 				return acc;
 			}, {} as BossNameByRemoteId);
 		})
@@ -101,7 +101,6 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 		getCharacterBossRankings({ guid, realm, metric: METRIC_TYPE.HPS, spec })
 	]);
 	const bossRankings = { [METRIC_TYPE.DPS]: bossRankingsDPS, [METRIC_TYPE.HPS]: bossRankingsHPS };
-
 	return {
 		bossNameById,
 		bosskills: {

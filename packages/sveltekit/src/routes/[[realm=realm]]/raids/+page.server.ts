@@ -1,5 +1,5 @@
-import { raidLock } from '$lib/date';
-import type { Boss } from '$lib/model/boss.model';
+import { raidLock } from '@twinstar-bosskills/core/src/date';
+import type { Boss } from '@twinstar-bosskills/db/dist/types';
 
 import { listAllLatestBossKills } from '$lib/server/api';
 import { FilterOperator } from '@twinstar-bosskills/api/dist/filter';
@@ -49,8 +49,8 @@ export const load: PageServerLoad = async ({ params }) => {
 	return {
 		raids,
 		bossesByRaidId: bosses.reduce((acc, item) => {
-			acc[item.raidId] ??= [];
-			acc[item.raidId]!.push(item);
+			acc[item.raid_id] ??= [];
+			acc[item.raid_id]!.push(item);
 			return acc;
 		}, {} as Record<number, Boss[]>),
 		bosskillsByBoss,

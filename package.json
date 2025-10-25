@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --parallel -r dev",
+    "dev:libs": "pnpm --parallel --filter=!@twinstar-bosskills/sveltekit dev",
     "build": "pnpm -r build",
+    "build:libs": "pnpm --parallel --filter=!@twinstar-bosskills/sveltekit build",
     "preview": "pnpm --filter @twinstar-bosskills/sveltekit preview",
     "start": "pnpm --filter @twinstar-bosskills/sveltekit start",
     "start:bun": "pnpm --filter @twinstar-bosskills/sveltekit start:bun",

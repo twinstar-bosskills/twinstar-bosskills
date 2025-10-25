@@ -43,15 +43,15 @@
 					<ol>
 						{#each data.bossesByRaidId[raid.id] ?? [] as boss}
 							{@const byDifficulty = Object.entries(
-								data.bosskillsByBossByDifficulty[boss.remoteId] ?? {}
+								data.bosskillsByBossByDifficulty[boss.remote_id] ?? {}
 							)}
 							<li style="list-style-type: decimal; margin-top: 0.25rem;">
-								<Link href={links.boss(data.realm, boss.remoteId)} style="font-size: 1.25rem"
+								<Link href={links.boss(data.realm, boss.remote_id)} style="font-size: 1.25rem"
 									>{boss.name}</Link
 								>
 								<span title="Number of kills during current raid lock">
 									<TextColorSuccess>
-										{data.bosskillsByBoss[boss.remoteId] ?? 0}
+										{data.bosskillsByBoss[boss.remote_id] ?? 0}
 									</TextColorSuccess>
 									kills
 								</span>

@@ -1,4 +1,4 @@
-import { raidLock } from '$lib/date';
+import { raidLock } from '@twinstar-bosskills/core/src/date';
 import { getPerformaceDifficultiesByExpansion } from '@twinstar-bosskills/core/dist/wow';
 import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import { and, asc, desc, eq, gte, inArray, lt, lte } from 'drizzle-orm';

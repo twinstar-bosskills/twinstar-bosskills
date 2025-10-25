@@ -1,4 +1,4 @@
-import { REALM_HELIOS, realmIsKnown, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+import { FilterOperator } from '@twinstar-bosskills/api/dist/filter';
 import type {
 	Boss,
 	BossKill,
@@ -8,6 +8,8 @@ import type {
 	BosskillTimeline,
 	Raid
 } from '@twinstar-bosskills/api/dist/schema';
+import { REALM_HELIOS, realmIsKnown, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+import { findRaidsByRealm } from '@twinstar-bosskills/db/dist/raid';
 import { and, eq } from 'drizzle-orm';
 import {
 	getBossKillDetail,
@@ -15,12 +17,10 @@ import {
 	listAllLatestBossKills,
 	type LatestBossKillQueryArgs
 } from '../api';
-import { FilterOperator } from '@twinstar-bosskills/api/dist/filter';
 import { getRaids } from '../api/raid';
 import { safeGC } from '../gc';
 import { findBosses } from '../model/boss.model';
 import { createConnection } from './index';
-import { findRaidsByRealm } from '@twinstar-bosskills/db/dist/raid';
 import { bosskillDeathTable } from './schema/boss-kill-death.schema';
 import { bosskillLootTable } from './schema/boss-kill-loot.schema';
 import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
@@ -78,8 +78,8 @@ export const synchronize = async ({
 
 	const bosses = await findBosses({ realm });
 	const bossesByRaidId = bosses.reduce((acc, boss) => {
-		acc[boss.raidId] ??= [];
-		acc[boss.raidId]!.push(boss);
+		acc[boss.raid_id] ??= [];
+		acc[boss.raid_id]!.push(boss);
 		return acc;
 	}, {} as Record<number, typeof bosses>);
 	const raids = await findRaidsByRealm({ realm });
@@ -93,7 +93,7 @@ export const synchronize = async ({
 			const query: LatestBossKillQueryArgs = {
 				cache: false,
 				realm,
-				filters: [{ column: 'entry', operator: FilterOperator.EQUALS, value: boss.remoteId }]
+				filters: [{ column: 'entry', operator: FilterOperator.EQUALS, value: boss.remote_id }]
 			};
 
 			if (startsAt) {
@@ -106,8 +106,8 @@ export const synchronize = async ({
 				query.filters?.push({ column: 'id', operator: FilterOperator.IN, value: bosskillIds });
 			}
 			if (Array.isArray(bossIds) && bossIds.length > 0) {
-				if (bossIds.includes(boss.remoteId) === false) {
-					onLog(`Skipping boss ${boss.name}-${boss.remoteId}`);
+				if (bossIds.includes(boss.remote_id) === false) {
+					onLog(`Skipping boss ${boss.name}-${boss.remote_id}`);
 					continue;
 				}
 				query.filters?.push({ column: 'entry', operator: FilterOperator.IN, value: bossIds });

@@ -14,7 +14,7 @@ export const load: LayoutServerLoad = async ({ params }) => {
 		});
 	}
 
-	const raidBosses = (await findBosses({ realm })).filter((b) => b.raidId === boss.raidId);
+	const raidBosses = (await findBosses({ realm })).filter((b) => b.raid_id === boss.raid_id);
 
 	return {
 		boss,

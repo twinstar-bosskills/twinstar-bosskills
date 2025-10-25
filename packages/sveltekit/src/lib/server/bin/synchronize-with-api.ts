@@ -1,4 +1,4 @@
-import { raidLock } from '$lib/date';
+import { raidLock } from '@twinstar-bosskills/core/src/date';
 import { program } from 'commander';
 import { synchronize } from '../db/synchronize';
 

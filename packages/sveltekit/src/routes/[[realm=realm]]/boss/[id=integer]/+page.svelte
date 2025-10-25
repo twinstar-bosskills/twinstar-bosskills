@@ -14,7 +14,7 @@
 	import Effectivity from '$lib/components/table/column/Effectivity.column.svelte';
 	import KilledAt from '$lib/components/table/column/KilledAt.column.svelte';
 	import { formatCell } from '$lib/components/table/column/cell';
-	import { formatSecondsInterval, fromServerTime } from '$lib/date';
+	import { formatSecondsInterval, fromServerTime } from '@twinstar-bosskills/core/dist/date';
 	import { links } from '$lib/links';
 	import {
 		defaultDifficultyByExpansion,
@@ -24,7 +24,7 @@
 		talentSpecToString,
 		talentSpecsByExpansion
 	} from '@twinstar-bosskills/core/dist/wow';
-	import { formatAvgItemLvl } from '$lib/number';
+	import { formatAvgItemLvl } from '@twinstar-bosskills/core/dist/number';
 	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
@@ -249,7 +249,7 @@
 					<h3 class="stats-headline">
 						{isDmg ? 'Top DPS' : 'Top HPS'}{#if data.talentSpec}
 							<a
-								href={links.bossHistory(data.realm, data.boss.remoteId, {
+								href={links.bossHistory(data.realm, data.boss.remote_id, {
 									spec: data.talentSpec,
 									difficulty: data.difficulty,
 									raidlock: 1

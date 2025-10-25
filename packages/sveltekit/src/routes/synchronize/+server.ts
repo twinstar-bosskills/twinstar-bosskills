@@ -1,5 +1,5 @@
 import { SECRET_TOKEN_SYNCHRONIZE } from '$env/static/private';
-import { raidLock } from '$lib/date';
+import { raidLock } from '@twinstar-bosskills/core/src/date';
 import { synchronize } from '$lib/server/db/synchronize';
 import { safeGC } from '$lib/server/gc';
 import { error } from '@sveltejs/kit';

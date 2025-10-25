@@ -1,4 +1,4 @@
-import { raidLock } from '$lib/date';
+import { raidLock } from '@twinstar-bosskills/core/src/date';
 
 import { METRIC_TYPE } from '@twinstar-bosskills/core/dist/metrics';
 import { realmIsPublic, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
@@ -95,7 +95,7 @@ try {
 					for (const talentSpec of Object.values<number>(specs)) {
 						const topSpecs = await getBossTopSpecs({
 							realm: realm.name,
-							remoteId: boss.remoteId,
+							remoteId: boss.remote_id,
 							difficulty,
 							metric,
 							talentSpec,
@@ -110,7 +110,7 @@ try {
 								.where(
 									and(
 										eq(rankingTable.realmId, realm.id),
-										eq(rankingTable.raidId, boss.raidId),
+										eq(rankingTable.raidId, boss.raid_id),
 										eq(rankingTable.bossId, boss.id),
 										eq(rankingTable.spec, talentSpec),
 										eq(rankingTable.mode, difficulty),
@@ -149,7 +149,7 @@ try {
 
 									values.push({
 										realmId: realm.id,
-										raidId: boss.raidId,
+										raidId: boss.raid_id,
 										bossId: boss.id,
 										bosskillId: bosskillId,
 										playerId: player.id,

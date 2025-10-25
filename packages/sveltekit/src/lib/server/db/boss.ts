@@ -3,83 +3,26 @@ import {
 	type AggregatedBySpec,
 	type AggregatedBySpecStats
 } from '$lib/components/echart/boxplot';
+import type { ART } from '$lib/types';
+import {
+	bosskillCharacterSchema,
+	type BosskillCharacter
+} from '@twinstar-bosskills/api/dist/schema';
 import {
 	dpsEffectivity,
 	METRIC_TYPE,
 	type MetricType
 } from '@twinstar-bosskills/core/dist/metrics';
-import type { Boss } from '$lib/model/boss.model';
-import type { ART } from '$lib/types';
+import type { Boss } from '@twinstar-bosskills/db/dist/types';
 import { and, desc, eq, gte, inArray, lte, ne, sql } from 'drizzle-orm';
-import { createConnection, type DbConnection } from '.';
-import {
-	bosskillCharacterSchema,
-	type BosskillCharacter
-} from '@twinstar-bosskills/api/dist/schema';
+import { createConnection } from '.';
 import { EXPIRE_30_MIN, withCache } from '../cache';
 import { bosskillPlayerTable, dps, hps } from './schema/boss-kill-player.schema';
 import { bosskillTable } from './schema/boss-kill.schema';
 import { bossTable } from './schema/boss.schema';
-import { raidTable } from './schema/raid.schema';
-import { realmXRaidTable } from './schema/realm-x-raid.schema';
-import { realmTable } from './schema/realm.schema';
 import { bossPropTable } from './schema/mysql/boss-prop.schema';
-
-type BuilderArgs = { realm: string; id?: number | undefined; remoteId?: number | undefined };
-const builder = (db: DbConnection, { realm, id, remoteId }: BuilderArgs) => {
-	const qb = db
-		.select({
-			id: bossTable.id,
-			remoteId: bossTable.remoteId,
-			name: bossTable.name,
-			raidId: raidTable.id,
-			position: bossTable.position
-		})
-		.from(bossTable)
-		.innerJoin(raidTable, eq(raidTable.id, bossTable.raidId))
-		.innerJoin(realmXRaidTable, eq(realmXRaidTable.raidId, raidTable.id))
-		.innerJoin(realmTable, eq(realmTable.id, realmXRaidTable.realmId))
-		.where(
-			and(
-				eq(realmTable.name, realm),
-				typeof remoteId === 'number' ? eq(bossTable.remoteId, remoteId) : undefined,
-				typeof id === 'number' ? eq(bossTable.id, id) : undefined
-			)
-		);
-	return qb;
-};
-
-export const findBossesByRealm = async ({ realm }: { realm: string }): Promise<Boss[]> => {
-	try {
-		const db = await createConnection();
-		const qb = builder(db, { realm });
-		const rows = await qb.execute();
-		return rows;
-	} catch (e) {
-		console.error(e);
-	}
-
-	return [];
-};
-
-export const getBossByRemoteIdAndRealm = async ({
-	remoteId,
-	realm
-}: {
-	remoteId: number;
-	realm: string;
-}): Promise<Boss | null> => {
-	try {
-		const db = await createConnection();
-		const qb = builder(db, { realm, remoteId });
-		const rows = await qb.execute();
-		return rows[0] ?? null;
-	} catch (e) {
-		console.error(e);
-	}
-
-	return null;
-};
+import { raidTable } from './schema/raid.schema';
+import { realmTable } from './schema/realm.schema';
 
 export type BossTopSpecItem = BosskillCharacter & { dpsEffectivity: number | null };
 export type BossTopSpecs = Record<number, BossTopSpecItem[]>;

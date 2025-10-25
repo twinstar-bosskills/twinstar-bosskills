@@ -144,6 +144,7 @@ export interface DB {
 }
 
 export type Raid = Selectable<RaidTable>;
+export type Boss = Selectable<BossTable>;
 export type Player = Selectable<PlayerTable>;
 export type BossProp = Selectable<BossPropTable>;
 export type BossKillLoot = Selectable<BossKillLootTable>;

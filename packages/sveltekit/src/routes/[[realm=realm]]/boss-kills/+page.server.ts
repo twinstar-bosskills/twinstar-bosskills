@@ -69,7 +69,7 @@ export const load: PageServerLoad = async ({ url, params, parent }) => {
 
 	const bossNameByRemoteId: Record<Boss['entry'], string> = {};
 	for (const boss of bossesData) {
-		bossNameByRemoteId[boss.remoteId] = boss.name;
+		bossNameByRemoteId[boss.remote_id] = boss.name;
 	}
 
 	return {

@@ -1,15 +1,14 @@
+import type { ART } from '$lib/types';
 import {
 	METRIC_TYPE,
 	type PlayerPercentile,
 	type PlayerPercentiles
 } from '@twinstar-bosskills/core/dist/metrics';
-import type { ART } from '$lib/types';
+import { findBossesByRealm, getBossByRemoteIdAndRealm } from '@twinstar-bosskills/db/dist/boss';
 import { EXPIRE_1_DAY, EXPIRE_1_HOUR, EXPIRE_5_MIN, withCache } from '../cache';
 import {
-	findBossesByRealm,
 	getBossPercentilesFast,
 	getBossTopSpecs,
-	getBossByRemoteIdAndRealm,
 	getBossStatsMedian as statsMedian,
 	type GetBossStatsMedianArgs,
 	type GetBossTopSpecsArgs
@@ -19,6 +18,7 @@ import {
 	type GetRankingByRaidLockArgs,
 	type RankingByRaidLock
 } from '../db/ranking';
+
 export const findBosses = async (args: { realm: string }) => {
 	const fallback = () => findBossesByRealm(args);
 	return withCache<ART<typeof fallback>>({
