@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { formatTzLocalized } from '@twinstar-bosskills/core/dist/date';
-	import type { CharacterPerformanceLines } from '$lib/server/db/character';
+	import type { CharacterPerformanceLines } from '@twinstar-bosskills/db/dist/player';
 	import type {
+		DefaultLabelFormatterCallbackParams,
 		LegendComponentOption,
 		LineSeriesOption,
 		TooltipComponentFormatterCallbackParams,
-		TooltipComponentOption,
-		DefaultLabelFormatterCallbackParams
+		TooltipComponentOption
 	} from 'echarts';
 	import { LineChart } from 'echarts/charts';
 	import {

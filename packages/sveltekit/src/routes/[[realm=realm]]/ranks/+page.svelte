@@ -14,7 +14,7 @@
 		type MetricType
 	} from '@twinstar-bosskills/core/dist/metrics';
 	import { difficultyToString } from '@twinstar-bosskills/core/dist/wow';
-	import { formatAvgItemLvl } from '../../../../../core/src/number';
+	import { formatAvgItemLvl } from '@twinstar-bosskills/core/dist/number';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import BossKillDetailLink from '../boss/[id=integer]/components/BossKillDetailLink.svelte';
 	import type { PageData } from './$types';

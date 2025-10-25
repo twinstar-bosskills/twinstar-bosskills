@@ -1,12 +1,12 @@
 import type { MetricType } from '@twinstar-bosskills/core/dist/metrics';
-import { EXPIRE_1_DAY, EXPIRE_1_HOUR, withCache } from '../cache';
 import {
 	getCharacterPerformanceLines as lines,
 	getCharacterPerformanceLinesGrouped as linesGrouped,
 	getCharacterPerformanceTrends as trends,
 	type GetCharacterPerformanceLinesArgs,
 	type GetCharacterPerformanceTrendsArgs
-} from '../db/character';
+} from '@twinstar-bosskills/db/dist/player';
+import { EXPIRE_1_DAY, EXPIRE_1_HOUR, withCache } from '../cache';
 
 export type CharacterRankingStats = {
 	value: number;
