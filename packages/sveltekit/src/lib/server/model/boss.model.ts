@@ -5,6 +5,11 @@ import {
 	type PlayerPercentiles
 } from '@twinstar-bosskills/core/dist/metrics';
 import { findBossesByRealm, getBossByRemoteIdAndRealm } from '@twinstar-bosskills/db/dist/boss';
+import {
+	getRankingByRaidLock,
+	type GetRankingByRaidLockArgs,
+	type RankingByRaidLock
+} from '@twinstar-bosskills/db/dist/ranking';
 import { EXPIRE_1_DAY, EXPIRE_1_HOUR, EXPIRE_5_MIN, withCache } from '../cache';
 import {
 	getBossPercentilesFast,
@@ -13,11 +18,6 @@ import {
 	type GetBossStatsMedianArgs,
 	type GetBossTopSpecsArgs
 } from '../db/boss';
-import {
-	getRankingByRaidLock,
-	type GetRankingByRaidLockArgs,
-	type RankingByRaidLock
-} from '../db/ranking';
 
 export const findBosses = async (args: { realm: string }) => {
 	const fallback = () => findBossesByRealm(args);

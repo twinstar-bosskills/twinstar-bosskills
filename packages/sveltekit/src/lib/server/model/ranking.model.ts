@@ -10,7 +10,7 @@ import { talentSpecsByExpansion } from '@twinstar-bosskills/core/dist/wow';
 import type { Raid } from '@twinstar-bosskills/db/dist/types';
 
 import { EXPIRE_30_MIN, EXPIRE_7_DAYS, withCache } from '../cache';
-import type { RankingByRaidLock } from '../db/ranking';
+import type { RankingByRaidLock } from '@twinstar-bosskills/db/dist/ranking';
 import { findBosses, getTopSpecsByRaidLock } from './boss.model';
 import { getRaids } from './raid.model';
 

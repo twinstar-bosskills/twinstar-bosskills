@@ -19,7 +19,8 @@
     "dotenv": "^16.6.1",
     "kysely": "^0.28.8",
     "mysql2": "^3.15.3",
-    "@twinstar-bosskills/core": "workspace:*"
+    "@twinstar-bosskills/core": "workspace:*",
+    "@twinstar-bosskills/api": "workspace:*"
   },
   "devDependencies": {
     "kysely-codegen": "^0.19.0",

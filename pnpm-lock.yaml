@@ -53,6 +53,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@twinstar-bosskills/api':
+        specifier: workspace:*
+        version: link:../api
       '@twinstar-bosskills/core':
         specifier: workspace:*
         version: link:../core
