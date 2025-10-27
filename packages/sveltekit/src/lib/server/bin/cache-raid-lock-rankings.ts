@@ -14,7 +14,7 @@ import type { BossKill, Player } from '@twinstar-bosskills/db/dist/types';
 import { program } from 'commander';
 import { and, eq, gte, inArray, lte } from 'drizzle-orm';
 import type { MySqlInsertValue } from 'drizzle-orm/mysql-core';
-import { getBossTopSpecs } from '../db/boss';
+import { getBossTopSpecs } from '@twinstar-bosskills/db/dist/boss';
 import { createConnection } from '../db/index';
 import { rankingTable } from '../db/schema/ranking.schema';
 import { realmTable } from '../db/schema/realm.schema';

@@ -7,7 +7,7 @@ import {
 	talentSpecsByExpansion
 } from '@twinstar-bosskills/core/dist/wow';
 import { program } from 'commander';
-import { getBossTopSpecs } from '../db/boss';
+import { getBossTopSpecs } from '@twinstar-bosskills/db/dist/boss';
 
 import { inArray } from 'drizzle-orm';
 import { createConnection } from '../db/index';

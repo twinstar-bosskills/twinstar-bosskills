@@ -17,7 +17,7 @@ import {
 	getBossStatsMedian as statsMedian,
 	type GetBossStatsMedianArgs,
 	type GetBossTopSpecsArgs
-} from '../db/boss';
+} from '@twinstar-bosskills/db/dist/boss';
 
 export const findBosses = async (args: { realm: string }) => {
 	const fallback = () => findBossesByRealm(args);
