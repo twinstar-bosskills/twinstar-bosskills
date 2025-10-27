@@ -1,7 +1,6 @@
-version: '3.4'
 services:
   mariadb:
-    image: mariadb:10.11
+    image: mariadb:10.11.14
     volumes:
       - mariadb-data:/var/lib/mysql
     env_file:
@@ -15,7 +14,7 @@ services:
       - --max_allowed_packet=256M
       - --connect_timeout=60
   dragonfly:
-    image: 'docker.dragonflydb.io/dragonflydb/dragonfly'
+    image: "docker.dragonflydb.io/dragonflydb/dragonfly"
     ulimits:
       memlock: -1
     volumes:

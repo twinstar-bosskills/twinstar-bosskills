@@ -1,20 +1,18 @@
+import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import {
 	difficultiesByExpansion,
 	difficultyToString,
 	isRaidDifficulty
 } from '@twinstar-bosskills/core/dist/wow';
-import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+import { db } from '@twinstar-bosskills/db';
 import { findBossKills } from '@twinstar-bosskills/db/dist/boss-kill';
-
 import { findBossKillPlayers } from '@twinstar-bosskills/db/dist/boss-kill-player';
-import { createConnection } from '../db/index';
-import { realmTable } from '../db/schema/realm.schema';
 import { findBosses, setBossPercentilesPerPlayer } from '../model/boss.model';
 
 try {
 	console.log('Start');
-	const db = await createConnection();
-	const realms = await db.select().from(realmTable);
+
+	const realms = await db.selectFrom('realm').selectAll().execute();
 	for (const realm of realms) {
 		const realmStart = performance.now();
 		const expansion = realmToExpansion(realm.name);
@@ -77,8 +75,10 @@ try {
 	}
 
 	console.log('Done');
+	await db.destroy();
 	process.exit(0);
 } catch (e) {
 	console.error(e);
+	await db.destroy();
 	process.exit(1);
 }

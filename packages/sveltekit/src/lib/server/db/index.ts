@@ -17,16 +17,5 @@ const makeMysqlClient = async (): Promise<MysqlClient> => {
 	return poolConnection;
 };
 
-export type DbConnection = NonNullable<typeof globalDb>;
-let globalDb: ReturnType<typeof mysqlDrizzle> | null = null;
-export const createConnection = async () => {
-	if (globalDb) {
-		return globalDb;
-	}
-	const database = await createMysqlConnection();
-	globalDb = database;
-
-	return globalDb!;
-};
 export const createMysqlConnection = async (client?: MysqlClient) =>
 	mysqlDrizzle(client ?? (await makeMysqlClient()));

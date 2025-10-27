@@ -1,5 +1,3 @@
-import { raidLock } from '@twinstar-bosskills/core/src/date';
-
 import { METRIC_TYPE } from '@twinstar-bosskills/core/dist/metrics';
 import { realmIsPublic, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 import {
@@ -8,16 +6,13 @@ import {
 	isRaidDifficulty,
 	talentSpecsByExpansion
 } from '@twinstar-bosskills/core/dist/wow';
+import { raidLock } from '@twinstar-bosskills/core/src/date';
+import { db } from '@twinstar-bosskills/db';
+import { getBossTopSpecs } from '@twinstar-bosskills/db/dist/boss';
 import { getBosskillByRemoteId } from '@twinstar-bosskills/db/dist/boss-kill';
 import { getPlayerByGuid } from '@twinstar-bosskills/db/dist/player';
-import type { BossKill, Player } from '@twinstar-bosskills/db/dist/types';
+import type { BossKill, Player, RankingInsert } from '@twinstar-bosskills/db/dist/types';
 import { program } from 'commander';
-import { and, eq, gte, inArray, lte } from 'drizzle-orm';
-import type { MySqlInsertValue } from 'drizzle-orm/mysql-core';
-import { getBossTopSpecs } from '@twinstar-bosskills/db/dist/boss';
-import { createConnection } from '../db/index';
-import { rankingTable } from '../db/schema/ranking.schema';
-import { realmTable } from '../db/schema/realm.schema';
 import { findBosses } from '../model/boss.model';
 import { integerGte, listOfStrings } from './parse-args';
 
@@ -39,10 +34,9 @@ const now = new Date();
 const { start: startsAt, end: endsAt } = raidLock(now, options.offset ?? 0);
 
 try {
-	const db = await createConnection();
-	const realmsQb = db.select().from(realmTable);
+	let realmsQb = db.selectFrom('realm').selectAll();
 	if (Array.isArray(options.realms) && options.realms.length > 0) {
-		realmsQb.where(inArray(realmTable.name, options.realms));
+		realmsQb = realmsQb.where('realm.name', 'in', options.realms);
 	}
 	const realms = await realmsQb.execute();
 	for (const realm of realms) {
@@ -104,24 +98,25 @@ try {
 							limit: 10
 						});
 
-						await db.transaction((tx) => {
-							return tx
-								.delete(rankingTable)
-								.where(
-									and(
-										eq(rankingTable.realmId, realm.id),
-										eq(rankingTable.raidId, boss.raid_id),
-										eq(rankingTable.bossId, boss.id),
-										eq(rankingTable.spec, talentSpec),
-										eq(rankingTable.mode, difficulty),
-										eq(rankingTable.metric, metric),
-										gte(rankingTable.time, startsAt),
-										lte(rankingTable.time, endsAt)
-									)
-								);
+						await db.transaction().execute(async (tx) => {
+							return await tx
+								.deleteFrom('ranking')
+								.where(({ eb }) =>
+									eb.and([
+										eb('ranking.realm_id', '=', realm.id),
+										eb('ranking.raid_id', '=', boss.raid_id),
+										eb('ranking.boss_id', '=', boss.id),
+										eb('ranking.spec', '=', talentSpec),
+										eb('ranking.mode', '=', difficulty),
+										eb('ranking.metric', '=', metric),
+										eb('ranking.time', '>=', startsAt),
+										eb('ranking.time', '<=', endsAt)
+									])
+								)
+								.execute();
 						});
 
-						const values: MySqlInsertValue<typeof rankingTable>[] = [];
+						const values: RankingInsert[] = [];
 						let rank = 1;
 						for (const [specStr, items] of Object.entries(topSpecs)) {
 							const spec = Number(specStr);
@@ -148,11 +143,11 @@ try {
 									}
 
 									values.push({
-										realmId: realm.id,
-										raidId: boss.raid_id,
-										bossId: boss.id,
-										bosskillId: bosskillId,
-										playerId: player.id,
+										realm_id: realm.id,
+										raid_id: boss.raid_id,
+										boss_id: boss.id,
+										boss_kill_id: bosskillId,
+										player_id: player.id,
 										rank,
 										time: new Date(bk.time),
 										spec,
@@ -166,8 +161,8 @@ try {
 						}
 
 						if (values.length > 0) {
-							await db.transaction((tx) => {
-								return tx.insert(rankingTable).values(values);
+							await db.transaction().execute(async (tx) => {
+								return await tx.insertInto('ranking').values(values).execute();
 							});
 						}
 					}
@@ -185,8 +180,10 @@ try {
 	}
 
 	console.log('Done');
+	await db.destroy();
 	process.exit(0);
 } catch (e) {
 	console.error(e);
+	await db.destroy();
 	process.exit(1);
 }

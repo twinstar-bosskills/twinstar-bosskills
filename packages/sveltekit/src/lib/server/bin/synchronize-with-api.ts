@@ -1,7 +1,7 @@
 import { raidLock } from '@twinstar-bosskills/core/src/date';
+import { db } from '@twinstar-bosskills/db';
 import { program } from 'commander';
 import { synchronize } from '../db/synchronize';
-
 import { integerGte, listOfIntegers, listOfStrings, realmString, ymd } from './parse-args';
 
 const gteZero = integerGte(0);
@@ -56,8 +56,10 @@ try {
 	);
 
 	console.log('Done');
+	await db.destroy();
 	process.exit(0);
 } catch (e) {
 	console.error(e);
+	await db.destroy();
 	process.exit(1);
 }

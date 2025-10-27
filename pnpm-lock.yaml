@@ -34,6 +34,9 @@ importers:
         specifier: ^14.0.1
         version: 14.0.1
     devDependencies:
+      '@twinstar-bosskills/db':
+        specifier: workspace:*
+        version: link:../db
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -62,6 +65,9 @@ importers:
       dotenv:
         specifier: ^16.6.1
         version: 16.6.1
+      find-config:
+        specifier: ^1.0.0
+        version: 1.0.0
       kysely:
         specifier: ^0.28.8
         version: 0.28.8
@@ -69,6 +75,9 @@ importers:
         specifier: ^3.15.3
         version: 3.15.3
     devDependencies:
+      '@types/find-config':
+        specifier: ^1.0.4
+        version: 1.0.4
       kysely-codegen:
         specifier: ^0.19.0
         version: 0.19.0(kysely@0.28.8)(mysql2@3.15.3)(typescript@5.9.3)
@@ -688,6 +697,9 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
+  '@types/find-config@1.0.4':
+    resolution: {integrity: sha512-BCXaKgzHK7KnfCQBRQBWGTA+QajOE9uFolXPt+9EktiiMS56D8oXF2ZCh9eCxuEyfqDmX/mYIcmWg9j9f659eg==}
+
   '@types/node@20.19.23':
     resolution: {integrity: sha512-yIdlVVVHXpmqRhtyovZAcSy0MiPcYWGkoO4CGe/+jpP0hmNuihm4XhHbADpK++MsiLHP5MVlv+bcgdF99kSiFQ==}
 
@@ -1069,6 +1081,10 @@ packages:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
 
+  find-config@1.0.0:
+    resolution: {integrity: sha512-Z+suHH+7LSE40WfUeZPIxSxypCWvrzdVc60xAjUShZeT5eMWM0/FQUduq3HjluyfAHWvC/aOBkT1pTZktyF/jg==}
+    engines: {node: '>= 0.12'}
+
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
@@ -1391,6 +1407,10 @@ packages:
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
 
+  os-homedir@1.0.2:
+    resolution: {integrity: sha512-B5JU3cabzk8c67mRRd3ECmROafjYMXbuzlwtqdM8IbS8ktlTix8aFGb2bAGKrSRIlnfKwovGUUr72JUPyOb6kQ==}
+    engines: {node: '>=0.10.0'}
+
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
@@ -1658,6 +1678,10 @@ packages:
 
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
+  user-home@2.0.0:
+    resolution: {integrity: sha512-KMWqdlOcjCYdtIJpicDSFBQ8nFwS2i9sslAd6f4+CBGcU4gist2REnr2fxj2YocvJFxSF3ZOHLYLVZnUxv4BZQ==}
+    engines: {node: '>=0.10.0'}
 
   vite-node@0.34.7:
     resolution: {integrity: sha512-0Yzb96QzHmqIKIs/x2q/sqG750V/EF6yDkS2p1WjJc1W2bgRSuQjf5vB9HY8h2nVb5j4pO5paS5Npcv3s69YUg==}
@@ -2068,6 +2092,8 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
+  '@types/find-config@1.0.4': {}
+
   '@types/node@20.19.23':
     dependencies:
       undici-types: 6.21.0
@@ -2439,6 +2465,10 @@ snapshots:
     dependencies:
       to-regex-range: 5.0.1
 
+  find-config@1.0.0:
+    dependencies:
+      user-home: 2.0.0
+
   fs.realpath@1.0.0: {}
 
   fsevents@2.3.3:
@@ -2748,6 +2778,8 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
+  os-homedir@1.0.2: {}
+
   parent-module@1.0.1:
     dependencies:
       callsites: 3.1.0
@@ -3020,6 +3052,10 @@ snapshots:
   ufo@1.6.1: {}
 
   undici-types@6.21.0: {}
+
+  user-home@2.0.0:
+    dependencies:
+      os-homedir: 1.0.2
 
   vite-node@0.34.7(@types/node@20.19.23):
     dependencies:

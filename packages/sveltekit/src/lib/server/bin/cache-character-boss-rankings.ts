@@ -6,15 +6,12 @@ import {
 	isRaidDifficulty,
 	talentSpecsByExpansion
 } from '@twinstar-bosskills/core/dist/wow';
-import { program } from 'commander';
 import { getBossTopSpecs } from '@twinstar-bosskills/db/dist/boss';
-
-import { inArray } from 'drizzle-orm';
-import { createConnection } from '../db/index';
-import { realmTable } from '../db/schema/realm.schema';
+import { program } from 'commander';
 import { findBosses, setBossTopSpecs } from '../model/boss.model';
 import { setCharacterBossRankings, type CharacterBossRankingStats } from '../model/character.model';
 import { listOfIntegers, listOfStrings } from './parse-args';
+import { db } from '@twinstar-bosskills/db';
 
 program.option('--boss-ids <items>', 'comma separated list of boss ids', listOfIntegers);
 program.option('--realms <items>', 'Realms', listOfStrings);
@@ -25,10 +22,9 @@ const options: { bossIds?: number[]; realms?: string[] } = program.opts();
 console.log('Start');
 console.log({ options });
 try {
-	const db = await createConnection();
-	const realmsQb = db.select().from(realmTable);
+	let realmsQb = db.selectFrom('realm').selectAll();
 	if (Array.isArray(options.realms) && options.realms.length > 0) {
-		realmsQb.where(inArray(realmTable.name, options.realms));
+		realmsQb = realmsQb.where('realm.name', 'in', options.realms);
 	}
 	const realms = await realmsQb.execute();
 	for (const realm of realms) {
@@ -221,8 +217,10 @@ try {
 	}
 
 	console.log('Done');
+	await db.destroy();
 	process.exit(0);
 } catch (e) {
 	console.error(e);
+	await db.destroy();
 	process.exit(1);
 }

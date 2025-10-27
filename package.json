@@ -18,7 +18,7 @@
     "migrations:mysql:continue": "pnpm --filter @twinstar-bosskills/sveltekit migrations:mysql:continue",
     "cli:synchronize-with-api": "pnpm --filter @twinstar-bosskills/sveltekit cli:synchronize-with-api",
     "cli:synchronize-with-api:today": "pnpm --filter @twinstar-bosskills/sveltekit cli:synchronize-with-api:today",
-    "cli:clean-db": "pnpm --filter @twinstar-bosskills/sveltekit cli:clean-db",
+    "cli:clean-db": "pnpm --filter @twinstar-bosskills/cli clean-db",
     "cli:clean-cache": "pnpm --filter @twinstar-bosskills/sveltekit cli:clean-cache",
     "cli:cache-character-boss-rankings": "pnpm --filter @twinstar-bosskills/sveltekit cli:cache-character-boss-rankings",
     "cli:cache-character-boss-kill-percentiles": "pnpm --filter @twinstar-bosskills/sveltekit cli:cache-character-boss-kill-percentiles",

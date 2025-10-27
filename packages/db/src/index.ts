@@ -1,9 +1,10 @@
-import dotenv from "dotenv";
+import { config } from "dotenv";
+import findConfig from "find-config";
 import { DB } from "./types";
 import { Kysely, MysqlDialect } from "kysely";
 import { createPool } from "mysql2";
 
-const cfg = dotenv.config();
+const cfg = config({ path: findConfig(".env")! });
 const dialect = new MysqlDialect({
   pool: createPool({
     host: cfg.parsed?.MARIADB_HOST!,
@@ -17,3 +18,5 @@ const dialect = new MysqlDialect({
 export const db = new Kysely<DB>({
   dialect,
 });
+
+export { sql } from "kysely";

@@ -3,7 +3,7 @@
  * Please do not edit it manually.
  */
 
-import type { ColumnType, Selectable } from "kysely";
+import type { ColumnType, Insertable, Selectable } from "kysely";
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -149,3 +149,5 @@ export type Player = Selectable<PlayerTable>;
 export type BossProp = Selectable<BossPropTable>;
 export type BossKillLoot = Selectable<BossKillLootTable>;
 export type BossKill = Selectable<BossKillTable>;
+
+export type RankingInsert = Insertable<RankingTable>;

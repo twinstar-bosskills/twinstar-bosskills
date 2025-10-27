@@ -9,8 +9,8 @@ import type {
 	Raid
 } from '@twinstar-bosskills/api/dist/schema';
 import { REALM_HELIOS, realmIsKnown, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+import { db } from '@twinstar-bosskills/db';
 import { findRaidsByRealm } from '@twinstar-bosskills/db/dist/raid';
-import { and, eq } from 'drizzle-orm';
 import {
 	getBossKillDetail,
 	getLatestBossKills,
@@ -20,17 +20,6 @@ import {
 import { getRaids } from '../api/raid';
 import { safeGC } from '../gc';
 import { findBosses } from '../model/boss.model';
-import { createConnection } from './index';
-import { bosskillDeathTable } from './schema/boss-kill-death.schema';
-import { bosskillLootTable } from './schema/boss-kill-loot.schema';
-import { bosskillPlayerTable } from './schema/boss-kill-player.schema';
-import { bosskillTimelineTable } from './schema/boss-kill-timeline.schema';
-import { bosskillTable } from './schema/boss-kill.schema';
-import { bossTable } from './schema/boss.schema';
-import { playerTable } from './schema/player.schema';
-import { raidTable } from './schema/raid.schema';
-import { realmXRaidTable } from './schema/realm-x-raid.schema';
-import { realmTable } from './schema/realm.schema';
 
 type Args = {
 	onLog: (line: string) => void;
@@ -237,18 +226,28 @@ export const synchronize = async ({
 	}
 	onLog('done');
 };
-
 const getOrCreateRealm = async ({ name, expansion }: { name: string; expansion: number }) => {
-	const db = await createConnection();
-	const result = await db.select().from(realmTable).where(eq(realmTable.name, name)).execute();
-	let ent = result[0] ?? null;
+	const result = await db
+		.selectFrom('realm')
+		.selectAll()
+		.where('realm.name', '=', name)
+		.executeTakeFirst();
+	let ent = result ?? null;
 	if (ent === null) {
-		const result = await db.transaction((tx) => {
-			return tx.insert(realmTable).ignore().values([{ name, expansion }]);
+		const result = await db.transaction().execute(async (tx) => {
+			return tx
+				.insertInto('realm')
+				.ignore()
+				.values([{ name, expansion }])
+				.executeTakeFirstOrThrow();
 		});
-		const id = result[0].insertId;
-		const refetch = await db.select().from(realmTable).where(eq(realmTable.id, id));
-		ent = refetch[0] ?? null;
+		const id = Number(result.insertId);
+		const refetch = await db
+			.selectFrom('realm')
+			.selectAll()
+			.where('realm.id', '=', id)
+			.executeTakeFirst();
+		ent = refetch ?? null;
 	}
 	if (ent === null) {
 		throw new Error(`Realm entity not found nor created`);
@@ -257,52 +256,74 @@ const getOrCreateRealm = async ({ name, expansion }: { name: string; expansion: 
 };
 
 const getOrCreateRaid = async ({ raid, realmId }: { raid: Raid; realmId: number }) => {
-	const db = await createConnection();
-	const result = await db.select().from(raidTable).where(eq(raidTable.name, raid.map)).execute();
-	let ent = result[0] ?? null;
+	const result = await db
+		.selectFrom('raid')
+		.selectAll()
+		.where('raid.name', '=', raid.map)
+		.executeTakeFirst();
+	let ent = result ?? null;
 	if (ent === null) {
-		const result = await db.transaction((tx) => {
-			return tx.insert(raidTable).values([{ name: raid.map }]);
+		const result = await db.transaction().execute(async (tx) => {
+			return await tx
+				.insertInto('raid')
+				.ignore()
+				.values([{ name: raid.map }])
+				.executeTakeFirstOrThrow();
 		});
-		const id = result[0].insertId;
-		const refetch = await db.select().from(raidTable).where(eq(raidTable.id, id));
-		ent = refetch[0] ?? null;
+		const id = Number(result.insertId);
+		const refetch = await db
+			.selectFrom('raid')
+			.selectAll()
+			.where('raid.id', '=', id)
+			.executeTakeFirst();
+		ent = refetch ?? null;
 	}
 	if (ent === null) {
 		throw new Error(`Raid entity not found nor created`);
 	}
-	await db.transaction((tx) => {
-		return tx
-			.insert(realmXRaidTable)
+	await db.transaction().execute(async (tx) => {
+		return await tx
+			.insertInto('realm_x_raid')
 			.ignore()
-			.values([{ realmId, raidId: ent!.id }]);
+			.values([{ realm_id: realmId, raid_id: ent!.id }])
+			.execute();
 	});
 	return ent;
 };
 
 const getOrCreateBoss = async ({ boss, raidId }: { boss: Boss; raidId: number }) => {
-	const db = await createConnection();
 	const result = await db
-		.select()
-		.from(bossTable)
-		.where(and(eq(bossTable.remoteId, boss.entry), eq(bossTable.raidId, raidId)))
-		.execute();
-	let ent = result[0] ?? null;
+		.selectFrom('boss')
+		.selectAll()
+		.where(({ eb }) => {
+			return eb.and([eb('boss.remote_id', '=', boss.entry), eb('boss.raid_id', '=', raidId)]);
+		})
+		.executeTakeFirst();
+	let ent = result ?? null;
 	if (ent === null) {
-		const result = await db.transaction((tx) => {
-			return tx
-				.insert(bossTable)
+		const result = await db.transaction().execute(async (tx) => {
+			return await tx
+				.insertInto('boss')
 				.ignore()
-				.values({ remoteId: boss.entry, name: boss.name, raidId });
+				.values({ remote_id: boss.entry, name: boss.name, raid_id: raidId })
+				.executeTakeFirstOrThrow();
 		});
-		const id = result[0].insertId;
-		const refetch = await db.select().from(bossTable).where(eq(bossTable.id, id));
-		ent = refetch[0] ?? null;
+		const id = Number(result.insertId);
+		const refetch = await db
+			.selectFrom('boss')
+			.selectAll()
+			.where('boss.id', '=', id)
+			.executeTakeFirst();
+		ent = refetch ?? null;
 	} else {
 		if (ent.name !== boss.name) {
 			const entId = ent.id;
-			await db.transaction((tx) => {
-				return tx.update(bossTable).set({ name: boss.name }).where(eq(bossTable.id, entId));
+			await db.transaction().execute(async (tx) => {
+				return await tx
+					.updateTable('boss')
+					.set({ name: boss.name })
+					.where('boss.id', '=', entId)
+					.execute();
 			});
 		}
 	}
@@ -324,30 +345,47 @@ const getOrCreatePlayer = async ({
 	realmId: number;
 	onLog: Args['onLog'];
 }) => {
-	const db = await createConnection();
 	const result = await db
-		.select()
-		.from(playerTable)
-		.where(and(eq(playerTable.remoteId, guid), eq(playerTable.realmId, realmId)))
-		.execute();
-	let ent = result[0] ?? null;
+		.selectFrom('player')
+		.selectAll()
+		.where(({ eb }) => {
+			return eb.and([eb('player.remote_id', '=', guid), eb('player.realm_id', '=', realmId)]);
+		})
+		.executeTakeFirst();
+	let ent = result ?? null;
 	if (ent === null) {
-		const result = await db.transaction((tx) => {
-			return tx.insert(playerTable).ignore().values({ remoteId: guid, name, realmId });
+		const result = await db.transaction().execute(async (tx) => {
+			return await tx
+				.insertInto('player')
+				.ignore()
+				.values({ remote_id: guid, name, realm_id: realmId })
+				.executeTakeFirstOrThrow();
 		});
-		const id = result[0].insertId;
-		const refetch = await db.select().from(playerTable).where(eq(playerTable.id, id));
-		ent = refetch[0] ?? null;
+		const id = Number(result.insertId);
+		const refetch = await db
+			.selectFrom('player')
+			.selectAll()
+			.where('player.id', '=', id)
+			.executeTakeFirst();
+		ent = refetch ?? null;
 	} else {
 		// player might be renamed, update name according to the last known one
 		if (ent.name !== name) {
 			onLog(`Renaming player (realm: ${realmId}) from ${ent.name} to ${name}`);
 			const id = ent.id;
-			await db.transaction((tx) => {
-				return tx.update(playerTable).set({ name: name }).where(eq(playerTable.id, id));
+			await db.transaction().execute(async (tx) => {
+				return await tx
+					.updateTable('player')
+					.set({ name: name })
+					.where('player.id', '=', id)
+					.execute();
 			});
-			const refetch = await db.select().from(playerTable).where(eq(playerTable.id, id));
-			ent = refetch[0] ?? null;
+			const refetch = await db
+				.selectFrom('player')
+				.selectAll()
+				.where('player.id', '=', id)
+				.executeTakeFirst();
+			ent = refetch ?? null;
 		}
 	}
 
@@ -364,32 +402,38 @@ type CreateBosskillArgs = {
 	bk: BossKill;
 };
 const getOrCreateBosskill = async ({ bossId, realmId, raidId, bk }: CreateBosskillArgs) => {
-	const db = await createConnection();
 	const result = await db
-		.select()
-		.from(bosskillTable)
-		.where(eq(bosskillTable.remoteId, bk.id))
-		.execute();
-	let ent = result[0] ?? null;
+		.selectFrom('boss_kill')
+		.selectAll()
+		.where('boss_kill.remote_id', '=', bk.id)
+		.executeTakeFirst();
+	let ent = result ?? null;
 	if (ent === null) {
-		const result = await db.transaction(async (tx) => {
-			return tx.insert(bosskillTable).values({
-				remoteId: bk.id,
-				bossId: bossId,
-				raidId: raidId,
-				realmId: realmId,
-				mode: bk.mode,
-				guild: bk.guild,
-				time: bk.time,
-				length: bk.length,
-				wipes: bk.wipes,
-				deaths: bk.deaths,
-				ressUsed: bk.ressUsed
-			});
+		const result = await db.transaction().execute(async (tx) => {
+			return await tx
+				.insertInto('boss_kill')
+				.values({
+					remote_id: bk.id,
+					boss_id: bossId,
+					raid_id: raidId,
+					realm_id: realmId,
+					mode: bk.mode,
+					guild: bk.guild,
+					time: bk.time,
+					length: bk.length,
+					wipes: bk.wipes,
+					deaths: bk.deaths,
+					ress_used: bk.ressUsed
+				})
+				.executeTakeFirstOrThrow();
 		});
-		const id = result[0].insertId;
-		const refetch = await db.select().from(bosskillTable).where(eq(bosskillTable.id, id));
-		ent = refetch[0] ?? null;
+		const id = Number(result.insertId);
+		const refetch = await db
+			.selectFrom('boss_kill')
+			.selectAll()
+			.where('boss_kill.id', '=', id)
+			.executeTakeFirst();
+		ent = refetch ?? null;
 	}
 	if (ent === null) {
 		throw new Error(`Bosskill ${bk.id} entity not found nor created`);
@@ -401,11 +445,10 @@ type DeleteByBosskillId = {
 	bosskillId: number;
 };
 const deleteBossKillPlayers = async ({ bosskillId }: DeleteByBosskillId) => {
-	const db = await createConnection();
-	await db.transaction((tx) => {
-		return tx
-			.delete(bosskillPlayerTable)
-			.where(eq(bosskillPlayerTable.bosskillId, bosskillId))
+	await db.transaction().execute(async (tx) => {
+		return await tx
+			.deleteFrom('boss_kill_player')
+			.where('boss_kill_player.boss_kill_id', '=', bosskillId)
 			.execute();
 	});
 };
@@ -424,27 +467,27 @@ const createBossKillPlayers = async ({
 	if (players.length === 0) {
 		return;
 	}
-	const db = await createConnection();
-	await db.transaction((tx) => {
-		return tx
-			.insert(bosskillPlayerTable)
+
+	await db.transaction().execute(async (tx) => {
+		return await tx
+			.insertInto('boss_kill_player')
 			.ignore()
 			.values(
 				players.map((player) => ({
-					bosskillId,
-					playerId: player.playerId,
+					boss_kill_id: bosskillId,
+					player_id: player.playerId,
 
-					talentSpec: player.talent_spec,
-					avgItemLvl: player.avg_item_lvl,
-					dmgDone: player.dmgDone,
-					healingDone: player.healingDone,
-					overhealingDone: player.overhealingDone,
-					absorbDone: player.absorbDone,
-					dmgTaken: player.dmgTaken,
-					dmgAbsorbed: player.dmgAbsorbed,
-					healingTaken: player.healingTaken,
+					talent_spec: player.talent_spec,
+					avg_item_lvl: player.avg_item_lvl,
+					dmg_done: player.dmgDone,
+					healing_done: player.healingDone,
+					overhealing_done: player.overhealingDone,
+					absorb_done: player.absorbDone,
+					dmg_taken: player.dmgTaken,
+					dmg_absorbed: player.dmgAbsorbed,
+					healing_taken: player.healingTaken,
 					dispells: player.dispels,
-					interrups: player.interrupts,
+					interrupts: player.interrupts,
 
 					name: player.name,
 					guid: player.guid,
@@ -493,11 +536,10 @@ const createBossKillPlayers = async ({
 };
 
 const deleteBossKillLoot = async ({ bosskillId }: DeleteByBosskillId) => {
-	const db = await createConnection();
-	await db.transaction((tx) => {
-		return tx
-			.delete(bosskillLootTable)
-			.where(eq(bosskillLootTable.bosskillId, bosskillId))
+	await db.transaction().execute(async (tx) => {
+		return await tx
+			.deleteFrom('boss_kill_loot')
+			.where('boss_kill_loot.boss_kill_id', '=', bosskillId)
 			.execute();
 	});
 };
@@ -509,27 +551,27 @@ const createBossKillLoot = async ({ bosskillId, items }: BossKillLootArgs) => {
 	if (items.length === 0) {
 		return;
 	}
-	const db = await createConnection();
-	await db.transaction((tx) => {
-		return tx
-			.insert(bosskillLootTable)
+
+	await db.transaction().execute(async (tx) => {
+		return await tx
+			.insertInto('boss_kill_loot')
 			.ignore()
 			.values(
 				items.map((loot) => ({
-					bosskillId,
-					itemId: Number(loot.itemId),
+					boss_kill_id: bosskillId,
+					item_id: Number(loot.itemId),
 					count: loot.count
 				}))
-			);
+			)
+			.execute();
 	});
 };
 
 const deleteBossKillDeaths = async ({ bosskillId }: DeleteByBosskillId) => {
-	const db = await createConnection();
-	await db.transaction((tx) => {
-		return tx
-			.delete(bosskillDeathTable)
-			.where(eq(bosskillDeathTable.bosskillId, bosskillId))
+	await db.transaction().execute(async (tx) => {
+		return await tx
+			.deleteFrom('boss_kill_death')
+			.where('boss_kill_death.boss_kill_id', '=', bosskillId)
 			.execute();
 	});
 };
@@ -541,18 +583,17 @@ const createBossKillDeaths = async ({ bosskillId, deaths }: BossKillDeathsArgs) 
 	if (deaths.length === 0) {
 		return;
 	}
-	const db = await createConnection();
-	await db.transaction((tx) => {
-		return tx
-			.insert(bosskillDeathTable)
+	await db.transaction().execute(async (tx) => {
+		return await tx
+			.insertInto('boss_kill_death')
 			.ignore()
 			.values(
 				deaths.map((death) => ({
-					bosskillId,
-					remoteId: death.id,
-					playerId: death.playerId,
+					boss_kill_id: bosskillId,
+					remote_id: death.id,
+					player_id: death.playerId,
 					time: death.time,
-					isRess: death.time < 0 ? 1 : 0
+					is_ress: death.time < 0 ? 1 : 0
 				}))
 			)
 			.execute();
@@ -560,11 +601,10 @@ const createBossKillDeaths = async ({ bosskillId, deaths }: BossKillDeathsArgs) 
 };
 
 const deleteBossKillTimeline = async ({ bosskillId }: DeleteByBosskillId) => {
-	const db = await createConnection();
-	await db.transaction((tx) => {
-		return tx
-			.delete(bosskillTimelineTable)
-			.where(eq(bosskillTimelineTable.bosskillId, bosskillId))
+	await db.transaction().execute(async (tx) => {
+		return await tx
+			.deleteFrom('boss_kill_timeline')
+			.where('boss_kill_timeline.boss_kill_id', '=', bosskillId)
 			.execute();
 	});
 };
@@ -576,14 +616,13 @@ const createBossKillTimeline = async ({ bosskillId, timeline }: BossKillTimeline
 	if (timeline.length === 0) {
 		return;
 	}
-	const db = await createConnection();
-	await db.transaction((tx) => {
-		return tx
-			.insert(bosskillTimelineTable)
+	await db.transaction().execute(async (tx) => {
+		return await tx
+			.insertInto('boss_kill_timeline')
 			.ignore()
 			.values(
 				timeline.map((item) => ({
-					bosskillId,
+					boss_kill_id: bosskillId,
 
 					encounterDamage: Number(item.encounterDamage),
 					encounterHeal: Number(item.encounterHeal),
