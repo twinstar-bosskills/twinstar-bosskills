@@ -18,14 +18,14 @@ try {
     .leftJoin(
       "boss_kill_player",
       "boss_kill_player.boss_kill_id",
-      "boss_kill.id"
+      "boss_kill.id",
     )
     .groupBy("boss_kill.id")
     .having(sql<boolean>`COUNT(boss_kill_player.id) = 0`)
     .execute();
 
   const bosskillsWithoutPlayersIds = bosskillsWithoutPlayers.map(
-    (row) => row.id
+    (row) => row.id,
   );
 
   await db
@@ -90,7 +90,7 @@ try {
           const { guid, name_next: nameNext, name_prev: namePrev } = row;
 
           console.log(
-            `Realm ${realm.name}, player GUID: ${guid} (${namePrev}) will be renamed to ${nameNext}`
+            `Realm ${realm.name}, player GUID: ${guid} (${namePrev}) will be renamed to ${nameNext}`,
           );
           console.log(`  Renaming rows in table boss_kill_player`);
           const bosskillsPlayers = await db
@@ -99,14 +99,14 @@ try {
             .innerJoin(
               "boss_kill",
               "boss_kill.id",
-              "boss_kill_player.boss_kill_id"
+              "boss_kill_player.boss_kill_id",
             )
             .where(({ eb }) =>
               eb.and([
                 eb("boss_kill.realm_id", "=", realm.id),
                 eb("boss_kill_player.guid", "=", guid),
                 eb("boss_kill_player.name", "!=", nameNext),
-              ])
+              ]),
             )
             .execute();
 
@@ -138,7 +138,7 @@ try {
                     eb("player.remote_id", "=", guid),
                     eb("player.realm_id", "=", realm.id),
                     eb("player.name", "!=", nameNext),
-                  ])
+                  ]),
                 )
                 .execute();
             })

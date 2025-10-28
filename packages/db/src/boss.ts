@@ -1,4 +1,4 @@
-import { db } from "./index";
+import { db } from ".";
 import type { Boss } from "./types";
 import { dps, hps } from "./boss-kill-player";
 import {
@@ -17,7 +17,7 @@ export type AggregatedBySpecStats = {
   prepared: any;
 };
 export const aggregateBySpec = (
-  aggregatedBySpec: AggregatedBySpec
+  aggregatedBySpec: AggregatedBySpec,
 ): AggregatedBySpecStats => {
   // Simple implementation for now - can be enhanced later
   const keys = Object.keys(aggregatedBySpec).map(Number);
@@ -142,7 +142,7 @@ export const getBossTopSpecs = async ({
         "boss_kill_player.id",
         sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.as("metric"),
         sql`ROW_NUMBER() OVER (PARTITION BY boss_kill_player.guid ORDER BY ${sql`${metric === METRIC_TYPE.HPS ? hps : dps}`} DESC)`.as(
-          "row_number"
+          "row_number",
         ),
       ])
       .where(({ eb, and }) => {
@@ -192,7 +192,7 @@ export const getBossTopSpecs = async ({
       .leftJoin("boss_prop", (join) =>
         join
           .onRef("boss_prop.boss_id", "=", "boss.id")
-          .onRef("boss_prop.mode", "=", "boss_kill.mode")
+          .onRef("boss_prop.mode", "=", "boss_kill.mode"),
       )
       .select([
         "boss_kill_player.id",
@@ -439,7 +439,7 @@ export const getBossStatsMedian = async ({
         sql<number>`boss_kill_player.talent_spec`.as("spec"),
         sql<number>`boss_kill.mode`.as("mode"),
         sql<number>`MEDIAN(${metric === METRIC_TYPE.HPS ? hps : dps}) OVER (PARTITION BY boss_kill.mode, boss_kill_player.talent_spec)`.as(
-          "value"
+          "value",
         ),
       ])
       .where(({ eb, and }) => {
@@ -512,13 +512,13 @@ export const getBossPercentiles = async ({
       .innerJoin(
         "boss_kill_player",
         "boss_kill_player.boss_kill_id",
-        "boss_kill.id"
+        "boss_kill.id",
       )
       .select([
         "boss_kill_player.talent_spec as spec",
         sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.as("value"),
         sql`100 * ROUND(PERCENT_RANK() OVER (PARTITION BY boss_kill_player.talent_spec ORDER BY ${sql`${metric === METRIC_TYPE.HPS ? hps : dps}`}), 2)`.as(
-          "percentile_rank"
+          "percentile_rank",
         ),
       ])
       .where(({ eb, and }) =>
@@ -527,7 +527,7 @@ export const getBossPercentiles = async ({
           eb("boss.id", "=", bossId),
           eb("boss_kill.mode", "=", difficulty),
           eb("boss_kill_player.talent_spec", "=", talentSpec),
-        ])
+        ]),
       );
 
     const rows = await qb.execute();
@@ -570,13 +570,13 @@ export const getBossPercentilesFast = async ({
       .innerJoin(
         "boss_kill_player",
         "boss_kill_player.boss_kill_id",
-        "boss_kill.id"
+        "boss_kill.id",
       )
       .select([
         "boss_kill_player.talent_spec as spec",
         sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.as("value"),
         sql`100 * ROUND(PERCENT_RANK() OVER (PARTITION BY boss_kill_player.talent_spec ORDER BY ${sql`${metric === METRIC_TYPE.HPS ? hps : dps}`}), 2)`.as(
-          "percentile_rank"
+          "percentile_rank",
         ),
       ])
       .where(({ eb, and }) =>
@@ -585,7 +585,7 @@ export const getBossPercentilesFast = async ({
           eb("boss.id", "=", bossId),
           eb("boss_kill.mode", "=", difficulty),
           eb("boss_kill_player.talent_spec", "=", talentSpec),
-        ])
+        ]),
       );
 
     const rows = await qb.execute();

@@ -92,11 +92,16 @@ export const getRaids = async ({ realm }: GetRaidsArgs): Promise<Raid[]> => {
         const boss = raid.bosses[i]!;
 
         // MoP - ToT
-        if (boss.entry === 68905) {
+        if (boss.entry === 68905 || boss.entry === 68904) {
           raid.bosses[i]!.name = "Twin Consorts";
         }
 
-        if (boss.entry === 69132) {
+        if (
+          boss.entry === 69132 ||
+          boss.entry === 69131 ||
+          boss.entry === 69134 ||
+          boss.entry === 69078
+        ) {
           raid.bosses[i]!.name = "Council of Elders";
         }
 

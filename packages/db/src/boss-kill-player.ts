@@ -1,5 +1,5 @@
 import { sql } from "kysely";
-import { db } from "./index";
+import { db } from ".";
 
 export const dps = sql<number>`CAST(ROUND(IF(boss_kill.length = 0, 0, boss_kill_player.dmg_done/(boss_kill.length/1000))) AS UNSIGNED)`;
 

@@ -7,7 +7,7 @@ import {
   type BosskillCharacter,
   bosskillCharacterSchema,
 } from "@twinstar-bosskills/api/dist/schema";
-import { db } from "./index";
+import { db } from ".";
 import { sql } from "kysely";
 
 export type GetRankingByRaidLockArgs = {

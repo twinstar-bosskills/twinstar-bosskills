@@ -19,7 +19,8 @@
     "commander": "^14.0.1"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "@twinstar-bosskills/db": "workspace:*"
+    "@twinstar-bosskills/db": "workspace:*",
+    "@types/node": "^24.9.2",
+    "typescript": "^5.9.3"
   }
 }

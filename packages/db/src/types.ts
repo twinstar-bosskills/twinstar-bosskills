@@ -10,6 +10,12 @@ export type Generated<T> =
     ? ColumnType<S, I | undefined, U>
     : ColumnType<T, T | undefined, T>;
 
+export interface MigrationsTable {
+  id: Generated<number>;
+  name: string;
+  executed_at: Date;
+}
+
 export interface BossTable {
   id: Generated<number>;
   name: string;
@@ -129,6 +135,7 @@ export interface RealmXRaidTable {
 }
 
 export interface DB {
+  migrations: MigrationsTable;
   boss: BossTable;
   boss_kill: BossKillTable;
   boss_kill_death: BossKillDeathTable;
