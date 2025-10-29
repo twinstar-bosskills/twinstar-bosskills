@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@twinstar-bosskills/core": "workspace:*",
+    "@twinstar-bosskills/cache": "workspace:*",
     "zod": "^4.1.12"
   }
 }

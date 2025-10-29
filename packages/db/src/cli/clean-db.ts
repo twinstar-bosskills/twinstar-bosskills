@@ -1,4 +1,4 @@
-import { db, sql } from "@twinstar-bosskills/db";
+import { db, sql } from "../";
 
 try {
   await db

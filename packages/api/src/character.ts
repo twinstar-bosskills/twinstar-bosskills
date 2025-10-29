@@ -1,3 +1,8 @@
+import {
+  EXPIRE_1_HOUR,
+  EXPIRE_5_MIN,
+  withCache,
+} from "@twinstar-bosskills/cache";
 import { TWINSTAR_API_URL } from "./config";
 
 import { queryString, type QueryArgs } from "./filter";
@@ -20,7 +25,7 @@ type CharacterBosskillsArgs = Omit<
 > & {
   realm: string;
 };
-export const getCharacterBossKills = async (
+const getCharacterBossKillsRaw = async (
   q: CharacterBosskillsArgs,
 ): Promise<BosskillCharacterPartial[]> => {
   const url = `${TWINSTAR_API_URL}/bosskills/player?${queryString(q)}`;
@@ -40,19 +45,15 @@ export const getCharacterBossKills = async (
   }
 };
 
-type CharacterTotalBossKillsArgs = Omit<
-  QueryArgs,
-  "sorter" | "filters" | "talentSpec"
->;
-export const getCharacterTotalBossKills = async (q: {
-  realm: string;
-  name: string;
-}): Promise<number> => {
+type CharacterTotalBossKillsArgs = { name: string; realm: string };
+const getCharacterTotalBossKillsRaw = async (
+  q: CharacterTotalBossKillsArgs,
+): Promise<number> => {
   const fetchPlayer = async ({
     page,
     pageSize,
     ...rest
-  }: CharacterTotalBossKillsArgs) => {
+  }: Omit<QueryArgs, "sorter" | "filters" | "talentSpec">) => {
     const url = `${TWINSTAR_API_URL}/bosskills/player?${queryString({
       ...rest,
       page,
@@ -106,7 +107,7 @@ export const getCharacterTotalBossKills = async (q: {
 };
 
 type CharacterByNameArgs = { realm: string; name: string };
-export const getCharacterByName = async (
+const getCharacterByNameRaw = async (
   args: CharacterByNameArgs,
 ): Promise<Character | null> => {
   const url = `${TWINSTAR_API_URL}/character?${queryString(args)}`;
@@ -120,4 +121,49 @@ export const getCharacterByName = async (
     console.error(e, url);
     throw e;
   }
+};
+
+export const getCharacterBossKills = async (
+  args: CharacterBosskillsArgs,
+): Promise<BosskillCharacterPartial[]> => {
+  const fallback = async () => {
+    return getCharacterBossKillsRaw(args);
+  };
+
+  return withCache<BosskillCharacterPartial[]>({
+    deps: [`character-bosskills`, args],
+    fallback,
+    defaultValue: [],
+    expire: EXPIRE_5_MIN,
+  });
+};
+
+export const getCharacterTotalBossKills = async (
+  args: CharacterTotalBossKillsArgs,
+): Promise<number> => {
+  const fallback = async () => {
+    return getCharacterTotalBossKillsRaw(args);
+  };
+
+  return withCache<number>({
+    deps: [`character-total-bosskills`, args],
+    fallback,
+    defaultValue: 0,
+    expire: EXPIRE_5_MIN,
+  });
+};
+
+export const getCharacterByName = async (
+  args: CharacterByNameArgs,
+): Promise<Character | null> => {
+  const fallback = async () => {
+    return getCharacterByNameRaw(args);
+  };
+
+  return withCache<Character | null>({
+    deps: [`character`, args],
+    fallback,
+    defaultValue: null,
+    expire: EXPIRE_1_HOUR,
+  });
 };

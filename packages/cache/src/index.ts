@@ -1,5 +1,5 @@
 import stableStringify from "json-stable-stringify";
-import { createDragonflyClient } from "./dragonfly";
+
 const CACHE: Record<string, unknown> = {};
 const TIMERS: Record<string, number | NodeJS.Timeout> = {};
 /**
@@ -70,7 +70,7 @@ const memory = async <T = unknown>({
   deps,
   fallback,
   expire = EXPIRE_DEFAULT,
-  sliding = true,
+  sliding = false,
   defaultValue = undefined,
 }: Args<T>): Promise<T> => {
   const key = await createKey(deps);
@@ -107,15 +107,27 @@ const delay = <T = unknown>({
   value = undefined,
 }: DelayArgs<T> = {}) =>
   new Promise<T>((res) => setTimeout(() => res(value as T), timeout));
-const df = createDragonflyClient();
+
+let df: ReturnType<typeof import("./dragonfly").createDragonflyClient> | null =
+  null;
+if (typeof process !== "undefined") {
+  import("./dragonfly").then(({ createDragonflyClient }) => {
+    df = createDragonflyClient();
+  });
+}
 const dragonfly = async <T = unknown>({
   deps,
   fallback,
   expire = EXPIRE_DEFAULT,
-  sliding = true,
+  sliding = false,
   force = false,
   defaultValue = undefined,
 }: Args<T>): Promise<T> => {
+  if (!df) {
+    console.error("Dragonfly client not initialized");
+    return defaultValue as T;
+  }
+
   const key = await createKey(deps);
 
   // remove keys with ttl bigger that it should be
@@ -162,6 +174,11 @@ export const withCache = async <T = unknown>(args: Args<T>): Promise<T> => {
 
 type BlobCacheItem = { type: Blob["type"]; value: string } | null;
 export const blobCacheGet = async (key: string): Promise<BlobCacheItem> => {
+  if (!df) {
+    console.error("Dragonfly client not initialized");
+    return null;
+  }
+
   const v = await df.hget("blob-cache", key);
   if (v !== null) {
     try {
@@ -181,6 +198,11 @@ export const blobCacheSet = async (
   key: string,
   blob: Blob,
 ): Promise<BlobCacheItem> => {
+  if (!df) {
+    console.error("Dragonfly client not initialized");
+    return null;
+  }
+
   try {
     const value = Buffer.from(await blob.arrayBuffer()).toString("binary");
     const item = { type: blob.type, value };

@@ -1,3 +1,4 @@
+import { withCache } from "@twinstar-bosskills/cache";
 import { realmToExpansion } from "@twinstar-bosskills/core/dist/realm";
 import { TWINSTAR_API_URL } from "./config";
 import { raidsSchema, type Raid } from "./schema";
@@ -13,7 +14,7 @@ export const getRemoteRaidIconUrl = (name: string) => {
 };
 
 type GetRaidsArgs = { realm: string };
-export const getRaids = async ({ realm }: GetRaidsArgs): Promise<Raid[]> => {
+const getRaidsRaw = async ({ realm }: GetRaidsArgs): Promise<Raid[]> => {
   const expansion = realmToExpansion(realm);
   const url = `${TWINSTAR_API_URL}/bosskills/raids?expansion=${expansion}`;
 
@@ -158,4 +159,22 @@ export const getRaids = async ({ realm }: GetRaidsArgs): Promise<Raid[]> => {
     console.error(e, url);
     throw e;
   }
+};
+
+export const getRaids = async ({
+  realm,
+  cache,
+}: GetRaidsArgs & { cache?: boolean }): Promise<Raid[]> => {
+  const fallback = async () => {
+    return getRaidsRaw({ realm });
+  };
+
+  if (cache === false) {
+    return fallback().catch((e) => {
+      console.error(e);
+      return [];
+    });
+  }
+
+  return withCache({ deps: [`raids`, realm], fallback, defaultValue: [] });
 };

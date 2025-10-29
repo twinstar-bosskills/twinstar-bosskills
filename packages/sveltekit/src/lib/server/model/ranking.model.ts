@@ -144,7 +144,6 @@ const withRanksCache = (
 		fallback,
 		defaultValue: { raids: [], ranks: {} },
 		expire: isPrevious ? EXPIRE_7_DAYS : EXPIRE_30_MIN,
-		sliding: false,
 		force
 	});
 };

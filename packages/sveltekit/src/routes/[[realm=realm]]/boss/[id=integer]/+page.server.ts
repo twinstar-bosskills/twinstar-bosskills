@@ -1,4 +1,4 @@
-import { getBossKillsWipesTimes } from '$lib/server/api';
+import { getBossKillsWipesTimes } from '@twinstar-bosskills/api';
 import { getBossAggregatedStats, type BossTopSpecItem } from '@twinstar-bosskills/db/dist/boss';
 import { getTopSpecs } from '$lib/server/model/boss.model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';

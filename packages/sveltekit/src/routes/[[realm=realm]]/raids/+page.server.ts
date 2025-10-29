@@ -1,25 +1,26 @@
 import { raidLock } from '@twinstar-bosskills/core/src/date';
 import type { Boss } from '@twinstar-bosskills/db/dist/types';
 
-import { listAllLatestBossKills } from '$lib/server/api';
+import { listAllLatestBossKills } from '@twinstar-bosskills/api';
 import { FilterOperator } from '@twinstar-bosskills/api/dist/filter';
 import { findBosses } from '$lib/server/model/boss.model';
 import { getRaids } from '$lib/server/model/raid.model';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, parent }) => {
 	const now = new Date();
-	const { start: thisRaidLockStart, end: thisRaidLockEnd } = raidLock(now);
+	const { realm, raidlock: raidlockOffset } = await parent();
+	const { start: raidLockStart, end: raidLockEnd } = raidLock(now, raidlockOffset);
 
 	const [raids, bosses, bosskills] = await Promise.all([
-		getRaids({ realm: params.realm! }),
-		findBosses({ realm: params.realm! }),
+		getRaids({ realm }),
+		findBosses({ realm }),
 		listAllLatestBossKills({
-			realm: params.realm,
+			realm,
 			pageSize: 10_000,
 			filters: [
-				{ column: 'time', operator: FilterOperator.GTE, value: thisRaidLockStart },
-				{ column: 'time', operator: FilterOperator.LTE, value: thisRaidLockEnd }
+				{ column: 'time', operator: FilterOperator.GTE, value: raidLockStart },
+				{ column: 'time', operator: FilterOperator.LTE, value: raidLockEnd }
 			]
 		})
 	]);
@@ -56,6 +57,8 @@ export const load: PageServerLoad = async ({ params }) => {
 		bosskillsByBoss,
 		bosskillsByBossByDifficulty,
 		bosskillsByRaid,
-		bosskillsByRaidByDifficulty
+		bosskillsByRaidByDifficulty,
+		raidLockStart,
+		raidLockEnd
 	};
 };

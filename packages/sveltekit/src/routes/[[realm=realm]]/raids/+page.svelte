@@ -15,6 +15,13 @@
 	<title>Raids</title>
 </svelte:head>
 <h1>Raids</h1>
+Stats for raid lock {data.raidLockStart.toLocaleDateString()} - {data.raidLockEnd.toLocaleDateString()}
+<Link
+	href={links.raids(data.realm, {
+		raidlock: data.raidlock + 1
+	})}>(see previous)</Link
+>
+
 <ul class="raids">
 	{#each data.raids as raid}
 		{@const byDifficulty = Object.entries(data.bosskillsByRaidByDifficulty[raid.name] ?? {})}

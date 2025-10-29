@@ -173,7 +173,6 @@ const withBossTopSpecsByRaidLockCache = (
 		defaultValue: [],
 		// already "cached" in database
 		expire: EXPIRE_5_MIN,
-		sliding: false,
 		force
 	});
 };

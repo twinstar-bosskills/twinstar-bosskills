@@ -1,3 +1,4 @@
+import { withCache } from "@twinstar-bosskills/cache";
 import {
   listAllLatestBossKills,
   type LatestBossKillQueryArgs,
@@ -7,10 +8,7 @@ import { getRaids } from "./raid";
 import type { Boss } from "./schema";
 
 type GetBossArgs = { realm: string; id: number };
-export const getBoss = async ({
-  id,
-  realm,
-}: GetBossArgs): Promise<Boss | null> => {
+const getBossRaw = async ({ id, realm }: GetBossArgs): Promise<Boss | null> => {
   try {
     const raids = await getRaids({ realm });
     for (const raid of raids) {
@@ -33,7 +31,7 @@ type GetBossKillsWipesTimesArgs = {
   id: number;
   mode: number | null;
 };
-export const getBossKillsWipesTimes = async ({
+const getBossKillsWipesTimesRaw = async ({
   realm,
   id,
   mode,
@@ -112,4 +110,29 @@ export const getBossKillsWipesTimes = async ({
       total: totalDuration,
     },
   };
+};
+
+export const getBoss = async ({
+  id,
+  realm,
+}: GetBossArgs): Promise<Boss | null> => {
+  const fallback = async () => {
+    return getBossRaw({ realm, id });
+  };
+
+  return withCache({ deps: [`boss`, realm, id], fallback, defaultValue: null });
+};
+
+export const getBossKillsWipesTimes = async (
+  args: GetBossKillsWipesTimesArgs,
+) => {
+  const fallback = async () => {
+    return getBossKillsWipesTimesRaw(args);
+  };
+  return withCache({
+    deps: ["boss-kwt", args],
+    fallback,
+    sliding: false,
+    defaultValue: null,
+  });
 };

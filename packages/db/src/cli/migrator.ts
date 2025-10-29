@@ -4,7 +4,7 @@ import { CompiledQuery, Kysely, MysqlDialect } from "kysely";
 import { createPool } from "mysql2";
 import fs from "node:fs";
 import { Umzug } from "umzug";
-import { DB } from "./types";
+import { DB } from "../types";
 
 const cfg = config({ path: findConfig(".env")! });
 

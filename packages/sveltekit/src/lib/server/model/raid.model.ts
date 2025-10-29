@@ -229,7 +229,6 @@ export const getRaidLockStats = async (args: GetRaidLockStatsArgs): Promise<Raid
 			previous: EMPTY_RAID_LOCK_DATA,
 			current: EMPTY_RAID_LOCK_DATA
 		},
-		expire: EXPIRE_5_MIN,
-		sliding: false
+		expire: EXPIRE_5_MIN
 	});
 };

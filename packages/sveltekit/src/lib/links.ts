@@ -22,7 +22,10 @@ const withSearchParams = (url: string, query: SearchParams) => {
 
 const changelog = () => `/changelog`;
 const home = (realm: string) => `/${realm}`;
-const raids = (realm: string) => `/${realm}/raids`;
+const raids = (realm: string, params: SearchParams = {}) => {
+	const url = `/${realm}/raids`;
+	return withSearchParams(url, params);
+};
 const ranks = (realm: string, params: SearchParams = {}) => {
 	const url = `/${realm}/ranks`;
 	return withSearchParams(url, params);

@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { withCache } from "@twinstar-bosskills/cache";
 import { realmToExpansion } from "@twinstar-bosskills/core/dist/realm";
 import { TWINSTAR_API_URL } from "./config";
 import {
@@ -10,7 +11,7 @@ import {
   type ItemTooltip,
 } from "./schema";
 
-export const getItem = async (id: number): Promise<Item | null> => {
+const getItemRaw = async (id: number): Promise<Item | null> => {
   const url = `${TWINSTAR_API_URL}/item/${id}`;
   try {
     const r = await fetch(url);
@@ -45,7 +46,7 @@ export const getRemoteItemIconUrl = (id: number) =>
   `${TWINSTAR_API_URL}/item/icon/${id}`;
 
 type GetItemTooltipArgs = { realm: string; id: number };
-export const getItemTooltip = async ({
+const getItemTooltipRaw = async ({
   realm,
   id,
 }: GetItemTooltipArgs): Promise<ItemTooltip | null> => {
@@ -67,4 +68,25 @@ export const getItemTooltip = async ({
 
   // @ts-ignore
   return null;
+};
+
+export const getItem = async (id: number): Promise<Item | null> => {
+  const fallback = async () => {
+    return getItemRaw(id);
+  };
+  return withCache({ deps: ["item", id], fallback, defaultValue: null });
+};
+
+export const getItemTooltip = async ({
+  realm,
+  id,
+}: GetItemTooltipArgs): Promise<ItemTooltip | null> => {
+  const fallback = async () => {
+    return getItemTooltipRaw({ realm, id });
+  };
+  return withCache({
+    deps: [`item-tooltip`, realm, id],
+    fallback,
+    defaultValue: null,
+  });
 };

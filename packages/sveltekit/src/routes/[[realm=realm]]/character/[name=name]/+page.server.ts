@@ -1,12 +1,12 @@
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import { getSpecFromUrl } from '$lib/search-params';
-import * as api from '$lib/server/api';
 import { findBosses } from '$lib/server/model/boss.model';
 import {
 	getCharacterBossRankings,
 	getCharacterPerformanceLines,
 	getCharacterPerformanceTrends
 } from '$lib/server/model/character.model';
+import { getCharacterBossKills, getCharacterTotalBossKills } from '@twinstar-bosskills/api';
 import type { Boss } from '@twinstar-bosskills/api/dist/schema';
 import { METRIC_TYPE } from '@twinstar-bosskills/core/dist/metrics';
 import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
@@ -19,8 +19,8 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 	const pageSize = getPageSizeFromURL(url, 20);
 	const spec = getSpecFromUrl(url);
 	const { name, guid } = character;
-	const totalPromise = api.getCharacterTotalBossKills({ realm, name });
-	const data = await api.getCharacterBossKills({
+	const totalPromise = getCharacterTotalBossKills({ realm, name });
+	const data = await getCharacterBossKills({
 		realm,
 		name,
 		page,

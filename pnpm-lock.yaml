@@ -17,6 +17,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@twinstar-bosskills/cache':
+        specifier: workspace:*
+        version: link:../cache
       '@twinstar-bosskills/core':
         specifier: workspace:*
         version: link:../core
@@ -52,22 +55,9 @@ importers:
       '@types/node':
         specifier: ^24.9.2
         version: 24.9.2
-
-  packages/cli:
-    dependencies:
-      commander:
-        specifier: ^14.0.1
-        version: 14.0.1
-    devDependencies:
-      '@twinstar-bosskills/db':
-        specifier: workspace:*
-        version: link:../db
-      '@types/node':
-        specifier: ^24.9.2
-        version: 24.9.2
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+      tsx:
+        specifier: ^4.20.6
+        version: 4.20.6
 
   packages/core:
     dependencies:
@@ -102,9 +92,6 @@ importers:
       mysql2:
         specifier: ^3.15.3
         version: 3.15.3
-      tsx:
-        specifier: ^4.20.6
-        version: 4.20.6
       umzug:
         specifier: ^3.8.2
         version: 3.8.2(@types/node@24.9.2)
@@ -115,6 +102,9 @@ importers:
       kysely-codegen:
         specifier: ^0.19.0
         version: 0.19.0(kysely@0.28.8)(mysql2@3.15.3)(typescript@5.9.3)
+      tsx:
+        specifier: ^4.20.6
+        version: 4.20.6
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

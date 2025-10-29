@@ -1,5 +1,5 @@
 import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
-import * as api from '$lib/server/api';
+import * as api from '@twinstar-bosskills/api';
 import { getLootChance, type LootChance } from '@twinstar-bosskills/db/dist/loot';
 import { assertGuildTokenFromCookie } from '$lib/server/guild-token.service';
 import { getBoss, getBossPercentilesPerPlayer } from '$lib/server/model/boss.model';

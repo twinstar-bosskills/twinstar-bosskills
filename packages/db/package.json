@@ -14,7 +14,8 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "format": "prettier . --write src",
     "codegen": "DATABASE_URL=mysql://bk:bk@172.99.0.2:3306/bosskills kysely-codegen --dialect=mysql --out-file=./src/generated.types.ts --camel-case",
-    "migrator": "tsx src/migrator.ts"
+    "clean-db": "tsx src/cli/clean-db.ts",
+    "migrator": "tsx src/cli/migrator.ts"
   },
   "dependencies": {
     "@twinstar-bosskills/api": "workspace:*",
@@ -23,12 +24,12 @@
     "find-config": "^1.0.0",
     "kysely": "^0.28.8",
     "mysql2": "^3.15.3",
-    "tsx": "^4.20.6",
     "umzug": "^3.8.2"
   },
   "devDependencies": {
     "@types/find-config": "^1.0.4",
     "kysely-codegen": "^0.19.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
 }
