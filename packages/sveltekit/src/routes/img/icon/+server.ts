@@ -3,7 +3,7 @@ import { getRemoteRaceIconUrl } from '@twinstar-bosskills/api/dist/race';
 import { getRemoteRaidIconUrl } from '@twinstar-bosskills/api/dist/raid';
 import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
 import { getRemoteItemIconUrl } from '$lib/server/api';
-import { blobCacheGet, blobCacheSet } from '$lib/server/cache';
+import { blobCacheGet, blobCacheSet } from '@twinstar-bosskills/cache';
 import { getRemoteTalentSpecIconUrl } from '@twinstar-bosskills/api/dist/talent';
 import { error, redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';

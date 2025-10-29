@@ -1,7 +1,7 @@
 import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
 import * as api from '@twinstar-bosskills/api';
 import type { Raid } from '@twinstar-bosskills/api/dist/schema';
-import { withCache } from '../cache';
+import { withCache } from '@twinstar-bosskills/cache';
 
 type GetRaidsArgs = { realm?: string; cache?: boolean };
 export const getRaids = async ({ realm = REALM_HELIOS, cache }: GetRaidsArgs): Promise<Raid[]> => {

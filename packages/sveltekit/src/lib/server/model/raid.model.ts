@@ -5,7 +5,7 @@ import { findBossKills } from '@twinstar-bosskills/db/dist/boss-kill';
 import { findRaidsByRealm } from '@twinstar-bosskills/db/dist/raid';
 import type { BossKill } from '@twinstar-bosskills/db/dist/types';
 import { format } from 'date-fns';
-import { EXPIRE_5_MIN, withCache } from '../cache';
+import { EXPIRE_5_MIN, withCache } from '@twinstar-bosskills/cache';
 import { findBosses } from './boss.model';
 
 export const getRaids = async (args: { realm: string }) => {

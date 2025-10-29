@@ -1,4 +1,4 @@
-import { createDragonflyClient } from '../cache/dragonfly';
+import { createDragonflyClient } from '@twinstar-bosskills/cache/dist/dragonfly';
 
 try {
 	const client = createDragonflyClient();

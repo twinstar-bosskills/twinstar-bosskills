@@ -1,5 +1,4 @@
 import { raidLock } from '@twinstar-bosskills/core/dist/date';
-import type { Boss } from '@twinstar-bosskills/db/dist/types';
 import {
 	characterDps,
 	characterHps,
@@ -7,9 +6,9 @@ import {
 	type MetricType
 } from '@twinstar-bosskills/core/dist/metrics';
 import { talentSpecsByExpansion } from '@twinstar-bosskills/core/dist/wow';
-import type { Raid } from '@twinstar-bosskills/db/dist/types';
+import type { Boss, Raid } from '@twinstar-bosskills/db/dist/types';
 
-import { EXPIRE_30_MIN, EXPIRE_7_DAYS, withCache } from '../cache';
+import { EXPIRE_30_MIN, EXPIRE_7_DAYS, withCache } from '@twinstar-bosskills/cache';
 import type { RankingByRaidLock } from '@twinstar-bosskills/db/dist/ranking';
 import { findBosses, getTopSpecsByRaidLock } from './boss.model';
 import { getRaids } from './raid.model';

@@ -1,7 +1,7 @@
 import * as api from '@twinstar-bosskills/api';
 import type { QueryArgs } from '@twinstar-bosskills/api/dist/filter';
 import { type BosskillCharacterPartial, type Character } from '@twinstar-bosskills/api/dist/schema';
-import { EXPIRE_1_HOUR, EXPIRE_5_MIN, withCache } from '../cache';
+import { EXPIRE_1_HOUR, EXPIRE_5_MIN, withCache } from '@twinstar-bosskills/cache';
 
 // /bosskills/player?map=<mapa>&mode=<obtiznost>&page=<stranka>&pageSize=<velikost>&(guid=<guid> or name=<name>)
 type CharacterBosskillsArgs = Omit<QueryArgs, 'sorter' | 'filters' | 'talentSpec'> & {

@@ -1,7 +1,7 @@
-import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
 import * as api from '@twinstar-bosskills/api';
 import type { Boss } from '@twinstar-bosskills/api/dist/schema';
-import { withCache } from '../cache';
+import { withCache } from '@twinstar-bosskills/cache';
+import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
 
 type GetBossArgs = { realm?: string; id: number };
 export const getBoss = async ({ id, realm = REALM_HELIOS }: GetBossArgs): Promise<Boss | null> => {

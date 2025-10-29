@@ -25,6 +25,7 @@
 		"@sveltejs/kit": "^2.46.4",
 		"@tanstack/svelte-table": "^8.21.3",
 		"@twinstar-bosskills/api": "workspace:*",
+		"@twinstar-bosskills/cache": "workspace:*",
 		"@twinstar-bosskills/core": "workspace:*",
 		"@twinstar-bosskills/db": "workspace:*",
 		"commander": "^14.0.1",
@@ -33,8 +34,6 @@
 		"dotenv": "^16.6.1",
 		"echarts": "^5.6.0",
 		"echarts-simple-transform": "^1.0.0",
-		"ioredis": "^5.8.1",
-		"json-stable-stringify": "^1.3.0",
 		"svelte": "^4.2.20",
 		"zod": "^4.1.12"
 	},
@@ -47,7 +46,6 @@
 		"svelte-adapter-bun": "^0.5.2",
 		"svelte-check": "^3.8.6",
 		"tslib": "^2.6.2",
-		"typescript": "^5.9.3",
 		"vite": "^5.0.0",
 		"vite-node": "^0.34.6"
 	}

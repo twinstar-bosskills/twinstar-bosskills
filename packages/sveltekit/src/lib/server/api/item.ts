@@ -1,6 +1,6 @@
 import * as api from '@twinstar-bosskills/api';
 import { type Item, type ItemTooltip } from '@twinstar-bosskills/api/dist/schema';
-import { withCache } from '../cache';
+import { withCache } from '@twinstar-bosskills/cache';
 export const getItem = async (id: number): Promise<Item | null> => {
 	const fallback = async () => {
 		return api.getItem(id);

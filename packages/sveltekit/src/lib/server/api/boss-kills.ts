@@ -6,7 +6,7 @@ import {
 	type PaginatedResponse
 } from '@twinstar-bosskills/api/dist/response';
 import { type BossKill, type BossKillDetail } from '@twinstar-bosskills/api/dist/schema';
-import { EXPIRE_30_MIN, EXPIRE_5_MIN, withCache } from '../cache';
+import { EXPIRE_30_MIN, EXPIRE_5_MIN, withCache } from '@twinstar-bosskills/cache';
 export type BossKillQueryArgs = QueryArgs<keyof BossKill>;
 type BossKillsData = PaginatedResponse<BossKill[]>;
 export const getBossKills = async (q: BossKillQueryArgs): Promise<BossKillsData> => {

@@ -10,7 +10,7 @@ import {
 	type GetRankingByRaidLockArgs,
 	type RankingByRaidLock
 } from '@twinstar-bosskills/db/dist/ranking';
-import { EXPIRE_1_DAY, EXPIRE_1_HOUR, EXPIRE_5_MIN, withCache } from '../cache';
+import { EXPIRE_1_DAY, EXPIRE_1_HOUR, EXPIRE_5_MIN, withCache } from '@twinstar-bosskills/cache';
 import {
 	getBossPercentilesFast,
 	getBossTopSpecs,
