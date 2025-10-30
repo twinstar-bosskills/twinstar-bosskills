@@ -1,9 +1,9 @@
-import { raidLock } from '@twinstar-bosskills/core/src/date';
+import { getRaidLockOffsetFromUrl } from '$lib/search-params';
+import { error } from '@sveltejs/kit';
 import { METRIC_TYPE } from '@twinstar-bosskills/core/dist/metrics';
 import { difficultiesByExpansion } from '@twinstar-bosskills/core/dist/wow';
-import { getRaidLockOffsetFromUrl } from '$lib/search-params';
-import { getRanks } from '$lib/server/model/ranking.model';
-import { error } from '@sveltejs/kit';
+import { raidLock } from '@twinstar-bosskills/core/src/date';
+import { getRanks } from '@twinstar-bosskills/model';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, parent }) => {

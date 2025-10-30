@@ -1,7 +1,6 @@
 import { toArrayOfInt, toArrayOfNonEmptyStrings, toIntOrUndefined } from '$lib/mapper';
 import type { Boss } from '@twinstar-bosskills/db/dist/types';
-import { findBosses } from '../model/boss.model';
-import { getRaids } from '../model/raid.model';
+import { findBosses, getRaids } from '@twinstar-bosskills/model';
 export type Data = {
 	raids: Awaited<ReturnType<typeof getRaids>>;
 	bosses: Boss[];

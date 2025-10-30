@@ -1,13 +1,13 @@
-import { getBossKillsWipesTimes } from '@twinstar-bosskills/api';
-import { getBossAggregatedStats, type BossTopSpecItem } from '@twinstar-bosskills/db/dist/boss';
-import { getTopSpecs } from '$lib/server/model/boss.model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
+import { getBossKillsWipesTimes } from '@twinstar-bosskills/api';
 import {
 	characterDps,
 	characterHps,
 	healingAndAbsorbDone,
 	METRIC_TYPE
 } from '@twinstar-bosskills/core/dist/metrics';
+import { getBossAggregatedStats, type BossTopSpecItem } from '@twinstar-bosskills/db/dist/boss';
+import { getTopSpecs } from '@twinstar-bosskills/model';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, params, parent }) => {

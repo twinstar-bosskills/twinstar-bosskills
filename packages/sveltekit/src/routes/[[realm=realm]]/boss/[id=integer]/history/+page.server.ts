@@ -1,5 +1,5 @@
 import { getRaidLockOffsetFromUrl } from '$lib/search-params';
-import { getTopSpecsByRaidLock } from '$lib/server/model/boss.model';
+import { getTopSpecsByRaidLock } from '@twinstar-bosskills/model';
 import { STATS_TYPE_DMG, STATS_TYPE_HEAL } from '$lib/stats-type';
 import { error } from '@sveltejs/kit';
 import {

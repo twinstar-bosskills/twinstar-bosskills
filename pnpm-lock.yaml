@@ -7,6 +7,16 @@ settings:
 importers:
 
   .:
+    dependencies:
+      commander:
+        specifier: ^14.0.2
+        version: 14.0.2
+      date-fns:
+        specifier: ^2.30.0
+        version: 2.30.0
+      date-fns-tz:
+        specifier: ^2.0.1
+        version: 2.0.1(date-fns@2.30.0)
     devDependencies:
       prettier:
         specifier: ^3.6.2
@@ -30,9 +40,6 @@ importers:
       '@types/node':
         specifier: ^20.19.23
         version: 20.19.23
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
 
   packages/cache:
     dependencies:
@@ -60,17 +67,10 @@ importers:
         version: 4.20.6
 
   packages/core:
-    dependencies:
-      date-fns:
-        specifier: ^2.30.0
-        version: 2.30.0
-      date-fns-tz:
-        specifier: ^2.0.1
-        version: 2.0.1(date-fns@2.30.0)
     devDependencies:
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+      '@types/node':
+        specifier: ^24.9.2
+        version: 24.9.2
 
   packages/db:
     dependencies:
@@ -105,9 +105,28 @@ importers:
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+
+  packages/model:
+    dependencies:
+      '@twinstar-bosskills/api':
+        specifier: 'workspace:'
+        version: link:../api
+      '@twinstar-bosskills/cache':
+        specifier: 'workspace:'
+        version: link:../cache
+      '@twinstar-bosskills/core':
+        specifier: 'workspace:'
+        version: link:../core
+      '@twinstar-bosskills/db':
+        specifier: 'workspace:'
+        version: link:../db
+    devDependencies:
+      '@types/node':
+        specifier: ^24.9.2
+        version: 24.9.2
+      tsx:
+        specifier: ^4.20.6
+        version: 4.20.6
 
   packages/sveltekit:
     dependencies:
@@ -129,15 +148,9 @@ importers:
       '@twinstar-bosskills/db':
         specifier: workspace:*
         version: link:../db
-      commander:
-        specifier: ^14.0.1
-        version: 14.0.1
-      date-fns:
-        specifier: ^2.30.0
-        version: 2.30.0
-      date-fns-tz:
-        specifier: ^2.0.1
-        version: 2.0.1(date-fns@2.30.0)
+      '@twinstar-bosskills/model':
+        specifier: workspace:*
+        version: link:../model
       dotenv:
         specifier: ^16.6.1
         version: 16.6.1
@@ -895,8 +908,8 @@ packages:
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
 
-  commander@14.0.1:
-    resolution: {integrity: sha512-2JkV3gUZUVrbNA+1sjBOYLsMZ5cEEl8GTFP2a4AVz5hvasAMCQ1D2l2le/cX+pV4N6ZU17zjUahLpIXRrnWL8A==}
+  commander@14.0.2:
+    resolution: {integrity: sha512-TywoWNNRbhoD0BXs1P3ZEScW8W5iKrnbithIl0YH+uCmBd0QpPOA8yc82DS3BIE5Ma6FnBVUsJ7wVUDz4dvOWQ==}
     engines: {node: '>=20'}
 
   commondir@1.0.1:
@@ -2282,7 +2295,7 @@ snapshots:
 
   color-name@1.1.4: {}
 
-  commander@14.0.1: {}
+  commander@14.0.2: {}
 
   commondir@1.0.1: {}
 

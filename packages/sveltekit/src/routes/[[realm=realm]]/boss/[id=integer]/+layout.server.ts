@@ -1,8 +1,7 @@
 export const prerender = false;
-import type { LayoutServerLoad } from './$types';
-
-import { findBosses, getBoss } from '$lib/server/model/boss.model';
 import { error } from '@sveltejs/kit';
+import { findBosses, getBoss } from '@twinstar-bosskills/model';
+import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ params }) => {
 	const id = Number(params.id);

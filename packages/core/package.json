@@ -14,11 +14,7 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "format": "prettier . --write src"
   },
-  "dependencies": {
-    "date-fns": "^2.30.0",
-    "date-fns-tz": "^2.0.1"
-  },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "@types/node": "^24.9.2"
   }
 }

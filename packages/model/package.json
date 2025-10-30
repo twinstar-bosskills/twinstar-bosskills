@@ -1,0 +1,32 @@
+{
+  "name": "@twinstar-bosskills/model",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsc -p tsconfig.json --watch",
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "format": "prettier . --write src",
+    "synchronize-with-api": "tsx ./src/cli/synchronize-with-api.ts",
+    "synchronize-with-api:today": "tsx ./src/cli/synchronize-with-api.ts --realms=Helios,Athena,Proudmoore --from-date=`date +'%Y-%m-%d'`",
+    "cache-character-boss-rankings": "tsx ./src/cli/cache-character-boss-rankings.ts",
+    "cache-character-boss-kill-percentiles": "tsx ./src/cli/cache-character-boss-kill-percentiles.ts",
+    "cache-raid-lock-rankings": "tsx ./src/cli/cache-raid-lock-rankings.ts"
+  },
+  "dependencies": {
+    "@twinstar-bosskills/api": "workspace:",
+    "@twinstar-bosskills/cache": "workspace:",
+    "@twinstar-bosskills/core": "workspace:",
+    "@twinstar-bosskills/db": "workspace:"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "tsx": "^4.20.6"
+  }
+}

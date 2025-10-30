@@ -1,4 +1,4 @@
-import { getRaidLockStats } from '$lib/server/model/raid.model';
+import { getRaidLockStats } from '@twinstar-bosskills/model';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {

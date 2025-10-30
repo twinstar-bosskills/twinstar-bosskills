@@ -16,18 +16,23 @@
     "format": "pnpm --parallel -r format",
     "migrator": "pnpm --filter @twinstar-bosskills/db migrator",
     "migrations:mysql:continue": "pnpm --filter @twinstar-bosskills/db migrator up",
-    "cli:synchronize-with-api": "pnpm --filter @twinstar-bosskills/sveltekit cli:synchronize-with-api",
-    "cli:synchronize-with-api:today": "pnpm --filter @twinstar-bosskills/sveltekit cli:synchronize-with-api:today",
+    "cli:synchronize-with-api": "pnpm --filter @twinstar-bosskills/model synchronize-with-api",
+    "cli:synchronize-with-api:today": "pnpm --filter @twinstar-bosskills/model synchronize-with-api:today",
     "cli:clean-db": "pnpm --filter @twinstar-bosskills/db clean-db",
     "cli:clean-cache": "pnpm --filter @twinstar-bosskills/cache clean-cache",
-    "cli:cache-character-boss-rankings": "pnpm --filter @twinstar-bosskills/sveltekit cli:cache-character-boss-rankings",
-    "cli:cache-character-boss-kill-percentiles": "pnpm --filter @twinstar-bosskills/sveltekit cli:cache-character-boss-kill-percentiles",
-    "cli:cache-raid-lock-rankings": "pnpm --filter @twinstar-bosskills/sveltekit cli:cache-raid-lock-rankings",
+    "cli:cache-character-boss-rankings": "pnpm --filter @twinstar-bosskills/model cache-character-boss-rankings",
+    "cli:cache-character-boss-kill-percentiles": "pnpm --filter @twinstar-bosskills/model cache-character-boss-kill-percentiles",
+    "cli:cache-raid-lock-rankings": "pnpm --filter @twinstar-bosskills/model cache-raid-lock-rankings",
     "cli:guild-token": "pnpm --filter @twinstar-bosskills/sveltekit cli:guild-token"
   },
   "type": "module",
   "devDependencies": {
     "prettier": "^3.6.2",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "commander": "^14.0.2",
+    "date-fns": "^2.30.0",
+    "date-fns-tz": "^2.0.1"
   }
 }

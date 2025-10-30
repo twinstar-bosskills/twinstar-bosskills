@@ -15,12 +15,11 @@
     "format": "prettier . --write src"
   },
   "devDependencies": {
-    "@types/node": "^20.19.23",
-    "typescript": "^5.9.3"
+    "@types/node": "^20.19.23"
   },
   "dependencies": {
-    "@twinstar-bosskills/core": "workspace:*",
     "@twinstar-bosskills/cache": "workspace:*",
+    "@twinstar-bosskills/core": "workspace:*",
     "zod": "^4.1.12"
   }
 }

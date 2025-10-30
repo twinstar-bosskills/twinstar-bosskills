@@ -1,11 +1,11 @@
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import { getSpecFromUrl } from '$lib/search-params';
-import { findBosses } from '$lib/server/model/boss.model';
+import { findBosses } from '@twinstar-bosskills/model';
 import {
 	getCharacterBossRankings,
 	getCharacterPerformanceLines,
 	getCharacterPerformanceTrends
-} from '$lib/server/model/character.model';
+} from '@twinstar-bosskills/model';
 import { getCharacterBossKills, getCharacterTotalBossKills } from '@twinstar-bosskills/api';
 import type { Boss } from '@twinstar-bosskills/api/dist/schema';
 import { METRIC_TYPE } from '@twinstar-bosskills/core/dist/metrics';

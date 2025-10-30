@@ -1,13 +1,13 @@
 import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 import { getFilterFormData } from '$lib/server/form/filter-form';
 import { verifyGuildToken } from '$lib/server/guild-token.service';
-import { findBosses } from '$lib/server/model/boss.model';
-import type { ART } from '$lib/types';
 import type { LatestBossKillQueryArgs } from '@twinstar-bosskills/api';
 import * as api from '@twinstar-bosskills/api';
 import { FilterOperator } from '@twinstar-bosskills/api/dist/filter';
 import type { Boss } from '@twinstar-bosskills/api/dist/schema';
 import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
+import type { ART } from '@twinstar-bosskills/core/dist/types';
+import { findBosses } from '@twinstar-bosskills/model';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url, params, parent }) => {

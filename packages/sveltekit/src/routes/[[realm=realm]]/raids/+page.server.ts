@@ -1,13 +1,11 @@
-import { raidLock } from '@twinstar-bosskills/core/src/date';
-import type { Boss } from '@twinstar-bosskills/db/dist/types';
-
 import { listAllLatestBossKills } from '@twinstar-bosskills/api';
 import { FilterOperator } from '@twinstar-bosskills/api/dist/filter';
-import { findBosses } from '$lib/server/model/boss.model';
-import { getRaids } from '$lib/server/model/raid.model';
+import { raidLock } from '@twinstar-bosskills/core/src/date';
+import type { Boss } from '@twinstar-bosskills/db/dist/types';
+import { findBosses, getRaids } from '@twinstar-bosskills/model';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params, parent }) => {
+export const load: PageServerLoad = async ({ parent }) => {
 	const now = new Date();
 	const { realm, raidlock: raidlockOffset } = await parent();
 	const { start: raidLockStart, end: raidLockEnd } = raidLock(now, raidlockOffset);

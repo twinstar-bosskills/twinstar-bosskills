@@ -1,10 +1,9 @@
-import { METRIC_TYPE, type MetricType } from '@twinstar-bosskills/core/dist/metrics';
-import { talentSpecsByClass } from '@twinstar-bosskills/core/dist/wow';
-import { REALM_HELIOS, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
-import type { Boss } from '@twinstar-bosskills/api/dist/schema';
-import { getBossStatsMedian } from '$lib/server/model/boss.model';
 import { getFilterFormData } from '$lib/server/form/filter-form';
-import { getCharacterPerformanceLinesGrouped } from '$lib/server/model/character.model';
+import type { Boss } from '@twinstar-bosskills/api/dist/schema';
+import { METRIC_TYPE, type MetricType } from '@twinstar-bosskills/core/dist/metrics';
+import { REALM_HELIOS, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+import { talentSpecsByClass } from '@twinstar-bosskills/core/dist/wow';
+import { getBossStatsMedian, getCharacterPerformanceLinesGrouped } from '@twinstar-bosskills/model';
 import type { PageServerLoad } from './$types';
 
 type Lines = Awaited<ReturnType<typeof getCharacterPerformanceLinesGrouped>>;

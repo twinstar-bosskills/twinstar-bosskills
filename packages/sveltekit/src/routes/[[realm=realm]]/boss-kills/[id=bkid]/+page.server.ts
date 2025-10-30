@@ -1,17 +1,17 @@
-import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
-import * as api from '@twinstar-bosskills/api';
-import { getLootChance, type LootChance } from '@twinstar-bosskills/db/dist/loot';
 import { assertGuildTokenFromCookie } from '$lib/server/guild-token.service';
-import { getBoss, getBossPercentilesPerPlayer } from '$lib/server/model/boss.model';
 import { error } from '@sveltejs/kit';
+import { getBossKillDetail, getItem, getItemTooltip } from '@twinstar-bosskills/api';
 import type { Item, ItemTooltip } from '@twinstar-bosskills/api/dist/schema';
+import { REALM_HELIOS } from '@twinstar-bosskills/core/dist/realm';
 import { getBossPropsByBossId } from '@twinstar-bosskills/db/dist/boss-prop';
+import { getLootChance, type LootChance } from '@twinstar-bosskills/db/dist/loot';
+import { getBoss, getBossPercentilesPerPlayer } from '@twinstar-bosskills/model';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const id = params.id;
 	const realm = params.realm ?? REALM_HELIOS;
-	const bosskill = await api.getBossKillDetail({ realm, id });
+	const bosskill = await getBossKillDetail({ realm, id });
 	if (!bosskill) {
 		error(404, {
 			message: 'Not found'
@@ -35,14 +35,14 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	for (const lootItem of loot) {
 		const itemId = Number(lootItem.itemId);
 		queue.push(
-			api.getItem(itemId).then((item) => {
+			getItem(itemId).then((item) => {
 				if (item) {
 					items.push(item);
 				}
 			})
 		);
 		queue.push(
-			api.getItemTooltip({ realm, id: itemId }).then((tooltip) => {
+			getItemTooltip({ realm, id: itemId }).then((tooltip) => {
 				if (tooltip) {
 					tooltips[itemId] = tooltip;
 				}
