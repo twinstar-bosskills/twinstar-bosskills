@@ -113,7 +113,7 @@ let df: ReturnType<typeof import("./dragonfly").createDragonflyClient> | null =
 
 const initDragonfly = async () => {
   if (typeof process !== "undefined" && !df) {
-    import("./dragonfly")
+    await import("./dragonfly")
       .then(({ createDragonflyClient }) => {
         df = createDragonflyClient();
       })
