@@ -1,0 +1,46 @@
+{
+	"name": "@twinstar-bosskills/sveltekit",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"start": "PORT=3000 node --expose-gc build/index.js",
+		"start:bun": "echo 'check RAM usage' && PORT=3000 bun run build/index.js",
+		"dev": "vite dev",
+		"dev:bun": "bunx --bun vite dev",
+		"build": "vite build",
+		"build:bun": "bunx --bun vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"lint": "prettier --plugin-search-dir . --check src",
+		"format": "prettier --plugin-search-dir . --write src",
+		"cli:guild-token": "vite-node --options.transformMode.ssr='/.*/' ./src/lib/server/bin/guild-token.ts"
+	},
+	"dependencies": {
+		"@sveltejs/kit": "^2.46.4",
+		"@tanstack/svelte-table": "^8.21.3",
+		"@twinstar-bosskills/api": "workspace:*",
+		"@twinstar-bosskills/cache": "workspace:*",
+		"@twinstar-bosskills/core": "workspace:*",
+		"@twinstar-bosskills/db": "workspace:*",
+		"@twinstar-bosskills/model": "workspace:*",
+		"dotenv": "^16.6.1",
+		"echarts": "^5.6.0",
+		"echarts-simple-transform": "^1.0.0",
+		"svelte": "^4.2.20",
+		"zod": "^4.1.12"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-node": "^2.1.2",
+		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+		"@types/node": "^20.0.0",
+		"prettier": "^2.8.8",
+		"prettier-plugin-svelte": "^2.10.1",
+		"svelte-adapter-bun": "^0.5.2",
+		"svelte-check": "^3.8.6",
+		"tslib": "^2.6.2",
+		"vite": "^5.0.0",
+		"vite-node": "^0.34.6"
+	}
+}

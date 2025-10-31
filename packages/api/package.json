@@ -1,0 +1,25 @@
+{
+  "name": "@twinstar-bosskills/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsc -p tsconfig.json --watch",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "format": "prettier . --write src"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.23"
+  },
+  "dependencies": {
+    "@twinstar-bosskills/cache": "workspace:*",
+    "@twinstar-bosskills/core": "workspace:*",
+    "zod": "^4.1.12"
+  }
+}
