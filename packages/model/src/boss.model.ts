@@ -1,31 +1,31 @@
-import type { ART } from "@twinstar-bosskills/core/dist/types";
+import {
+  EXPIRE_1_DAY,
+  EXPIRE_1_HOUR,
+  EXPIRE_30_MIN,
+  EXPIRE_5_MIN,
+  withCache,
+} from "@twinstar-bosskills/cache";
 import {
   METRIC_TYPE,
   type PlayerPercentile,
   type PlayerPercentiles,
 } from "@twinstar-bosskills/core/dist/metrics";
+import type { ART } from "@twinstar-bosskills/core/dist/types";
 import {
   findBossesByRealm,
   getBossByRemoteIdAndRealm,
+  getBossPercentiles,
+  getBossTopSpecs,
+  getBossStatsMedian as statsMedian,
+  type GetBossPercentilesArgs,
+  type GetBossStatsMedianArgs,
+  type GetBossTopSpecsArgs,
 } from "@twinstar-bosskills/db/dist/boss";
 import {
   getRankingByRaidLock,
   type GetRankingByRaidLockArgs,
   type RankingByRaidLock,
 } from "@twinstar-bosskills/db/dist/ranking";
-import {
-  EXPIRE_1_DAY,
-  EXPIRE_1_HOUR,
-  EXPIRE_5_MIN,
-  withCache,
-} from "@twinstar-bosskills/cache";
-import {
-  getBossPercentilesFast,
-  getBossTopSpecs,
-  getBossStatsMedian as statsMedian,
-  type GetBossStatsMedianArgs,
-  type GetBossTopSpecsArgs,
-} from "@twinstar-bosskills/db/dist/boss";
 
 export const findBosses = async (args: { realm: string }) => {
   const fallback = () => findBossesByRealm(args);
@@ -55,13 +55,13 @@ export const getBossStatsMedian = (args: GetBossStatsMedianArgs) => {
   });
 };
 
-type GetBossPercentilesArgs = {
+type GetBossKillPercentilesArgs = {
   bossKillRemoteId: string;
 };
 const KEY_BOSS_PERCENTILES_PER_PLAYER =
   "model/boss/getBossPercentilesPerPlayer";
 const withBossPercentilesPerPlayerCache = (
-  args: GetBossPercentilesArgs,
+  args: GetBossKillPercentilesArgs,
   fallback: () => PlayerPercentiles | Promise<PlayerPercentiles>,
   force: boolean = false,
 ) => {
@@ -78,7 +78,7 @@ const withBossPercentilesPerPlayerCache = (
   });
 };
 export const getBossPercentilesPerPlayer = async (
-  args: GetBossPercentilesArgs,
+  args: GetBossKillPercentilesArgs,
 ): Promise<PlayerPercentiles> => {
   const fallback = async () => {
     throw Error("wait until recache happens");
@@ -87,7 +87,63 @@ export const getBossPercentilesPerPlayer = async (
   return withBossPercentilesPerPlayerCache(args, fallback);
 };
 
-type SetBossPercentilesArgs = GetBossPercentilesArgs & {
+type GetBossPercentilesFastArgs = GetBossPercentilesArgs & {
+  targetValue: number;
+};
+const getBossPercentilesFast = async ({
+  realm,
+  bossId,
+  difficulty,
+  talentSpec,
+  metric,
+  targetValue,
+}: GetBossPercentilesFastArgs): Promise<number | null> => {
+  try {
+    const fallback = async () =>
+      getBossPercentiles({ realm, bossId, difficulty, talentSpec, metric });
+    const rows = await withCache<ART<typeof fallback>>({
+      deps: [
+        "model/boss/getBossPercentilesFast",
+        // deps without targetValue on purpose
+        realm,
+        bossId,
+        difficulty,
+        talentSpec,
+        metric,
+      ],
+      fallback,
+      defaultValue: [],
+      expire: EXPIRE_30_MIN,
+    });
+
+    const rowsLen = rows.length;
+    if (rowsLen === 0) {
+      return null;
+    }
+
+    let closest = rows[0] ?? null;
+    if (closest === null) {
+      return null;
+    }
+
+    // binary search would probably be even faster
+    // but this is enough for now
+    for (let i = 0; i < rowsLen; i++) {
+      const row = rows[i]!;
+      const closestDiff = Math.abs(targetValue - closest.value);
+      const currentDiff = Math.abs(targetValue - row.value);
+      if (currentDiff < closestDiff) {
+        closest = row;
+      }
+    }
+
+    return closest.percentile_rank;
+  } catch (e) {
+    console.error(e);
+  }
+  return null;
+};
+type SetBossPercentilesArgs = GetBossKillPercentilesArgs & {
   realm: string;
   bossId: number;
   difficulty: number;

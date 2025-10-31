@@ -22,12 +22,12 @@
 		"@tanstack/svelte-table": "^8.21.3",
 		"@twinstar-bosskills/api": "workspace:*",
 		"@twinstar-bosskills/cache": "workspace:*",
+		"@twinstar-bosskills/chart": "workspace:*",
 		"@twinstar-bosskills/core": "workspace:*",
 		"@twinstar-bosskills/db": "workspace:*",
 		"@twinstar-bosskills/model": "workspace:*",
 		"dotenv": "^16.6.1",
 		"echarts": "^5.6.0",
-		"echarts-simple-transform": "^1.0.0",
 		"svelte": "^4.2.20",
 		"zod": "^4.1.12"
 	},
