@@ -110,11 +110,20 @@ const delay = <T = unknown>({
 
 let df: ReturnType<typeof import("./dragonfly").createDragonflyClient> | null =
   null;
-if (typeof process !== "undefined") {
-  import("./dragonfly").then(({ createDragonflyClient }) => {
-    df = createDragonflyClient();
-  });
-}
+
+const initDragonfly = async () => {
+  if (typeof process !== "undefined" && !df) {
+    import("./dragonfly")
+      .then(({ createDragonflyClient }) => {
+        df = createDragonflyClient();
+      })
+      .catch((e) => {
+        console.error("Dragonfly client init failed");
+        console.error(e);
+      });
+  }
+};
+
 const dragonfly = async <T = unknown>({
   deps,
   fallback,
@@ -123,8 +132,8 @@ const dragonfly = async <T = unknown>({
   force = false,
   defaultValue = undefined,
 }: Args<T>): Promise<T> => {
+  await initDragonfly();
   if (!df) {
-    console.error("Dragonfly client not initialized");
     return defaultValue as T;
   }
 
@@ -174,8 +183,8 @@ export const withCache = async <T = unknown>(args: Args<T>): Promise<T> => {
 
 type BlobCacheItem = { type: Blob["type"]; value: string } | null;
 export const blobCacheGet = async (key: string): Promise<BlobCacheItem> => {
+  await initDragonfly();
   if (!df) {
-    console.error("Dragonfly client not initialized");
     return null;
   }
 
@@ -198,8 +207,8 @@ export const blobCacheSet = async (
   key: string,
   blob: Blob,
 ): Promise<BlobCacheItem> => {
+  await initDragonfly();
   if (!df) {
-    console.error("Dragonfly client not initialized");
     return null;
   }
 
