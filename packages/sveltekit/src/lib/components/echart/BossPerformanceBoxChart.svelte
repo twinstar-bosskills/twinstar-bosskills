@@ -9,7 +9,7 @@
 	import { REALM_HELIOS, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import { getTalentSpecIconUrl } from '@twinstar-bosskills/api/dist/talent';
 	import Chart from './Chart.svelte';
-	import type { AggregatedBySpecStats } from './boxplot';
+	import type { AggregatedBySpecStats } from '@twinstar-bosskills/chart';
 
 	export let realm: string = REALM_HELIOS;
 	export let width: number | undefined = undefined;

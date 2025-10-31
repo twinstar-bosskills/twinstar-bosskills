@@ -9,41 +9,11 @@ import {
 import type { BosskillCharacter } from "@twinstar-bosskills/api/dist/schema";
 import { bosskillCharacterSchema } from "@twinstar-bosskills/api/dist/schema";
 import { sql } from "kysely";
-
-// Local type definitions to avoid import issues during conversion
-export type AggregatedBySpec = Record<number, number[]>;
-export type AggregatedBySpecStats = {
-  indexToSpecId: Record<number, number>;
-  prepared: any;
-};
-export const aggregateBySpec = (
-  aggregatedBySpec: AggregatedBySpec,
-): AggregatedBySpecStats => {
-  // Simple implementation for now - can be enhanced later
-  const keys = Object.keys(aggregatedBySpec).map(Number);
-  const values = Object.values(aggregatedBySpec);
-
-  // Simple aggregation - just return the structure
-  const indexToSpecId: Record<number, number> = {};
-  keys.forEach((key, index) => {
-    indexToSpecId[index] = key;
-  });
-
-  return {
-    indexToSpecId,
-    prepared: {
-      axisData: keys.map(String),
-      boxData: values.map((arr) => [
-        Math.min(...arr),
-        0,
-        arr.reduce((a, b) => a + b) / arr.length,
-        0,
-        Math.max(...arr),
-      ]),
-      outliers: [],
-    },
-  };
-};
+import {
+  aggregateBySpec,
+  AggregatedBySpec,
+  AggregatedBySpecStats,
+} from "@twinstar-bosskills/chart";
 
 type BuilderArgs = {
   realm: string;
@@ -488,13 +458,17 @@ export const getBossStatsMedian = async ({
   return [];
 };
 
-type GetBossPercentilesArgs = {
+export type GetBossPercentilesArgs = {
   realm: string;
   bossId: Boss["id"];
   difficulty: number;
   talentSpec: number;
   metric: MetricType;
-  targetValue: number;
+};
+export type GetBossPercentilesResult = {
+  spec: number;
+  value: number;
+  percentile_rank: number;
 };
 export const getBossPercentiles = async ({
   realm,
@@ -502,8 +476,7 @@ export const getBossPercentiles = async ({
   difficulty,
   talentSpec,
   metric,
-  targetValue,
-}: GetBossPercentilesArgs): Promise<number | null> => {
+}: GetBossPercentilesArgs): Promise<GetBossPercentilesResult[]> => {
   try {
     const qb = db
       .selectFrom("boss_kill")
@@ -516,8 +489,8 @@ export const getBossPercentiles = async ({
       )
       .select([
         "boss_kill_player.talent_spec as spec",
-        sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.as("value"),
-        sql`100 * ROUND(PERCENT_RANK() OVER (PARTITION BY boss_kill_player.talent_spec ORDER BY ${sql`${metric === METRIC_TYPE.HPS ? hps : dps}`}), 2)`.as(
+        sql<number>`${metric === METRIC_TYPE.HPS ? hps : dps}`.as("value"),
+        sql<number>`100 * ROUND(PERCENT_RANK() OVER (PARTITION BY boss_kill_player.talent_spec ORDER BY ${sql`${metric === METRIC_TYPE.HPS ? hps : dps}`}), 2)`.as(
           "percentile_rank",
         ),
       ])
@@ -531,89 +504,9 @@ export const getBossPercentiles = async ({
       );
 
     const rows = await qb.execute();
-
-    // Find the row with the closest value to targetValue
-    let closest = rows[0] ?? null;
-    if (closest === null) {
-      return null;
-    }
-
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i]!;
-      const closestDiff = Math.abs(targetValue - Number(closest.value));
-      const currentDiff = Math.abs(targetValue - Number(row.value));
-      if (currentDiff < closestDiff) {
-        closest = row;
-      }
-    }
-
-    return Number(closest.percentile_rank);
+    return rows;
   } catch (e) {
     console.error(e);
   }
-  return null;
-};
-
-export const getBossPercentilesFast = async ({
-  realm,
-  bossId,
-  difficulty,
-  talentSpec,
-  metric,
-  targetValue,
-}: GetBossPercentilesArgs): Promise<number | null> => {
-  try {
-    const qb = db
-      .selectFrom("boss_kill")
-      .innerJoin("boss", "boss.id", "boss_kill.boss_id")
-      .innerJoin("realm", "realm.id", "boss_kill.realm_id")
-      .innerJoin(
-        "boss_kill_player",
-        "boss_kill_player.boss_kill_id",
-        "boss_kill.id",
-      )
-      .select([
-        "boss_kill_player.talent_spec as spec",
-        sql`${metric === METRIC_TYPE.HPS ? hps : dps}`.as("value"),
-        sql`100 * ROUND(PERCENT_RANK() OVER (PARTITION BY boss_kill_player.talent_spec ORDER BY ${sql`${metric === METRIC_TYPE.HPS ? hps : dps}`}), 2)`.as(
-          "percentile_rank",
-        ),
-      ])
-      .where(({ eb, and }) =>
-        and([
-          eb("realm.name", "=", realm),
-          eb("boss.id", "=", bossId),
-          eb("boss_kill.mode", "=", difficulty),
-          eb("boss_kill_player.talent_spec", "=", talentSpec),
-        ]),
-      );
-
-    const rows = await qb.execute();
-
-    const rowsLen = rows.length;
-    if (rowsLen === 0) {
-      return null;
-    }
-
-    let closest = rows[0] ?? null;
-    if (closest === null) {
-      return null;
-    }
-
-    // binary search would probably be even faster
-    // but this is enough for now
-    for (let i = 0; i < rowsLen; i++) {
-      const row = rows[i]!;
-      const closestDiff = Math.abs(targetValue - Number(closest.value));
-      const currentDiff = Math.abs(targetValue - Number(row.value));
-      if (currentDiff < closestDiff) {
-        closest = row;
-      }
-    }
-
-    return Number(closest.percentile_rank);
-  } catch (e) {
-    console.error(e);
-  }
-  return null;
+  return [];
 };
