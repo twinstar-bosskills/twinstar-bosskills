@@ -27,9 +27,15 @@ const getRaidsRaw = async ({ realm }: GetRaidsArgs): Promise<Raid[]> => {
         const boss = raid.bosses[i]!;
 
         // MoP
-        // remove Sul the Sandcrawler
-        if (boss.entry === 69078) {
-          raid.bosses = raid.bosses.filter((b) => b.entry !== 69078);
+        // remove Sul the Sandcrawler, Frost King Malakk and Kazra'jin
+        if (
+          boss.entry === 69131 ||
+          boss.entry === 69134 ||
+          boss.entry === 69078
+        ) {
+          raid.bosses = raid.bosses.filter(
+            (b) => b.entry !== 69131 && b.entry !== 69134 && b.entry !== 69078,
+          );
           continue;
         }
 
