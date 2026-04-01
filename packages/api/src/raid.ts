@@ -27,6 +27,20 @@ const getRaidsRaw = async ({ realm }: GetRaidsArgs): Promise<Raid[]> => {
         const boss = raid.bosses[i]!;
 
         // MoP
+        // remove Wavebinder Kardris
+        if (boss.entry === 71858) {
+          raid.bosses = raid.bosses.filter((b) => b.entry !== 71858);
+          continue;
+        }
+
+        // remove Rook Stonetoe, Sun Tenderheart
+        if (boss.entry === 71475 || boss.entry === 71480) {
+          raid.bosses = raid.bosses.filter(
+            (b) => b.entry !== 71475 && b.entry !== 71480,
+          );
+          continue;
+        }
+
         // remove Sul the Sandcrawler, Frost King Malakk and Kazra'jin
         if (
           boss.entry === 69131 ||
@@ -97,6 +111,23 @@ const getRaidsRaw = async ({ realm }: GetRaidsArgs): Promise<Raid[]> => {
 
       for (let i = 0; i < raid.bosses.length; ++i) {
         const boss = raid.bosses[i]!;
+
+        // MoP - SoO
+        if (boss.entry === 71858 || boss.entry === 71859) {
+          raid.bosses[i]!.name = "Kor'kron Dark Shaman";
+        }
+
+        if (boss.entry === 72276) {
+          raid.bosses[i]!.name = "Norushen";
+        }
+
+        if (
+          boss.entry === 71475 ||
+          boss.entry === 71479 ||
+          boss.entry === 71480
+        ) {
+          raid.bosses[i]!.name = "The Fallen Protectors";
+        }
 
         // MoP - ToT
         if (boss.entry === 68905 || boss.entry === 68904) {
