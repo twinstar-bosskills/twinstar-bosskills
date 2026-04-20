@@ -1,5 +1,8 @@
 import { withCache } from "@twinstar-bosskills/cache";
-import { realmToExpansion } from "@twinstar-bosskills/core/dist/realm";
+import {
+  REALM_KRONOS,
+  realmToExpansion,
+} from "@twinstar-bosskills/core/dist/realm";
 import { TWINSTAR_API_URL } from "./config";
 import { raidsSchema, type Raid } from "./schema";
 
@@ -21,7 +24,7 @@ const getRaidsRaw = async ({ realm }: GetRaidsArgs): Promise<Raid[]> => {
   try {
     const r = await fetch(url);
     const json = await r.json();
-    const raids: Raid[] = raidsSchema.parse(json);
+    let raids: Raid[] = raidsSchema.parse(json);
     for (const raid of raids) {
       for (let i = 0; i < raid.bosses.length; ++i) {
         const boss = raid.bosses[i]!;
@@ -33,11 +36,17 @@ const getRaidsRaw = async ({ realm }: GetRaidsArgs): Promise<Raid[]> => {
           continue;
         }
 
-        // remove Rook Stonetoe, Sun Tenderheart
-        if (boss.entry === 71475 || boss.entry === 71480) {
+        // remove Rook Stonetoe, He Softfoot, keep only Sun Tenderheart
+        if (boss.entry === 71475 || boss.entry === 71479) {
           raid.bosses = raid.bosses.filter(
-            (b) => b.entry !== 71475 && b.entry !== 71480,
+            (b) => b.entry !== 71475 && b.entry !== 71479,
           );
+          continue;
+        }
+
+        // remove Lu'lin, keep only Suen
+        if (boss.entry === 68904) {
+          raid.bosses = raid.bosses.filter((b) => b.entry !== 68904);
           continue;
         }
 
@@ -189,6 +198,22 @@ const getRaidsRaw = async ({ realm }: GetRaidsArgs): Promise<Raid[]> => {
           raid.bosses[i]!.name = "The Conclave of Wind";
         }
       }
+    }
+
+    if (realm.toLowerCase() === REALM_KRONOS.toLowerCase()) {
+      // keep only "real" raids
+      const VANILLA_RAIDS: Record<string, boolean> = {
+        "Molten Core": true,
+        "Onyxia's Lair": true,
+        "Blackwing Lair": true,
+        "Zul'Gurub": true,
+        "Ahn'Qiraj Temple": true,
+        "Ruins of Ahn'Qiraj": true,
+        Naxxramas: true,
+      };
+      return raids.filter(
+        (raid) => typeof VANILLA_RAIDS[raid.map] !== "undefined",
+      );
     }
 
     return raids;

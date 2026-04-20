@@ -25,7 +25,7 @@
 		talentSpecsByExpansion
 	} from '@twinstar-bosskills/core/dist/wow';
 	import { formatAvgItemLvl } from '@twinstar-bosskills/core/dist/number';
-	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+	import { expansionIsVanilla, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import { getDifficultyFromUrl } from '$lib/search-params';
 	import { STATS_TYPE_DMG, STATS_TYPE_HEAL, type StatsType } from '$lib/stats-type';
 	import { getTalentSpecIconUrl } from '@twinstar-bosskills/api/dist/talent';
@@ -211,7 +211,7 @@
 	</p>
 {/if}
 
-{#if data.realmIsPrivate === false}
+{#if data.realmIsPrivate === false && expansionIsVanilla(data.expansion) === false}
 	<h2>Top stats by spec</h2>
 	<div class="filter">
 		<ul>
@@ -267,21 +267,23 @@
 	</div>
 {/if}
 
-<h2>DPS by Talent Spec</h2>
-<BossPerformanceBoxChart
-	realm={data.realm}
-	width={data.windowInnerWidth}
-	field="dps"
-	aggregated={data.aggregated.dps}
-/>
+{#if expansionIsVanilla(data.expansion) === false}
+	<h2>DPS by Talent Spec</h2>
+	<BossPerformanceBoxChart
+		realm={data.realm}
+		width={data.windowInnerWidth}
+		field="dps"
+		aggregated={data.aggregated.dps}
+	/>
 
-<h2>HPS by Talent Spec</h2>
-<BossPerformanceBoxChart
-	realm={data.realm}
-	width={data.windowInnerWidth}
-	field="hps"
-	aggregated={data.aggregated.hps}
-/>
+	<h2>HPS by Talent Spec</h2>
+	<BossPerformanceBoxChart
+		realm={data.realm}
+		width={data.windowInnerWidth}
+		field="hps"
+		aggregated={data.aggregated.hps}
+	/>
+{/if}
 
 <style>
 	.filter ul li div {

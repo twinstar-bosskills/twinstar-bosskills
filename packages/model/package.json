@@ -14,7 +14,7 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "format": "prettier . --write src",
     "synchronize-with-api": "tsx ./src/cli/synchronize-with-api.ts",
-    "synchronize-with-api:today": "tsx ./src/cli/synchronize-with-api.ts --realms=Helios,Athena,Proudmoore --from-date=`date +'%Y-%m-%d'`",
+    "synchronize-with-api:today": "tsx ./src/cli/synchronize-with-api.ts --realms=Helios,Athena,Proudmoore,Kronos --from-date=`date +'%Y-%m-%d'`",
     "cache-character-boss-rankings": "tsx ./src/cli/cache-character-boss-rankings.ts",
     "cache-character-boss-kill-percentiles": "tsx ./src/cli/cache-character-boss-kill-percentiles.ts",
     "cache-raid-lock-rankings": "tsx ./src/cli/cache-raid-lock-rankings.ts"

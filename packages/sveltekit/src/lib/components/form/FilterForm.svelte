@@ -18,7 +18,11 @@
 		isRaidDifficulty,
 		talentSpecToString
 	} from '@twinstar-bosskills/core/dist/wow';
-	import { REALM_HELIOS, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+	import {
+		expansionIsVanilla,
+		REALM_HELIOS,
+		realmToExpansion
+	} from '@twinstar-bosskills/core/dist/realm';
 	import type { Data, Values } from '$lib/server/form/filter-form';
 	import Link from '../Link.svelte';
 	import SpecIcon from '../icon/SpecIcon.svelte';
@@ -108,24 +112,26 @@
 			</div>
 		</div>
 
-		<div class="item-container">
-			<div class="headline">Difficulty</div>
-			<div class="item difficulty">
-				{#each difficulties as diff}
-					<label for="diff_{diff.value}" class="item-group">
-						<input
-							type="checkbox"
-							id="diff_{diff.value}"
-							name="difficulty"
-							value={diff.value}
-							checked={diff.selected}
-							disabled={diff.disabled}
-						/>
-						<div>{diff.label}</div>
-					</label>
-				{/each}
+		{#if difficulties.length > 0}
+			<div class="item-container">
+				<div class="headline">Difficulty</div>
+				<div class="item difficulty">
+					{#each difficulties as diff}
+						<label for="diff_{diff.value}" class="item-group">
+							<input
+								type="checkbox"
+								id="diff_{diff.value}"
+								name="difficulty"
+								value={diff.value}
+								checked={diff.selected}
+								disabled={diff.disabled}
+							/>
+							<div>{diff.label}</div>
+						</label>
+					{/each}
+				</div>
 			</div>
-		</div>
+		{/if}
 
 		{#if specs.length}
 			<div class="item-container">

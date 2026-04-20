@@ -107,6 +107,7 @@
 				const { original } = row;
 				return cellComponent(Class, {
 					realm: data.realm,
+					expansion: data.expansion,
 					character: original
 				});
 			},

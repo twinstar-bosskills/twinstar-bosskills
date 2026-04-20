@@ -60,6 +60,7 @@
 				cell: ({ row }) => {
 					return cellComponent(Class, {
 						realm: data.realm,
+						expansion: data.expansion,
 						character: row.original.characters[0],
 						talentSpecHref: links.bossHistory(data.realm, boss.remote_id, {
 							difficulty: data.difficulty,

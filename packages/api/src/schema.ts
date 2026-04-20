@@ -198,10 +198,13 @@ export const characterSchema = z
     level: levelSchema,
     realm: z.string(),
     guildName: z.string(),
-    talents: z.object({
-      talentTree: z.array(z.object({ id: z.number() })),
-      activeTalentGroup: z.number(),
-    }),
+    talents: z
+      .object({
+        talentTree: z.array(z.object({ id: z.number() })),
+        activeTalentGroup: z.number(),
+      })
+      // hack for Kronos
+      .default({ talentTree: [], activeTalentGroup: 0 }),
   })
   .transform(characterTransform);
 export const charactersSchema = z.array(characterSchema);

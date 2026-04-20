@@ -1,4 +1,4 @@
-import { expansionIsCata, expansionIsMoP } from "./realm";
+import { expansionIsCata, expansionIsMoP, expansionIsVanilla } from "./realm";
 
 const DifficultyMoP = {
   DIFFICULTY_NONE: 0,
@@ -159,7 +159,8 @@ export const isRaidDifficultyWithLoot = (expansion: number, diff: number) => {
   if (expansionIsCata(expansion)) {
     return isRaidDifficultyCata(diff);
   }
-  return false;
+
+  return expansionIsVanilla(expansion);
 };
 enum Class {
   WARRIOR = 1,
@@ -326,15 +327,61 @@ export const TalentSpecCata = {
   WARLOCK_DESTO: 865,
 };
 
+export const TalentSpecVanilla = {
+  MAGE_ARCANE: 81,
+  MAGE_FIRE: 41,
+  MAGE_FROST: 61,
+
+  WARR_ARMS: 161,
+  WARR_FURY: 164,
+  WARR_PROT: 163,
+
+  PALADIN_HOLY: 382,
+  PALADIN_PROT: 383,
+  PALADIN_RET: 381,
+
+  DRUID_BALA: 283,
+  DRUID_FERAL: 281,
+  DRUID_RESTO: 282,
+
+  HUNTER_BM: 361,
+  HUNTER_MM: 363,
+  HUNTER_SURV: 362,
+
+  PRIEST_DISC: 201,
+  PRIEST_HOLY: 202,
+  PRIEST_SHADOW: 203,
+
+  ROGUE_ASSA: 182,
+  ROGUE_COMBAT: 181,
+  ROGUE_SUB: 183,
+
+  SHAMAN_ELE: 261,
+  SHAMAN_ENHA: 263,
+  SHAMAN_RESTO: 262,
+
+  WARLOCK_AFFLI: 302,
+  WARLOCK_DEMO: 303,
+  WARLOCK_DESTO: 301,
+};
+
 export const talentSpecsByExpansion = (
   expansion: number,
-): typeof TalentSpecMoP | typeof TalentSpecCata | null => {
+):
+  | typeof TalentSpecMoP
+  | typeof TalentSpecCata
+  | typeof TalentSpecVanilla
+  | null => {
   if (expansionIsMoP(expansion)) {
     return TalentSpecMoP;
   }
 
   if (expansionIsCata(expansion)) {
     return TalentSpecCata;
+  }
+
+  if (expansionIsVanilla(expansion)) {
+    return TalentSpecVanilla;
   }
 
   return null;

@@ -1,9 +1,29 @@
-import { expansionIsCata, realmToExpansion, realmToId } from '@twinstar-bosskills/core/dist/realm';
+import {
+	expansionIsCata,
+	expansionIsMoP,
+	expansionIsVanilla,
+	realmToExpansion,
+	realmToId
+} from '@twinstar-bosskills/core/dist/realm';
 
 type SearchParams = {
 	difficulty?: number | string;
 	spec?: number | string;
 	raidlock?: number | string;
+};
+const twprefix = (realm: string): string => {
+	const expansion = realmToExpansion(realm);
+
+	if (expansionIsMoP(expansion)) {
+		return 'mop-';
+	}
+	if (expansionIsCata(expansion)) {
+		return 'cata-';
+	}
+	if (expansionIsVanilla(expansion)) {
+		return 'vanilla-';
+	}
+	return '';
 };
 const withSearchParams = (url: string, query: SearchParams) => {
 	const p = new URLSearchParams();
@@ -45,25 +65,20 @@ const bossHistory = (realm: string, id: number, params: SearchParams = {}) => {
 };
 const bossKill = (realm: string, id: string) => `/${realm}/boss-kills/${id}`;
 const twinstarBossKill = (realm: string, id: string) => {
-	const expansion = realmToExpansion(realm);
 	const realmId = realmToId(realm);
 	const bkid = id.replace(`${realmId}_`, '');
 
-	return `https://${
-		expansionIsCata(expansion) ? 'cata' : 'mop'
-	}-twinhead.twinstar.cz/?boss-kill=${bkid}`;
+	return `https://${twprefix(realm)}twinhead.twinstar.cz/?boss-kill=${bkid}`;
 };
 export const twinstarArmory = (realm: string, name: string) =>
 	`https://armory.twinstar-wow.com/character?name=${name}&realm=${realm}`;
 export const twinstarNPC = (realm: string, id: number) => {
-	const expansion = realmToExpansion(realm);
-	return `https://${expansionIsCata(expansion) ? 'cata' : 'mop'}-twinhead.twinstar.cz/?npc=${id}`;
+	return `https://${twprefix(realm)}twinhead.twinstar.cz/?npc=${id}`;
 };
 export const twinstarGuild = (realm: string, guild: string) => {
-	const expansion = realmToExpansion(realm);
-	return `https://${
-		expansionIsCata(expansion) ? 'cata' : 'mop'
-	}-twinhead.twinstar.cz/?guild=${encodeURIComponent(guild)}&realm=${realm}`;
+	return `https://${twprefix}twinhead.twinstar.cz/?guild=${encodeURIComponent(
+		guild
+	)}&realm=${realm}`;
 };
 export const guildToken = (realm: string) => `/${realm}/guild-token`;
 export const links = {

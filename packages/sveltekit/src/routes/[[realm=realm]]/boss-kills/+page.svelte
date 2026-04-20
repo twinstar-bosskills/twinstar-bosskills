@@ -12,6 +12,7 @@
 	import { getPageFromURL, getPageSizeFromURL } from '$lib/pagination';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 	import type { PageData } from './$types';
+	import { expansionIsVanilla } from '@twinstar-bosskills/core/dist/realm';
 
 	export let data: PageData;
 
@@ -40,11 +41,15 @@
 			accessorFn: (row) => row.map,
 			header: () => 'Raid'
 		},
-		{
-			id: 'difficulty',
-			accessorFn: (row) => row.difficulty,
-			header: () => 'Difficulty'
-		},
+		...(expansionIsVanilla(data.expansion)
+			? []
+			: [
+					{
+						id: 'difficulty',
+						accessorFn: (row) => row.difficulty,
+						header: () => 'Difficulty'
+					} as ColumnDef<T>
+			  ]),
 		{
 			id: 'guild',
 			accessorFn: (row) => row.guild,

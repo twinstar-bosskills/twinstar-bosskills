@@ -4,7 +4,7 @@
 	import { links } from '$lib/links';
 	import { difficultyToString } from '@twinstar-bosskills/core/dist/wow';
 	import { getRaidIconUrl } from '@twinstar-bosskills/api/dist/raid';
-	import { realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
+	import { expansionIsVanilla, realmToExpansion } from '@twinstar-bosskills/core/dist/realm';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -32,16 +32,18 @@ Stats for raid lock {data.raidLockStart.toLocaleDateString()} - {data.raidLockEn
 						{data.bosskillsByRaid[raid.name] ?? 0}
 					</TextColorSuccess>
 					kills this raid lock
-					<div style="border-top: 1px solid rgba(var(--color-primary), 1); padding-top: 0.25rem;">
-						<ul>
-							{#each byDifficulty as [diff, total]}
-								<li>
-									{difficultyToString(expansion, diff)}
-									<TextColorSuccess>{total}</TextColorSuccess> times
-								</li>
-							{/each}
-						</ul>
-					</div>
+					{#if expansionIsVanilla(data.expansion) === false}
+						<div style="border-top: 1px solid rgba(var(--color-primary), 1); padding-top: 0.25rem;">
+							<ul>
+								{#each byDifficulty as [diff, total]}
+									<li>
+										{difficultyToString(expansion, diff)}
+										<TextColorSuccess>{total}</TextColorSuccess> times
+									</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
 				</div>
 			</div>
 			<div class="content">
@@ -62,14 +64,16 @@ Stats for raid lock {data.raidLockStart.toLocaleDateString()} - {data.raidLockEn
 									</TextColorSuccess>
 									kills
 								</span>
-								<div class="diff-distrib-list">
-									{#each byDifficulty as [diff, total]}
-										<div class="diff-distrib-item">
-											{difficultyToString(expansion, diff)}:
-											<TextColorSuccess>{total}</TextColorSuccess>
-										</div>
-									{/each}
-								</div>
+								{#if expansionIsVanilla(data.expansion) === false}
+									<div class="diff-distrib-list">
+										{#each byDifficulty as [diff, total]}
+											<div class="diff-distrib-item">
+												{difficultyToString(expansion, diff)}:
+												<TextColorSuccess>{total}</TextColorSuccess>
+											</div>
+										{/each}
+									</div>
+								{/if}
 							</li>
 						{/each}
 					</ol>

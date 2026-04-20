@@ -6,6 +6,7 @@
 	import SelectCharacter from '$lib/components/SelectCharacter.svelte';
 	import SelectRealm from '$lib/components/SelectRealm.svelte';
 	import { links } from '$lib/links';
+	import { expansionIsVanilla } from '@twinstar-bosskills/core/dist/realm';
 	import type { LayoutData } from './$types';
 	export let data: LayoutData;
 
@@ -38,9 +39,11 @@
 			<li>
 				<Link href={raidsLink} active={$page.url.pathname === raidsLink}>Raids</Link>
 			</li>
-			<li>
-				<Link href={ranksLink} active={$page.url.pathname === ranksLink}>Ranks</Link>
-			</li>
+			{#if expansionIsVanilla(data.expansion) === false}
+				<li>
+					<Link href={ranksLink} active={$page.url.pathname === ranksLink}>Ranks</Link>
+				</li>
+			{/if}
 		</ul>
 	</nav>
 
