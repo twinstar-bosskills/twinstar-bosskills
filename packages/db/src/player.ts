@@ -1,3 +1,6 @@
+import { raidLock } from "@twinstar-bosskills/core/dist/date";
+import { realmToExpansion } from "@twinstar-bosskills/core/dist/realm";
+import { getPerformaceDifficultiesByExpansion } from "@twinstar-bosskills/core/dist/wow";
 import { db } from ".";
 import { dps, hps } from "./boss-kill-player";
 import { Player } from "./types";
@@ -32,10 +35,6 @@ export const getPlayerByGuid = async ({
   return null;
 };
 
-import { raidLock } from "@twinstar-bosskills/core/dist/date";
-import { realmToExpansion } from "@twinstar-bosskills/core/dist/realm";
-import { getPerformaceDifficultiesByExpansion } from "@twinstar-bosskills/core/dist/wow";
-
 export type GetCharacterPerformanceTrendsArgs = {
   realm: string;
   guid: number;
@@ -62,6 +61,9 @@ export const getCharacterPerformanceTrends = async ({
 
   const expansion = realmToExpansion(realm);
   const diffs = getPerformaceDifficultiesByExpansion(expansion);
+  if (diffs.length === 0) {
+    return trends;
+  }
 
   try {
     const currentQb = db
